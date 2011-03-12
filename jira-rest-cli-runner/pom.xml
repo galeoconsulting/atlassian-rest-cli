@@ -7,15 +7,15 @@
 
     <parent>
         <groupId>com.blogspot.leonardinius</groupId>
-        <artifactId>jira-rest-cli-parent</artifactId>
+        <artifactId>jira-rest-output-parent</artifactId>
         <version>0.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.blogspot.leonardinius</groupId>
-    <artifactId>jira-rest-cli-runner</artifactId>
+    <artifactId>jira-rest-output-runner</artifactId>
     <packaging>atlassian-plugin</packaging>
 
-    <name>jira-rest-cli-runner</name>
+    <name>jira-rest-output-runner</name>
 
     <dependencies>
         <dependency>

@@ -5,8 +5,14 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
-    <rest key="runner-cli" name="REST Cli API" path="/rest-scripting" version="1.0"
+    <rest key="runner-output" name="REST Cli API" path="/rest-scripting" version="1.0"
           description="Provides REST CLI endpoints for ${project.name}.">
         <package>com.blogspot.leonardinius.rest.cli</package>
     </rest>
+
+    <component key="script-service" name="Script Service" public="true"
+               interface="com.blogspot.leonardinius.api.ScriptService"
+               class="com.blogspot.leonardinius.api.ScriptServiceImpl">
+        <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
+    </component>
 </atlassian-plugin>

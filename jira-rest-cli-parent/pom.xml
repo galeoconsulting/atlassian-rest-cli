@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blogspot.leonardinius</groupId>
-    <artifactId>jira-rest-cli-parent</artifactId>
+    <artifactId>jira-rest-output-parent</artifactId>
     <version>0.2-SNAPSHOT</version>
 
     <organization>
@@ -13,14 +13,14 @@
         <url>http://leonardinius.blogspot.com/</url>
     </organization>
 
-    <name>jira-rest-cli-parent</name>
+    <name>jira-rest-output-parent</name>
     <description>parent pom</description>
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:git://github.com:leonardinius/jira-rest-cli.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/leonardinius/jira-rest-cli.git</developerConnection>
-        <url>https://github.com/leonardinius/jira-rest-cli</url>
+        <connection>scm:git:git://github.com:leonardinius/jira-rest-output.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/leonardinius/jira-rest-output.git</developerConnection>
+        <url>https://github.com/leonardinius/jira-rest-output</url>
     </scm>
 
     <dependencyManagement>
@@ -72,6 +72,12 @@
                 <groupId>net.sourceforge.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>1.3.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>2.5.6.SEC01</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -131,10 +137,10 @@
     </properties>
 
     <modules>
-        <module>../jira-rest-cli-runner</module>
-        <module>../jira-rest-cli-groovy</module>
-        <module>../jira-rest-cli-jruby</module>
-        <module>../jira-rest-cli-javascript</module>
+        <module>../jira-rest-output-runner</module>
+        <module>../jira-rest-output-groovy</module>
+        <module>../jira-rest-output-jruby</module>
+        <module>../jira-rest-output-javascript</module>
     </modules>
 
 </project>
