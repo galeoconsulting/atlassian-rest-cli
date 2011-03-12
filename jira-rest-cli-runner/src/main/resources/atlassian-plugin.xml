@@ -2,6 +2,11 @@
     <plugin-info>
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
+
+    <rest key="runner-cli" name="REST Cli API" path="/rest-scripting" version="1.0"
+          description="Provides REST CLI endpoints for ${project.name}.">
+        <package>com.blogspot.leonardinius.rest.cli</package>
+    </rest>
 </atlassian-plugin>
