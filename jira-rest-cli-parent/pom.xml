@@ -10,7 +10,7 @@
     <version>0.1-SNAPSHOT</version>
 
     <organization>
-        <name>http://leonardinius.blogspot.com/</name>
+        <name>Coding paradigm: line by line</name>
         <url>http://leonardinius.blogspot.com/</url>
     </organization>
 
@@ -78,6 +78,7 @@
         <module>../jira-rest-cli-runner</module>
         <module>../jira-rest-cli-groovy</module>
         <module>../jira-rest-cli-jruby</module>
+        <module>../jira-rest-cli-javascript</module>
     </modules>
 
 </project>
