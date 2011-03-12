@@ -18,6 +18,12 @@
     <description>parent pom</description>
     <packaging>pom</packaging>
 
+    <scm>
+        <connection>scm:git:git://github.com:leonardinius/jira-rest-cli.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/leonardinius/jira-rest-cli.git</developerConnection>
+        <url>https://github.com/leonardinius/jira-rest-cli</url>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
