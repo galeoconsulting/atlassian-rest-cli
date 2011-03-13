@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.script.*;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -37,6 +34,7 @@ public class CLI
     private static final String FILENAME = "filename";
     private static final String ARGV = "argv";
     private static final String UNNAMED_SCRIPT = "<unnamed script>";
+    private static final String EMPTY_STRING = "";
 
     private final ScriptService scriptService;
 
@@ -86,8 +84,8 @@ public class CLI
 
     @POST
     @Path("/{" + SCRIPT_TYPE + "}")
-    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, @QueryParam(FILENAME) String filename,
-                            @QueryParam(SCRIPT_CODE) String script, @QueryParam(ARGV) String[] argv)
+    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, @QueryParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT)
+    String filename, @QueryParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script, @QueryParam(ARGV) String[] argv)
     {
         ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
         try
