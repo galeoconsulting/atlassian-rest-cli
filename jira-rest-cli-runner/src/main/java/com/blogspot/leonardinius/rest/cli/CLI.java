@@ -1,5 +1,6 @@
 package com.blogspot.leonardinius.rest.cli;
 
+import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.rest.api.util.ErrorCollection;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
@@ -155,7 +156,11 @@ public class CLI
 
     private Map<String, ?> makeGlobalScope()
     {
-        return Collections.emptyMap();
+        return new HashMap<String, Object>()
+        {{
+                put("log", LOG);
+                put("componentManager", ComponentManager.getInstance());
+            }};
     }
 
     private Map<String, ?> makeLocalScope()
