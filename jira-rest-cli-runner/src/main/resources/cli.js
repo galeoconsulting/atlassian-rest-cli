@@ -52,10 +52,10 @@ $(document).ready(function(){
                         var result = new Array();
                         result.push({msg : data.evalResult, className:"jquery-console-message-value"});
                         if(data.out && data.out != ""){
-                            result.push({msg : ["out: ", data.out].join(''), className:"jquery-console-message-out"});
+                            result.push({msg : ["out:\n", data.out].join(''), className:"jquery-console-message-out"});
                         }
                         if(data.err && data.err != ""){
-                            result.push({msg : ["err: ", data.err].join(''), className:"jquery-console-message-err"});
+                            result.push({msg : ["err:\n", data.err].join(''), className:"jquery-console-message-err"});
                         }
 
                         controller.continuedPrompt = false;
