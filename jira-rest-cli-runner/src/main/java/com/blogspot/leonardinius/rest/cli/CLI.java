@@ -3,6 +3,7 @@ package com.blogspot.leonardinius.rest.cli;
 import com.atlassian.jira.rest.api.util.ErrorCollection;
 import com.blogspot.leonardinius.api.ScriptService;
 import org.apache.commons.io.input.NullReader;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class CLI
     private static final String SCRIPT_CODE = "script";
     private static final String FILENAME = "filename";
     private static final String ARGV = "argv";
+    private static final String UNNAMED_SCRIPT = "<unnamed script>";
 
     private final ScriptService scriptService;
 
@@ -59,7 +61,7 @@ public class CLI
             }}), ScriptContext.ENGINE_SCOPE);
         context.setBindings(makeBindings(engine, globalScope), ScriptContext.GLOBAL_SCOPE);
 
-        context.setAttribute(ScriptEngine.FILENAME, filename, ScriptContext.ENGINE_SCOPE);
+        context.setAttribute(ScriptEngine.FILENAME, scriptName(filename), ScriptContext.ENGINE_SCOPE);
         context.setAttribute(ScriptEngine.ARGV, argv != null ? argv.clone() : new String[0], ScriptContext.ENGINE_SCOPE);
 
         context.setWriter(consoleOutputBean.getOut());
@@ -75,6 +77,11 @@ public class CLI
         Bindings bindings = engine.createBindings();
         bindings.putAll(scope);
         return bindings;
+    }
+
+    private String scriptName(String filename)
+    {
+        return StringUtils.defaultIfEmpty(filename, UNNAMED_SCRIPT);
     }
 
     @POST
