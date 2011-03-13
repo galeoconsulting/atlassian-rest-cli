@@ -5,6 +5,8 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
+    <resource type="i18n" name="i18n" location="i18n/messages"/>
+
     <rest key="runner-output" name="REST Cli API" path="/rest-scripting" version="1.0"
           description="Provides REST CLI endpoints for ${project.name}.">
         <package>com.blogspot.leonardinius.rest.cli</package>
@@ -15,4 +17,49 @@
                class="com.blogspot.leonardinius.api.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component>
+
+    <web-resource key="cli-js-css" name="jquery-console javascript and css resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="cli.css" location="cli.css">
+            <property key="content-type" value="text/css"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+
+        <resource type="download" name="jquery.console.js" location="jquery-console/jquery.console.js">
+            <property key="content-type" value="text/javascript"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+        <resource type="download" name="cli.js" location="cli.js">
+            <property key="content-type" value="text/javascript"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+    </web-resource>
+
+    <webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">
+        <actions>
+            <action name="com.blogspot.leonardinius.actions.CLIAction"
+                    alias="restCli">
+                <view name="input">/templates/input.vm</view>
+                <view name="success">/templates/input.vm</view>
+                <view name="error">/templates/input.vm</view>
+            </action>
+        </actions>
+    </webwork1>
+
+    <web-section key="cli-web-section" name="CLI Section" location="system.admin"
+                 system="true" weight="101">
+        <label key="cli.web.section.title"/>
+        <conditions type="OR">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
+        </conditions>
+    </web-section>
+
+    <web-item key="cli-runner-web-item" name="CLI Link" section="system.admin/cli-web-section"
+              weight="10">
+        <label key="cli.web.section.link"/>
+        <link linkId="rest_cli_runner">/secure/admin/restCli!default.jspa?atl_token=${atl_token}</link>
+        <conditions type="OR">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
+        </conditions>
+    </web-item>
 </atlassian-plugin>

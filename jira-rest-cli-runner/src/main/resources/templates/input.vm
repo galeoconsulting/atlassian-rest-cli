@@ -1,0 +1,2 @@
+$webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
+<div id="cli-holder"></div>
