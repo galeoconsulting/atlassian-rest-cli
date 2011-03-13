@@ -16,7 +16,7 @@
     <version>0.2-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
-    <name>jira-rest-cli-groovy</name>
+    <name>jira-rest-cli-javascript</name>
 
     <dependencies>
         <dependency>
