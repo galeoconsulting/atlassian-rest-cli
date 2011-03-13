@@ -9,7 +9,7 @@
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component-import>
 
-    <component key="groovy-registrar" name="Groovy Registrar" public="true"
+    <component key="jruby-registrar" name="Groovy Registrar" public="true"
                interface="com.blogspot.leonardinius.api.Registrar"
                class="com.blogspot.leonardinius.jruby.JRubyRegistrarImpl">
         <description>Provides jRuby on top of javax.script.ScriptEngineManager</description>
