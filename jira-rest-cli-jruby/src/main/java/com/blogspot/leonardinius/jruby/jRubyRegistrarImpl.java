@@ -2,17 +2,15 @@ package com.blogspot.leonardinius.jruby;
 
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.springframework.beans.factory.InitializingBean;
-
-import javax.script.ScriptEngine;
 
 /**
  * User: leonidmaslov
  * Date: 3/13/11
  * Time: 12:37 AM
  */
-public class jRubyRegistrarImpl implements Registrar, InitializingBean
+public class JRubyRegistrarImpl implements Registrar, InitializingBean
 {
 // ------------------------------ FIELDS ------------------------------
 
@@ -20,7 +18,7 @@ public class jRubyRegistrarImpl implements Registrar, InitializingBean
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public jRubyRegistrarImpl(ScriptService scriptService)
+    public JRubyRegistrarImpl(ScriptService scriptService)
     {
         this.scriptService = scriptService;
     }
@@ -33,18 +31,6 @@ public class jRubyRegistrarImpl implements Registrar, InitializingBean
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        GroovyScriptEngineFactory groovy = new GroovyScriptEngineFactory();
-        for (String extension : groovy.getExtensions())
-        {
-            scriptService.registerEngineExtension(extension, groovy);
-        }
-
-        for (String mime : groovy.getMimeTypes())
-        {
-            scriptService.registerEngineMime(mime, groovy);
-        }
-
-        scriptService.registerEngineLanguage(groovy.getLanguageName(), groovy);
-        scriptService.registerEngineLanguage((String) groovy.getParameter(ScriptEngine.NAME), groovy);
+        scriptService.defaultRegistration(new JRubyEngineFactory());
     }
 }
