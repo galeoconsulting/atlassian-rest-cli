@@ -12,17 +12,19 @@ public interface ScriptService
 {
 // -------------------------- OTHER METHODS --------------------------
 
+    void defaultRegistration(ScriptEngineFactory factory);
+
     ScriptEngine getEngineByExtension(String extension);
 
     ScriptEngine getEngineByLanguage(String language);
 
     ScriptEngine getEngineByMime(String mime);
 
+    Iterable<ScriptEngineFactory> getRegisteredScriptEngines();
+
     void registerEngineExtension(String extension, ScriptEngineFactory factory);
 
     void registerEngineLanguage(String language, ScriptEngineFactory factory);
 
     void registerEngineMime(String mime, ScriptEngineFactory factory);
-
-    void defaultRegistration(ScriptEngineFactory factory);
 }

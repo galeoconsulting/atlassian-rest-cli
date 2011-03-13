@@ -1,2 +1,10 @@
 $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
+<b>Please specify scripting language:</b>
+<select id="cli-language">
+ #foreach($lng in $action.registeredLanguages)
+  <option value="$textutil.htmlEncode($lng)">$textutil.htmlEncode($lng)</option>
+ #end
+</select>
+<br/>
+<br/>
 <div id="cli-holder"></div>
