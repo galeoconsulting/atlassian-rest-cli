@@ -27,13 +27,38 @@ public class CLIAction extends JiraWebActionSupport
 
 // -------------------------- OTHER METHODS --------------------------
 
-    public List<String> getRegisteredLanguages()
+    public List<LanguageBean> getRegisteredLanguages()
     {
-        List<String> list = Lists.newArrayList();
+        List<LanguageBean> list = Lists.newArrayList();
         for (ScriptEngineFactory factory : scriptService.getRegisteredScriptEngines())
         {
-            list.add(factory.getLanguageName() + " - " + factory.getLanguageVersion());
+            list.add(new LanguageBean(factory.getLanguageName(), factory.getLanguageVersion()));
         }
         return list;
+    }
+
+// -------------------------- INNER CLASSES --------------------------
+
+    public static class LanguageBean
+    {
+        private final String name;
+
+        private final String version;
+
+        public LanguageBean(String name, String version)
+        {
+            this.name = name;
+            this.version = version;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public String getVersion()
+        {
+            return version;
+        }
     }
 }

@@ -1,8 +1,11 @@
+<script>
+  window.restCliBaseUrl = "${requestContext.baseUrl}";
+</script>
 $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
 <b>Please specify scripting language:</b>
 <select id="cli-language">
  #foreach($lng in $action.registeredLanguages)
-  <option value="$action.htmlEncode($lng)">$action.htmlEncode($lng)</option>
+  <option value="$action.htmlEncode($lng.name)">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
  #end
 </select>
 <br/>
