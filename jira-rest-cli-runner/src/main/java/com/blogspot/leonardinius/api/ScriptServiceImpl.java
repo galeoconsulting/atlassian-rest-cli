@@ -32,7 +32,6 @@ public class ScriptServiceImpl implements ScriptService
 
 // --------------------- Interface ScriptService ---------------------
 
-
     @Override
     public ScriptEngine getEngineByExtension(String extension)
     {
@@ -70,5 +69,22 @@ public class ScriptServiceImpl implements ScriptService
     public void registerEngineMime(String extension, ScriptEngineFactory factory)
     {
         scriptEngineManager.registerEngineMimeType(checkNotNull(extension), checkNotNull(factory));
+    }
+
+    @Override
+    public void defaultRegistration(ScriptEngineFactory engineFactory)
+    {
+        for (String extension : engineFactory.getExtensions())
+        {
+            registerEngineExtension(extension, engineFactory);
+        }
+
+        for (String mime : engineFactory.getMimeTypes())
+        {
+            registerEngineMime(mime, engineFactory);
+        }
+
+        registerEngineLanguage(engineFactory.getLanguageName(), engineFactory);
+        registerEngineLanguage((String) engineFactory.getParameter(ScriptEngine.NAME), engineFactory);
     }
 }

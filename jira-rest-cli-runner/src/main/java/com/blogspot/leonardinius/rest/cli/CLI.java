@@ -40,7 +40,6 @@ public class CLI
     private static final String ARGV = "argv";
     private static final String UNNAMED_SCRIPT = "<unnamed script>";
     private static final String EMPTY_STRING = "";
-    private static final String NULL = null;
 
     private final ScriptService scriptService;
     private final JiraAuthenticationContext context;
@@ -70,7 +69,7 @@ public class CLI
         context.setBindings(makeBindings(engine, globalScope), ScriptContext.GLOBAL_SCOPE);
 
         context.setAttribute(ScriptEngine.FILENAME, scriptName(filename), ScriptContext.ENGINE_SCOPE);
-        context.setAttribute(ScriptEngine.ARGV, argv.toArray(new String[argv.size()]), ScriptContext.ENGINE_SCOPE);
+        context.setAttribute(ScriptEngine.ARGV, getArgvs(argv), ScriptContext.ENGINE_SCOPE);
 
         context.setWriter(consoleOutputBean.getOut());
         context.setErrorWriter(consoleOutputBean.getErr());
@@ -78,6 +77,11 @@ public class CLI
 
         consoleOutputBean.setEvalResult(engine.eval(script, context));
         return consoleOutputBean;
+    }
+
+    private Object getArgvs(List<String> argv)
+    {
+        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
     }
 
     private Bindings makeBindings(ScriptEngine engine, Map<String, ?> scope)
@@ -137,7 +141,7 @@ public class CLI
 
     private Response createResponse(final ConsoleOutputBean output)
     {
-        return Response.ok(output).cacheControl(NO_CACHE).build();
+        return Response.ok(new ConsoleOutputBeanWrapper(output)).cacheControl(NO_CACHE).build();
     }
 
     private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, List<String> argv) throws ScriptException

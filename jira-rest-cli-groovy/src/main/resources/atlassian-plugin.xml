@@ -12,6 +12,6 @@
     <component key="groovy-registrar" name="Groovy Registrar" public="true"
                interface="com.blogspot.leonardinius.api.Registrar"
                class="com.blogspot.leonardinius.groovy.GroovyRegistrarImpl">
-        <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
+        <description>Provides Groovy on top of javax.script.ScriptEngineManager</description>
     </component>
 </atlassian-plugin>

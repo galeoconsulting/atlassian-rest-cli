@@ -18,9 +18,11 @@ public interface ScriptService
 
     ScriptEngine getEngineByMime(String mime);
 
-    public void registerEngineExtension(String extension, ScriptEngineFactory factory);
+    void registerEngineExtension(String extension, ScriptEngineFactory factory);
 
-    public void registerEngineLanguage(String language, ScriptEngineFactory factory);
+    void registerEngineLanguage(String language, ScriptEngineFactory factory);
 
-    public void registerEngineMime(String mime, ScriptEngineFactory factory);
+    void registerEngineMime(String mime, ScriptEngineFactory factory);
+
+    void defaultRegistration(ScriptEngineFactory factory);
 }
