@@ -40,6 +40,7 @@ public class CLI
     private static final String ARGV = "argv";
     private static final String UNNAMED_SCRIPT = "<unnamed script>";
     private static final String EMPTY_STRING = "";
+    private static final String NULL = null;
 
     private final ScriptService scriptService;
     private final JiraAuthenticationContext context;
@@ -56,12 +57,12 @@ public class CLI
 
 // -------------------------- OTHER METHODS --------------------------
 
-    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, String[] argv, Map<String, ?> globalScope, Map<String, ?> localScope) throws ScriptException
+    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, List<String> argv, Map<String, ?> globalScope, Map<String, ?> localScope) throws ScriptException
     {
         final ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
 
         ScriptContext context = new SimpleScriptContext();
-        context.setBindings(makeBindings(engine, new HashMap<String, Object>()
+        context.setBindings(makeBindings(engine, new HashMap<String, Object>(localScope)
         {{
                 put("out", consoleOutputBean.getOut());
                 put("err", consoleOutputBean.getErr());
@@ -69,7 +70,7 @@ public class CLI
         context.setBindings(makeBindings(engine, globalScope), ScriptContext.GLOBAL_SCOPE);
 
         context.setAttribute(ScriptEngine.FILENAME, scriptName(filename), ScriptContext.ENGINE_SCOPE);
-        context.setAttribute(ScriptEngine.ARGV, argv != null ? argv.clone() : new String[0], ScriptContext.ENGINE_SCOPE);
+        context.setAttribute(ScriptEngine.ARGV, argv.toArray(new String[argv.size()]), ScriptContext.ENGINE_SCOPE);
 
         context.setWriter(consoleOutputBean.getOut());
         context.setErrorWriter(consoleOutputBean.getErr());
@@ -93,8 +94,10 @@ public class CLI
 
     @POST
     @Path("/{" + SCRIPT_TYPE + "}")
-    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, @QueryParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT)
-    String filename, @QueryParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script, @QueryParam(ARGV) String[] argv)
+    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage,
+                            @QueryParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT) String filename,
+                            @QueryParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script,
+                            @QueryParam(ARGV) List<String> argv)
     {
         if (!isAdministrator())
         {
@@ -137,7 +140,7 @@ public class CLI
         return Response.ok(output).cacheControl(NO_CACHE).build();
     }
 
-    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, String[] argv) throws ScriptException
+    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, List<String> argv) throws ScriptException
     {
         return eval(engine, filename, script, argv, makeGlobalScope(), makeLocalScope());
     }

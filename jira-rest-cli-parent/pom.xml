@@ -140,7 +140,6 @@
         <module>../jira-rest-cli-runner</module>
         <module>../jira-rest-cli-groovy</module>
         <module>../jira-rest-cli-jruby</module>
-        <module>../jira-rest-cli-javascript</module>
     </modules>
 
 </project>
