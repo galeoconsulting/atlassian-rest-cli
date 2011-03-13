@@ -102,9 +102,9 @@ public class CLI
     @POST
     @Path("/{" + SCRIPT_TYPE + "}")
     public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage,
-                            @QueryParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT) String filename,
-                            @QueryParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script,
-                            @QueryParam(ARGV) List<String> argv)
+                            @QueryParam(FILENAME) @FormParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT) String filename,
+                            @QueryParam(SCRIPT_CODE) @FormParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script,
+                            @QueryParam(ARGV) @FormParam(ARGV) List<String> argv)
     {
         if (!isAdministrator())
         {
