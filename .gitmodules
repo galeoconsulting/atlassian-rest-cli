@@ -1,0 +1,3 @@
+[submodule "jira-rest-cli-runner/src/main/resources/jquery-console"]
+	path = jira-rest-cli-runner/src/main/resources/jquery-console
+	url = https://github.com/chrisdone/jquery-console.git
