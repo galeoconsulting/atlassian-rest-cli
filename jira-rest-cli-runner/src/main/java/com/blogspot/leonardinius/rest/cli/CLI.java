@@ -160,6 +160,8 @@ public class CLI
         {{
                 put("log", LOG);
                 put("componentManager", ComponentManager.getInstance());
+                put("CLS", ComponentManager.getInstance().getClass().getClassLoader());
+                put("PCLS", this.getClass().getClassLoader());
             }};
     }
 
