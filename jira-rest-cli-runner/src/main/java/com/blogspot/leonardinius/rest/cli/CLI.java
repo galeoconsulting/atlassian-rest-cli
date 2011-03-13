@@ -1,7 +1,11 @@
 package com.blogspot.leonardinius.rest.cli;
 
 import com.atlassian.jira.rest.api.util.ErrorCollection;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.Permissions;
 import com.blogspot.leonardinius.api.ScriptService;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.input.NullReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -16,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
@@ -37,12 +42,16 @@ public class CLI
     private static final String EMPTY_STRING = "";
 
     private final ScriptService scriptService;
+    private final JiraAuthenticationContext context;
+    private final PermissionManager permissionManager;
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public CLI(ScriptService scriptService)
+    public CLI(ScriptService scriptService, JiraAuthenticationContext context, PermissionManager permissionManager)
     {
         this.scriptService = scriptService;
+        this.context = context;
+        this.permissionManager = permissionManager;
     }
 
 // -------------------------- OTHER METHODS --------------------------
@@ -87,6 +96,11 @@ public class CLI
     public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, @QueryParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT)
     String filename, @QueryParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script, @QueryParam(ARGV) String[] argv)
     {
+        if (!isAdministrator())
+        {
+            return createErrorResponse(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
+        }
+
         ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
         try
         {
@@ -96,6 +110,21 @@ public class CLI
         {
             return createErrorResponse(e);
         }
+    }
+
+    private boolean isAdministrator()
+    {
+        return context.getUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getUser());
+    }
+
+    private Response createErrorResponse(List<String> errorMessages)
+    {
+        ErrorCollection.Builder builder = ErrorCollection.builder();
+        for (String message : errorMessages)
+        {
+            builder = builder.addErrorMessage(message);
+        }
+        return Response.serverError().entity(builder.build()).cacheControl(NO_CACHE).build();
     }
 
     private ScriptEngine engineByLanguage(String language)
@@ -125,7 +154,7 @@ public class CLI
 
     private Response createErrorResponse(final Throwable th)
     {
-        return Response.serverError().entity(ErrorCollection.of(ExceptionUtils.getStackTrace(th))).cacheControl(NO_CACHE).build();
+        return createErrorResponse(ImmutableList.of(ExceptionUtils.getStackTrace(th)));
     }
 
 // -------------------------- INNER CLASSES --------------------------
