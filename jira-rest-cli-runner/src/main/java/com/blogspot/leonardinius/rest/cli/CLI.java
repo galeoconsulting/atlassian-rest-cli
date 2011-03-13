@@ -12,7 +12,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.script.*;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
@@ -60,7 +63,7 @@ public class CLI
     {
         final ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
 
-        ScriptContext context = new SimpleScriptContext();
+        final ScriptContext context = engine.getContext();
         context.setBindings(makeBindings(engine, new HashMap<String, Object>(localScope)
         {{
                 put("out", consoleOutputBean.getOut());
@@ -79,11 +82,6 @@ public class CLI
         return consoleOutputBean;
     }
 
-    private Object getArgvs(List<String> argv)
-    {
-        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
-    }
-
     private Bindings makeBindings(ScriptEngine engine, Map<String, ?> scope)
     {
         Bindings bindings = engine.createBindings();
@@ -94,6 +92,11 @@ public class CLI
     private String scriptName(String filename)
     {
         return StringUtils.defaultIfEmpty(filename, UNNAMED_SCRIPT);
+    }
+
+    private Object getArgvs(List<String> argv)
+    {
+        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
     }
 
     @POST
@@ -115,6 +118,7 @@ public class CLI
         }
         catch (ScriptException e)
         {
+            LOG.error("Script exception", e);
             return createErrorResponse(e);
         }
     }
