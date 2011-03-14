@@ -18,6 +18,20 @@
 
     <name>jira-rest-cli-groovy</name>
 
+    <repositories>
+        <repository>
+            <id>Codehaus</id>
+            <url>http://repository.codehaus.org</url>
+        </repository>
+        <repository>
+            <id>Codehaus.Snapshots</id>
+            <url>http://snapshots.repository.codehaus.org</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.blogspot.leonardinius</groupId>
@@ -49,6 +63,12 @@
             <artifactId>spring-beans</artifactId>
             <version>2.5.6.SEC01</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy.modules.http-builder</groupId>
+            <artifactId>http-builder</artifactId>
+            <version>0.5.1</version>
         </dependency>
     </dependencies>
 

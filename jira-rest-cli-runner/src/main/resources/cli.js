@@ -23,7 +23,7 @@ $(document).ready(function(){
 
                 $.ajax({
                     url         : AJS.format("{0}/rest/rest-scripting/1.0/cli/{1}", window.restCliBaseUrl, $("#cli-language").val()),
-                    data        : payload, //JSON.stringify(payload),
+                    data        : JSON.stringify(payload),
                     error       : function(XMLHttpRequest, textStatus, errorThrown)
                     {
                         var getErrorMessages = function (xhr) {
@@ -63,8 +63,8 @@ $(document).ready(function(){
                     },
                     type        : 'POST',
                     cache       : false,
-                    dataType    : 'json'
-                    //,contentType : 'application/json'
+                    dataType    : 'json',
+                    contentType : 'application/json'
                 });
                 return;
              }

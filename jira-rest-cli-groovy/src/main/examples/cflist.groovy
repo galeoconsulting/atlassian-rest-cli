@@ -1,5 +1,3 @@
-package examples
-
 //import com.atlassian.jira.issue.CustomFieldManager
 //import com.atlassian.jira.ComponentManager;
 

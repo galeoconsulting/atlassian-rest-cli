@@ -18,6 +18,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -102,10 +103,9 @@ public class CLI
 
     @POST
     @Path("/{" + SCRIPT_TYPE + "}")
-    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage,
-                            @QueryParam(FILENAME) @FormParam(FILENAME) @DefaultValue(UNNAMED_SCRIPT) String filename,
-                            @QueryParam(SCRIPT_CODE) @FormParam(SCRIPT_CODE) @DefaultValue(EMPTY_STRING) String script,
-                            @QueryParam(ARGV) @FormParam(ARGV) List<String> argv)
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, Script script)
     {
         if (!isAdministrator())
         {
@@ -115,11 +115,11 @@ public class CLI
         ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
         try
         {
-            return createResponse(eval(engine, filename, script, argv));
+            return createResponse(eval(engine, script.getFilename(), script.getScript(), script.getArgv()));
         }
         catch (ScriptException e)
         {
-            LOG.error("Script exception", e);
+            //LOG.error("Script exception", e);
             return createErrorResponse(e);
         }
     }
@@ -176,6 +176,47 @@ public class CLI
     }
 
 // -------------------------- INNER CLASSES --------------------------
+
+    @XmlRootElement
+    public static class Script
+    {
+        @XmlElement
+        private String script;
+        @XmlElement
+        private String filename;
+        @XmlElement
+        private List<String> argv;
+
+        public String getScript()
+        {
+            return script;
+        }
+
+        public void setScript(String script)
+        {
+            this.script = script;
+        }
+
+        public String getFilename()
+        {
+            return filename;
+        }
+
+        public void setFilename(String filename)
+        {
+            this.filename = filename;
+        }
+
+        public List<String> getArgv()
+        {
+            return argv;
+        }
+
+        public void setArgv(List<String> argv)
+        {
+            this.argv = argv;
+        }
+    }
 
     public static class ConsoleOutputBean
     {
