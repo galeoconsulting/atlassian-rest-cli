@@ -6,6 +6,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.blogspot.leonardinius.api.ScriptService;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.input.NullReader;
 import org.apache.commons.lang.StringUtils;
@@ -44,7 +45,6 @@ public class CLI
     private static final String FILENAME = "filename";
     private static final String ARGV = "argv";
     private static final String UNNAMED_SCRIPT = "<unnamed script>";
-    private static final String EMPTY_STRING = "";
 
     private final ScriptService scriptService;
     private final JiraAuthenticationContext context;
@@ -61,10 +61,8 @@ public class CLI
 
 // -------------------------- OTHER METHODS --------------------------
 
-    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, List<String> argv, Map<String, ?> globalScope, Map<String, ?> localScope) throws ScriptException
+    private void eval(final ConsoleOutputBean consoleOutputBean, ScriptEngine engine, String filename, String script, List<String> argv, Map<String, ?> globalScope, Map<String, ?> localScope) throws ScriptException
     {
-        final ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
-
         final ScriptContext context = engine.getContext();
         context.setBindings(makeBindings(engine, new HashMap<String, Object>(localScope)
         {{
@@ -81,7 +79,6 @@ public class CLI
         context.setReader(new NullReader(0));
 
         consoleOutputBean.setEvalResult(engine.eval(script, context));
-        return consoleOutputBean;
     }
 
     private Bindings makeBindings(ScriptEngine engine, Map<String, ?> scope)
@@ -113,14 +110,18 @@ public class CLI
         }
 
         ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
+        ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            return createResponse(eval(engine, script.getFilename(), script.getScript(), script.getArgv()));
+            eval(consoleOutputBean, engine, script.getFilename(), script.getScript(), script.getArgv());
+            return createResponse(consoleOutputBean);
         }
         catch (ScriptException e)
         {
             //LOG.error("Script exception", e);
-            return createErrorResponse(e);
+            return createErrorResponse(e,
+                    consoleOutputBean.getOutAsString(),
+                    consoleOutputBean.getErrAsString());
         }
     }
 
@@ -131,12 +132,26 @@ public class CLI
 
     private Response createErrorResponse(List<String> errorMessages)
     {
+        return makeEntityResponseRequest(createErrorCollection(errorMessages));
+    }
+
+    private <Entity> Response makeEntityResponseRequest(Entity entity)
+    {
+        return Response.serverError()
+                .entity(entity)
+                .cacheControl(NO_CACHE)
+
+                .build();
+    }
+
+    private ErrorCollection createErrorCollection(final Iterable<String> errorMessages)
+    {
         ErrorCollection.Builder builder = ErrorCollection.builder();
         for (String message : errorMessages)
         {
             builder = builder.addErrorMessage(message);
         }
-        return Response.serverError().entity(builder.build()).cacheControl(NO_CACHE).build();
+        return builder.build();
     }
 
     private ScriptEngine engineByLanguage(String language)
@@ -144,14 +159,9 @@ public class CLI
         return scriptService.getEngineByLanguage(language);
     }
 
-    private Response createResponse(final ConsoleOutputBean output)
+    private void eval(final ConsoleOutputBean consoleOutputBean, ScriptEngine engine, String filename, String script, List<String> argv) throws ScriptException
     {
-        return Response.ok(new ConsoleOutputBeanWrapper(output)).cacheControl(NO_CACHE).build();
-    }
-
-    private ConsoleOutputBean eval(ScriptEngine engine, String filename, String script, List<String> argv) throws ScriptException
-    {
-        return eval(engine, filename, script, argv, makeGlobalScope(), makeLocalScope());
+        eval(consoleOutputBean, engine, filename, script, argv, makeGlobalScope(), makeLocalScope());
     }
 
     private Map<String, ?> makeGlobalScope()
@@ -170,21 +180,83 @@ public class CLI
         return Collections.emptyMap();
     }
 
-    private Response createErrorResponse(final Throwable th)
+    private Response createResponse(final ConsoleOutputBean output)
     {
-        return createErrorResponse(ImmutableList.of(ExceptionUtils.getStackTrace(th)));
+        return Response.ok(new ConsoleOutputBeanWrapper(output)).cacheControl(NO_CACHE).build();
+    }
+
+    private Response createErrorResponse(final Throwable th, String out, String err)
+    {
+        return makeEntityResponseRequest(new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
     }
 
 // -------------------------- INNER CLASSES --------------------------
 
     @XmlRootElement
+    public static class ScriptErrors
+    {
+        @XmlElement(name = "errors")
+        private ErrorCollection errorCollection;
+
+        @XmlElement
+        private String out;
+
+        @XmlElement
+        private String err;
+
+        public ErrorCollection getErrorCollection()
+        {
+            return errorCollection;
+        }
+
+        public void setErrorCollection(ErrorCollection errorCollection)
+        {
+            this.errorCollection = errorCollection;
+        }
+
+        public String getOut()
+        {
+            return out;
+        }
+
+        public void setOut(String out)
+        {
+            this.out = out;
+        }
+
+        public String getErr()
+        {
+            return err;
+        }
+
+        public void setErr(String err)
+        {
+            this.err = err;
+        }
+
+        public ScriptErrors()
+        {
+        }
+
+        public ScriptErrors(ErrorCollection errorCollection, String out, String err)
+        {
+            this.errorCollection = errorCollection;
+            this.out = out;
+            this.err = err;
+        }
+    }
+
+    @XmlRootElement
     public static class Script
     {
-        @XmlElement
+        @XmlElement(name = SCRIPT_CODE)
         private String script;
-        @XmlElement
+
+        @XmlElement(name = FILENAME,
+                defaultValue = UNNAMED_SCRIPT)
         private String filename;
-        @XmlElement
+
+        @XmlElement(name = ARGV)
         private List<String> argv;
 
         public String getScript()
@@ -243,6 +315,23 @@ public class CLI
             return evalResult;
         }
 
+        private String asString(StringWriter sw)
+        {
+            return Preconditions.checkNotNull(sw, "Precondition failure: string writer is null")
+                    .getBuffer()
+                    .toString();
+        }
+
+        String getOutAsString()
+        {
+            return asString(getOut());
+        }
+
+        String getErrAsString()
+        {
+            return asString(getErr());
+        }
+
         public void setEvalResult(Object evalResult)
         {
             this.evalResult = evalResult;
@@ -290,7 +379,7 @@ public class CLI
 
         public ConsoleOutputBeanWrapper(ConsoleOutputBean bean)
         {
-            this(String.valueOf(bean.getEvalResult()), bean.getOut().getBuffer().toString(), bean.getErr().getBuffer().toString());
+            this(String.valueOf(bean.getEvalResult()), bean.getOutAsString(), bean.getErrAsString());
         }
 
         public String getEvalResult()

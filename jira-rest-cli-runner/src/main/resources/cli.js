@@ -20,27 +20,39 @@ $(document).ready(function(){
              if(e.ctrlKey){
 
                 var payload = {script : scriptText, argv: []};
+                var appendOutErr = function(result, data){
+                    if(data.out && data.out != ""){
+                        result.push({msg : ["OUT:\n", data.out].join(''), className:"jquery-console-message-out"});
+                    }
+                    if(data.err && data.err != ""){
+                        result.push({msg : ["ERR:\n", data.err].join(''), className:"jquery-console-message-err"});
+                    }
+                    return result;
+                }
 
                 $.ajax({
                     url         : AJS.format("{0}/rest/rest-scripting/1.0/cli/{1}", window.restCliBaseUrl, $("#cli-language").val()),
                     data        : JSON.stringify(payload),
                     error       : function(XMLHttpRequest, textStatus, errorThrown)
                     {
-                        var getErrorMessages = function (xhr) {
+                        var getScriptError = function (xhr) {
                            if(!xhr || !xhr.response) return null;
                            var data = xhr.response;
                            if(typeof data == 'string'){
                               data = $.parseJSON(data);
                            }
-                           if(data && data.errorMessages) return data.errorMessages;
+                           if(data && data.errors && data.errors.errorMessages) return data;
                            return null;
                         };
 
-                        var errorMessages = getErrorMessages(XMLHttpRequest);
-                        if(errorMessages && errorMessages.length > 0)
+                        var scriptError = getScriptError(XMLHttpRequest);
+                        if(scriptError && scriptError.errors.errorMessages.length > 0)
                         {
-                           reporter([{msg : "Error:" + errorMessages.join('\n'),
-                                      className:"jquery-console-message-error"}]);
+                           var result = [{msg : "Error:" + scriptError.errors.errorMessages.join('\n'),
+                                      className:"jquery-console-message-error"}];
+                           result = appendOutErr(result, scriptError);
+                           reporter(result);
+
                         }
                         else
                             alert(AJS.format("Status: {0}\nError: {1}", textStatus || '', errorThrown || 'none'));
@@ -51,12 +63,7 @@ $(document).ready(function(){
                     {
                         var result = new Array();
                         result.push({msg : data.evalResult, className:"jquery-console-message-value"});
-                        if(data.out && data.out != ""){
-                            result.push({msg : ["out:\n", data.out].join(''), className:"jquery-console-message-out"});
-                        }
-                        if(data.err && data.err != ""){
-                            result.push({msg : ["err:\n", data.err].join(''), className:"jquery-console-message-err"});
-                        }
+                        result = appendOutErr(result, data);
 
                         controller.continuedPrompt = false;
                         reporter(result);

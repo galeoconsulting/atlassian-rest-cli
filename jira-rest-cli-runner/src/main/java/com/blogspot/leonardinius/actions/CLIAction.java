@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import javax.script.ScriptEngineFactory;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,6 +38,15 @@ public class CLIAction extends JiraWebActionSupport
         {
             list.add(makeBean(factory));
         }
+
+        Collections.sort(list, new Comparator<LanguageBean>()
+        {
+            @Override
+            public int compare(LanguageBean o1, LanguageBean o2)
+            {
+                return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
+            }
+        });
         return list;
     }
 

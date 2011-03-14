@@ -2,13 +2,14 @@ package com.blogspot.leonardinius.api;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.DisposableBean;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
-import java.util.Set;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,25 +18,41 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 3/12/11
  * Time: 11:19 PM
  */
-public class ScriptServiceImpl implements ScriptService
+public class ScriptServiceImpl implements ScriptService, DisposableBean
 {
 // ------------------------------ FIELDS ------------------------------
 
-    private final ScriptEngineManager scriptEngineManager;
-    private final Set<ScriptEngineFactory> registeredEngines = Sets.newHashSet();
+    private static final Object DUMMY = new Object();
+
+    private ScriptEngineManager scriptEngineManager;
+
+    private final Map<ScriptEngineFactory, Object> registeredEngines = new WeakHashMap<ScriptEngineFactory, Object>();
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
     public ScriptServiceImpl()
     {
+        init();
+    }
+
+    private synchronized void init()
+    {
         this.scriptEngineManager = new ScriptEngineManager();
+        registeredEngines.clear();
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
 
 
-// --------------------- Interface ScriptService ---------------------
+// --------------------- Interface DisposableBean ---------------------
 
+    @Override
+    public void destroy() throws Exception
+    {
+        init();
+    }
+
+// --------------------- Interface ScriptService ---------------------
 
     @Override
     public void defaultRegistration(ScriptEngineFactory engineFactory)
@@ -54,7 +71,7 @@ public class ScriptServiceImpl implements ScriptService
         registerEngineLanguage((String) engineFactory.getParameter(ScriptEngine.NAME), engineFactory);
 
         // do not rely on the other methods
-        registeredEngines.add(engineFactory);
+        registeredEngines.put(engineFactory, DUMMY);
     }
 
     @Override
@@ -81,27 +98,27 @@ public class ScriptServiceImpl implements ScriptService
     @Override
     public Iterable<ScriptEngineFactory> getRegisteredScriptEngines()
     {
-        return ImmutableList.copyOf(registeredEngines);
+        return ImmutableList.copyOf(registeredEngines.keySet());
     }
 
     @Override
     public void registerEngineExtension(String extension, ScriptEngineFactory factory)
     {
         scriptEngineManager.registerEngineExtension(checkNotNull(extension), checkNotNull(factory));
-        registeredEngines.add(factory);
+        registeredEngines.put(factory, DUMMY);
     }
 
     @Override
     public void registerEngineLanguage(String language, ScriptEngineFactory factory)
     {
         scriptEngineManager.registerEngineName(checkNotNull(language), checkNotNull(factory));
-        registeredEngines.add(factory);
+        registeredEngines.put(factory, DUMMY);
     }
 
     @Override
     public void registerEngineMime(String extension, ScriptEngineFactory factory)
     {
         scriptEngineManager.registerEngineMimeType(checkNotNull(extension), checkNotNull(factory));
-        registeredEngines.add(factory);
+        registeredEngines.put(factory, DUMMY);
     }
 }
