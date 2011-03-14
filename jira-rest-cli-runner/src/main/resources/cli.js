@@ -2,12 +2,20 @@
 $(document).ready(function(){
     var logger = window.console;
 
+    var tryIt = function(f, defValue) {
+        try{
+            return f();
+        } catch(e){
+            return defValue;
+        }
+    };
+
     var console = $('<div class="console">');
     $('#cli-holder').append(console);
     var controller = console.console({
         welcomeMessage          : 'Jira REST Cli console. Click Control-enter to evaluate.',
         promptLabel             : 'cli> ',
-        continuedPromptLabel    : '    > ',
+        continuedPromptLabel    : ' ==> ',
         promptHistory           : true,
         autofocus               : true,
         animateScroll           : true,
@@ -55,7 +63,10 @@ $(document).ready(function(){
 
                         }
                         else
-                            alert(AJS.format("Status: {0}\nError: {1}", textStatus || '', errorThrown || 'none'));
+                            alert(AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
+                                textStatus || '',
+                                errorThrown || '',
+                                tryIt(function(){ return  XMLHttpRequest.status; }, 'Unknown')));
                         controller.continuedPrompt = false;
                         reporter();
                     },

@@ -11,7 +11,7 @@ def PrintStream out = System.out
 
 def (proto, host, port, context) = ["http", "localhost", 2990, "jira/"]
 
-def url = "${proto}://${host}:${port}/${context}rest/rest-scripting/1.0/cli/groovy"
+def url = "${proto}://${host}:${port}/${context}rest/rest-scripting/1.0/execute/groovy"
 
 RESTClient client = new RESTClient(url)
 //client.auth.basic("admin", "admin")

@@ -1,4 +1,4 @@
-package com.blogspot.leonardinius.rest.cli;
+package com.blogspot.leonardinius.rest;
 
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.rest.api.util.ErrorCollection;
@@ -28,31 +28,30 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-@Path("/cli")
-public class CLI
+@Path("/")
+public class ScriptRunner
 {
 // ------------------------------ FIELDS ------------------------------
 
-    private static final Logger LOG = LoggerFactory.getLogger(CLI.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScriptRunner.class);
 
-    private static final String SCRIPT_TYPE = "language";
-    private static final String SCRIPT_CODE = "script";
-    private static final String FILENAME = "filename";
-    private static final String ARGV = "argv";
-    private static final String UNNAMED_SCRIPT = "<unnamed script>";
+    private static final String CLI_SESSION_ID = "Rest-jsr223-Cli-Session-Id";
 
     private final ScriptService scriptService;
     private final JiraAuthenticationContext context;
+
     private final PermissionManager permissionManager;
+    private final AtomicLong sessionCounter = new AtomicLong(0);
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public CLI(ScriptService scriptService, JiraAuthenticationContext context, PermissionManager permissionManager)
+    public ScriptRunner(ScriptService scriptService, JiraAuthenticationContext context, PermissionManager permissionManager)
     {
         this.scriptService = scriptService;
         this.context = context;
@@ -61,65 +60,27 @@ public class CLI
 
 // -------------------------- OTHER METHODS --------------------------
 
-    private void eval(final ConsoleOutputBean consoleOutputBean, ScriptEngine engine, String filename, String script, List<String> argv, Map<String, ?> globalScope, Map<String, ?> localScope) throws ScriptException
-    {
-        final ScriptContext context = engine.getContext();
-        context.setBindings(makeBindings(engine, new HashMap<String, Object>(localScope)
-        {{
-                put("out", consoleOutputBean.getOut());
-                put("err", consoleOutputBean.getErr());
-            }}), ScriptContext.ENGINE_SCOPE);
-        context.setBindings(makeBindings(engine, globalScope), ScriptContext.GLOBAL_SCOPE);
-
-        context.setAttribute(ScriptEngine.FILENAME, scriptName(filename), ScriptContext.ENGINE_SCOPE);
-        context.setAttribute(ScriptEngine.ARGV, getArgvs(argv), ScriptContext.ENGINE_SCOPE);
-
-        context.setWriter(consoleOutputBean.getOut());
-        context.setErrorWriter(consoleOutputBean.getErr());
-        context.setReader(new NullReader(0));
-
-        consoleOutputBean.setEvalResult(engine.eval(script, context));
-    }
-
-    private Bindings makeBindings(ScriptEngine engine, Map<String, ?> scope)
-    {
-        Bindings bindings = engine.createBindings();
-        bindings.putAll(scope);
-        return bindings;
-    }
-
-    private String scriptName(String filename)
-    {
-        return StringUtils.defaultIfEmpty(filename, UNNAMED_SCRIPT);
-    }
-
-    private Object getArgvs(List<String> argv)
-    {
-        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
-    }
-
     @POST
-    @Path("/{" + SCRIPT_TYPE + "}")
+    @Path("/cli/{" + "language" + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response execute(@PathParam(SCRIPT_TYPE) final String scriptLanguage, Script script)
+    public Response cli(@PathParam("language") final String scriptLanguage, Script script)
     {
         if (!isAdministrator())
         {
-            return createErrorResponse(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
+            return responseInternalError(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
         }
 
-        ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            eval(consoleOutputBean, engine, script.getFilename(), script.getScript(), script.getArgv());
-            return createResponse(consoleOutputBean);
+            ScriptEngine engine = createScriptEngine(scriptLanguage, script);
+            return responseEvalOk(eval(engine, script, consoleOutputBean));
         }
         catch (ScriptException e)
         {
             //LOG.error("Script exception", e);
-            return createErrorResponse(e,
+            return responseScriptError(e,
                     consoleOutputBean.getOutAsString(),
                     consoleOutputBean.getErrAsString());
         }
@@ -130,7 +91,7 @@ public class CLI
         return context.getUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getUser());
     }
 
-    private Response createErrorResponse(List<String> errorMessages)
+    private Response responseInternalError(List<String> errorMessages)
     {
         return makeEntityResponseRequest(createErrorCollection(errorMessages));
     }
@@ -154,40 +115,99 @@ public class CLI
         return builder.build();
     }
 
+    private ScriptEngine createScriptEngine(String scriptLanguage, Script script)
+    {
+        ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
+
+        updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
+        {{
+                put("log", LOG);
+                put("componentManager", ComponentManager.getInstance());
+                put("self", this.getClass().getClassLoader());
+            }});
+
+        engine.getContext().setAttribute(ScriptEngine.FILENAME, scriptName(script.getFilename()), ScriptContext.ENGINE_SCOPE);
+        engine.getContext().setAttribute(ScriptEngine.ARGV, getArgvs(script.getArgv()), ScriptContext.ENGINE_SCOPE);
+
+        return engine;
+    }
+
     private ScriptEngine engineByLanguage(String language)
     {
         return scriptService.getEngineByLanguage(language);
     }
 
-    private void eval(final ConsoleOutputBean consoleOutputBean, ScriptEngine engine, String filename, String script, List<String> argv) throws ScriptException
+    private void updateBindings(ScriptEngine engine, int scope, Map<String, ?> mergeValues)
     {
-        eval(consoleOutputBean, engine, filename, script, argv, makeGlobalScope(), makeLocalScope());
+        Bindings bindings = engine.getContext().getBindings(scope);
+        if (bindings == null)
+        {
+            bindings = engine.createBindings();
+            engine.getContext().setBindings(bindings, scope);
+        }
+        bindings.putAll(mergeValues);
     }
 
-    private Map<String, ?> makeGlobalScope()
+    private String scriptName(String filename)
     {
-        return new HashMap<String, Object>()
-        {{
-                put("log", LOG);
-                put("componentManager", ComponentManager.getInstance());
-                put("CLS", ComponentManager.getInstance().getClass().getClassLoader());
-                put("PCLS", this.getClass().getClassLoader());
-            }};
+        return StringUtils.defaultIfEmpty(filename, "<unnamed script>");
     }
 
-    private Map<String, ?> makeLocalScope()
+    private Object getArgvs(List<String> argv)
     {
-        return Collections.emptyMap();
+        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
     }
 
-    private Response createResponse(final ConsoleOutputBean output)
+    private Response responseEvalOk(final ConsoleOutputBean output)
     {
         return Response.ok(new ConsoleOutputBeanWrapper(output)).cacheControl(NO_CACHE).build();
     }
 
-    private Response createErrorResponse(final Throwable th, String out, String err)
+    private ConsoleOutputBean eval(ScriptEngine engine, Script script, final ConsoleOutputBean consoleOutputBean) throws ScriptException
+    {
+        updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
+        {{
+                put("out", consoleOutputBean.getOut());
+                put("err", consoleOutputBean.getErr());
+            }});
+        engine.getContext().setWriter(consoleOutputBean.getOut());
+        engine.getContext().setErrorWriter(consoleOutputBean.getErr());
+        engine.getContext().setReader(new NullReader(0));
+
+        consoleOutputBean.setEvalResult(engine.eval(script.getScript(), engine.getContext()));
+
+        return consoleOutputBean;
+    }
+
+    private Response responseScriptError(final Throwable th, String out, String err)
     {
         return makeEntityResponseRequest(new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
+    }
+
+    @POST
+    @Path("/execute/{" + "language" + "}")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    public Response execute(@PathParam("language") final String scriptLanguage, Script script)
+    {
+        if (!isAdministrator())
+        {
+            return responseInternalError(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
+        }
+
+        ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
+        try
+        {
+            ScriptEngine engine = createScriptEngine(scriptLanguage, script);
+            return responseEvalOk(eval(engine, script, consoleOutputBean));
+        }
+        catch (ScriptException e)
+        {
+            //LOG.error("Script exception", e);
+            return responseScriptError(e,
+                    consoleOutputBean.getOutAsString(),
+                    consoleOutputBean.getErrAsString());
+        }
     }
 
 // -------------------------- INNER CLASSES --------------------------
@@ -249,14 +269,13 @@ public class CLI
     @XmlRootElement
     public static class Script
     {
-        @XmlElement(name = SCRIPT_CODE)
+        @XmlElement
         private String script;
 
-        @XmlElement(name = FILENAME,
-                defaultValue = UNNAMED_SCRIPT)
+        @XmlElement
         private String filename;
 
-        @XmlElement(name = ARGV)
+        @XmlElement
         private List<String> argv;
 
         public String getScript()

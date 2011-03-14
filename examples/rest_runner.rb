@@ -3,7 +3,7 @@ require 'json'
 
 (proto, host, port, context) = ["http", "localhost", 2990, "jira/"]
 
-url = "#{proto}://#{host}:#{port}/#{context}rest/rest-scripting/1.0/cli/groovy"
+url = "#{proto}://#{host}:#{port}/#{context}rest/rest-scripting/1.0/execute/groovy"
 
 
 script = File.new(Dir.pwd + "/" + "cli_script.groovy").read

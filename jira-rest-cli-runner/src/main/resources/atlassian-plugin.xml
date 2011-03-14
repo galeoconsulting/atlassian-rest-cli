@@ -9,7 +9,7 @@
 
     <rest key="runner-output" name="REST Cli API" path="/rest-scripting" version="1.0"
           description="Provides REST CLI endpoints for ${project.name}.">
-        <package>com.blogspot.leonardinius.rest.cli</package>
+        <package>com.blogspot.leonardinius.rest</package>
     </rest>
 
     <component key="script-service" name="Script Service" public="true"
