@@ -9,7 +9,7 @@
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component-import>
 
-    <component key="groovy-registrar" name="Groovy Registrar" public="true"
+    <component key="groovy-registrar" name="Groovy Registrar" public="false"
                interface="com.blogspot.leonardinius.api.Registrar"
                class="com.blogspot.leonardinius.groovy.GroovyRegistrarImpl">
         <description>Provides Groovy on top of javax.script.ScriptEngineManager</description>

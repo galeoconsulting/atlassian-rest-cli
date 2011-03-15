@@ -1,5 +1,6 @@
-package com.blogspot.leonardinius.api;
+package com.blogspot.leonardinius.api.impl;
 
+import com.blogspot.leonardinius.api.ScriptService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;

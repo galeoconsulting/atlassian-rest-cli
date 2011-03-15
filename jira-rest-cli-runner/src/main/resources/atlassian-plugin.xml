@@ -14,8 +14,13 @@
 
     <component key="script-service" name="Script Service" public="true"
                interface="com.blogspot.leonardinius.api.ScriptService"
-               class="com.blogspot.leonardinius.api.ScriptServiceImpl">
+               class="com.blogspot.leonardinius.api.impl.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
+    </component>
+    <component key="rhino-registrar" name="Groovy Registrar" public="false"
+               interface="com.blogspot.leonardinius.api.Registrar"
+               class="com.blogspot.leonardinius.api.impl.RhinoRegistrarImpl">
+        <description>Provides Rhino on top of javax.script.ScriptEngineManager</description>
     </component>
 
     <web-resource key="cli-js-css" name="jquery-console javascript and css resources">
