@@ -19,7 +19,6 @@ public class CLIAction extends JiraWebActionSupport
 {
 // ------------------------------ FIELDS ------------------------------
 
-    private static final String JRUBY_1_5_6 = "jruby 1.5.6";
     private final ScriptService scriptService;
 
 // --------------------------- CONSTRUCTORS ---------------------------
@@ -53,11 +52,17 @@ public class CLIAction extends JiraWebActionSupport
     private LanguageBean makeBean(ScriptEngineFactory factory)
     {
         String version = factory.getLanguageVersion();
-        if (StringUtils.containsIgnoreCase(version, JRUBY_1_5_6))
+        if (StringUtils.containsIgnoreCase(version, "jruby 1.5.6"))
         {
-            version = JRUBY_1_5_6;
+            version = "jruby 1.5.6";
         }
-        return new LanguageBean(StringUtils.capitalize(factory.getLanguageName()), version);
+        String languageName = factory.getLanguageName();
+        if ("ECMAScript".equals(languageName)
+                && factory.getNames().contains("JavaScript"))
+        {
+            languageName = "JavaScript";
+        }
+        return new LanguageBean(StringUtils.capitalize(languageName), version);
     }
 
 // -------------------------- INNER CLASSES --------------------------
