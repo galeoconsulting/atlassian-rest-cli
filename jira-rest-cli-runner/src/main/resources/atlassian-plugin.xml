@@ -42,7 +42,7 @@
 
     <webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">
         <actions>
-            <action name="com.blogspot.leonardinius.actions.CLIAction"
+            <action name="com.blogspot.leonardinius.actions.CliAction"
                     alias="restCli">
                 <view name="input">/templates/input.vm</view>
                 <view name="success">/templates/input.vm</view>

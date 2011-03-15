@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 3/13/11
  * Time: 11:34 AM
  */
-public class CLIAction extends JiraWebActionSupport
+public class CliAction extends JiraWebActionSupport
 {
 // ------------------------------ FIELDS ------------------------------
 
@@ -23,7 +23,7 @@ public class CLIAction extends JiraWebActionSupport
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public CLIAction(ScriptService scriptService)
+    public CliAction(ScriptService scriptService)
     {
         this.scriptService = scriptService;
     }
