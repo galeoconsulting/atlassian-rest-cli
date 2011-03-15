@@ -25,7 +25,10 @@ $(document).ready(function(){
         },
 
         commandHandle           : function(scriptText, reporter,e){
-             if(e.ctrlKey){
+             var continuePrompt = function(enable){ controller.continuedPrompt = enable; };
+
+             if(e.ctrlKey)
+             {
 
                 var appendOutErr = function(result, data){
                     if(data.out && data.out != ""){
@@ -36,8 +39,6 @@ $(document).ready(function(){
                     }
                     return result;
                 }
-
-                var continuePrompt = function(enable){ controller.continuedPrompt = enable; };
 
                 var payload = {script : scriptText, argv: []};
 
