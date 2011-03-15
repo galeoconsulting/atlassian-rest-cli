@@ -5,14 +5,19 @@ import com.atlassian.jira.rest.api.util.ErrorCollection;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.util.dbc.Assertions;
+import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
-import com.google.common.base.Preconditions;
+import com.blogspot.leonardinius.api.ScriptSessionManager;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.input.NullReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -23,56 +28,78 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Path("/")
-public class ScriptRunner
+public class ScriptRunner implements DisposableBean
 {
 // ------------------------------ FIELDS ------------------------------
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptRunner.class);
+    private static final String LANGUAGE = "language";
+    private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
+    private static final String SESSION_ID = "sessionId";
 
     private final ScriptService scriptService;
-    private final JiraAuthenticationContext context;
+    private final ScriptSessionManager sessionManager;
 
+    private final JiraAuthenticationContext context;
     private final PermissionManager permissionManager;
-    private final AtomicLong sessionCounter = new AtomicLong(0);
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public ScriptRunner(ScriptService scriptService, JiraAuthenticationContext context, PermissionManager permissionManager)
+    public ScriptRunner(final ScriptService scriptService, final JiraAuthenticationContext context,
+                        final PermissionManager permissionManager, ScriptSessionManager sessionManager)
     {
         this.scriptService = scriptService;
         this.context = context;
         this.permissionManager = permissionManager;
+        this.sessionManager = sessionManager;
+    }
+
+// ------------------------ INTERFACE METHODS ------------------------
+
+
+// --------------------- Interface DisposableBean ---------------------
+
+    @Override
+    public void destroy() throws Exception
+    {
+        sessionManager.clear();
     }
 
 // -------------------------- OTHER METHODS --------------------------
 
     @POST
-    @Path("/cli/{" + "language" + "}")
+    @Path("/cli")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response cli(@PathParam("language") final String scriptLanguage, Script script)
+    public Response cli(@PathParam("sessionId") final String sessionId, Script script)
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
+            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+        }
+
+        ScriptEngine engine;
+        try
+        {
+            engine = Assertions.notNull("Session instance", sessionManager.getSession(sessionId));
+        }
+        catch (IllegalArgumentException e)
+        {
+            return responseInternalError(Arrays.asList((e.getMessage())));
         }
 
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            ScriptEngine engine = createScriptEngine(scriptLanguage, script);
             return responseEvalOk(eval(engine, script, consoleOutputBean));
         }
         catch (ScriptException e)
@@ -91,10 +118,10 @@ public class ScriptRunner
 
     private Response responseInternalError(List<String> errorMessages)
     {
-        return makeEntityResponseRequest(createErrorCollection(errorMessages));
+        return responseError(createErrorCollection(errorMessages));
     }
 
-    private <Entity> Response makeEntityResponseRequest(Entity entity)
+    private <Entity> Response responseError(Entity entity)
     {
         return Response.serverError()
                 .entity(entity)
@@ -111,6 +138,103 @@ public class ScriptRunner
             builder = builder.addErrorMessage(message);
         }
         return builder.build();
+    }
+
+    private Response responseEvalOk(final ConsoleOutputBean output)
+    {
+        return responseOk(new ConsoleOutputBeanWrapper(output));
+    }
+
+    private <Entity> Response responseOk(Entity entity)
+    {
+        return Response.ok(entity).cacheControl(NO_CACHE).build();
+    }
+
+    private ConsoleOutputBean eval(ScriptEngine engine, Script script, final ConsoleOutputBean consoleOutputBean) throws ScriptException
+    {
+        updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
+        {{
+                put("out", new PrintWriter(consoleOutputBean.getOut()));
+                put("err", new PrintWriter(consoleOutputBean.getErr()));
+            }});
+        engine.getContext().setWriter(consoleOutputBean.getOut());
+        engine.getContext().setErrorWriter(consoleOutputBean.getErr());
+        engine.getContext().setReader(new NullReader(0));
+
+        consoleOutputBean.setEvalResult(engine.eval(script.getScript(), engine.getContext()));
+
+        return consoleOutputBean;
+    }
+
+    private void updateBindings(ScriptEngine engine, int scope, Map<String, ?> mergeValues)
+    {
+        Bindings bindings = engine.getContext().getBindings(scope);
+        if (bindings == null)
+        {
+            bindings = engine.createBindings();
+            engine.getContext().setBindings(bindings, scope);
+        }
+        bindings.putAll(mergeValues);
+    }
+
+    private Response responseScriptError(final Throwable th, String out, String err)
+    {
+        return responseOk(
+                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
+    }
+
+    @DELETE
+    @Path("/sessions/id/{" + SESSION_ID + "}")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    public Response deleteSession(@QueryParam(SESSION_ID) String sessionId)
+    {
+        if (!isAdministrator())
+        {
+            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+        }
+
+        if (sessionManager.removeSession(sessionId) == null)
+        {
+            return Response.noContent().cacheControl(NO_CACHE).build();
+        }
+
+        return Response.ok().cacheControl(NO_CACHE).build();
+    }
+
+    @POST
+    @Path("/execute/{" + LANGUAGE + "}")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    public Response execute(@PathParam(LANGUAGE) final String scriptLanguage, Script script)
+    {
+        if (!isAdministrator())
+        {
+            return responseInternalError(Arrays.asList(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+        }
+
+        ScriptEngine engine;
+        try
+        {
+            engine = createScriptEngine(scriptLanguage, script);
+        }
+        catch (IllegalArgumentException e)
+        {
+            return responseInternalError(Arrays.asList((e.getMessage())));
+        }
+
+        ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
+        try
+        {
+            return responseEvalOk(eval(engine, script, consoleOutputBean));
+        }
+        catch (ScriptException e)
+        {
+            //LOG.error("Script exception", e);
+            return responseScriptError(e,
+                    consoleOutputBean.getOutAsString(),
+                    consoleOutputBean.getErrAsString());
+        }
     }
 
     private ScriptEngine createScriptEngine(String scriptLanguage, Script script)
@@ -134,17 +258,6 @@ public class ScriptRunner
         return scriptService.getEngineByLanguage(language);
     }
 
-    private void updateBindings(ScriptEngine engine, int scope, Map<String, ?> mergeValues)
-    {
-        Bindings bindings = engine.getContext().getBindings(scope);
-        if (bindings == null)
-        {
-            bindings = engine.createBindings();
-            engine.getContext().setBindings(bindings, scope);
-        }
-        bindings.putAll(mergeValues);
-    }
-
     private String scriptName(String filename)
     {
         return StringUtils.defaultIfEmpty(filename, "<unnamed script>");
@@ -155,57 +268,53 @@ public class ScriptRunner
         return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
     }
 
-    private Response responseEvalOk(final ConsoleOutputBean output)
-    {
-        return Response.ok(new ConsoleOutputBeanWrapper(output)).cacheControl(NO_CACHE).build();
-    }
-
-    private ConsoleOutputBean eval(ScriptEngine engine, Script script, final ConsoleOutputBean consoleOutputBean) throws ScriptException
-    {
-        updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
-        {{
-                put("out", consoleOutputBean.getOut());
-                put("err", consoleOutputBean.getErr());
-            }});
-        engine.getContext().setWriter(consoleOutputBean.getOut());
-        engine.getContext().setErrorWriter(consoleOutputBean.getErr());
-        engine.getContext().setReader(new NullReader(0));
-
-        consoleOutputBean.setEvalResult(engine.eval(script.getScript(), engine.getContext()));
-
-        return consoleOutputBean;
-    }
-
-    private Response responseScriptError(final Throwable th, String out, String err)
-    {
-        return makeEntityResponseRequest(
-                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
-    }
-
-    @POST
-    @Path("/execute/{" + "language" + "}")
+    @GET
+    @Path("/sessions")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response execute(@PathParam("language") final String scriptLanguage, Script script)
+    public Response listSessions()
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of("Permission denied: user do not have system administrator rights!"));
+            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
         }
 
-        ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
+        SessionIdCollectionWrapper ids = new SessionIdCollectionWrapper(Lists.<SessionIdWrapper>newArrayList());
+        for (Map.Entry<String, ScriptEngine> entry : sessionManager.listAllSessions().entrySet())
+        {
+            ids.addSession(new SessionIdWrapper(entry.getKey(),
+                    LanguageUtils.getLanguageName(entry.getValue().getFactory()),
+                    LanguageUtils.getVersionString(entry.getValue().getFactory())));
+        }
+
+        return responseOk(ids);
+    }
+
+    @PUT
+    @Path("/sessions/language/{" + LANGUAGE + "}")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
+    public Response newSession(@QueryParam(LANGUAGE) String scriptLanguage)
+    {
+        if (!isAdministrator())
+        {
+            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+        }
+
+        ScriptEngine engine;
         try
         {
-            ScriptEngine engine = createScriptEngine(scriptLanguage, script);
-            return responseEvalOk(eval(engine, script, consoleOutputBean));
+            engine = createScriptEngine(scriptLanguage, new Script("", "cli", ImmutableList.<String>of()));
         }
-        catch (ScriptException e)
+        catch (IllegalArgumentException e)
         {
-            //LOG.error("Script exception", e);
-            return responseScriptError(e,
-                    consoleOutputBean.getOutAsString(),
-                    consoleOutputBean.getErrAsString());
+            return responseInternalError(Arrays.asList((e.getMessage())));
         }
+
+        String sessionId = sessionManager.putSession(engine);
+        return Response.ok(new SessionIdWrapper(sessionId,
+                LanguageUtils.getLanguageName(engine.getFactory()),
+                LanguageUtils.getVersionString(engine.getFactory()))).cacheControl(NO_CACHE).build();
     }
 
 // -------------------------- INNER CLASSES --------------------------
@@ -267,7 +376,15 @@ public class ScriptRunner
     @XmlRootElement
     public static class Script
     {
+        public Script(String script, String filename, List<String> argv)
+        {
+            this.script = script;
+            this.filename = filename;
+            this.argv = argv;
+        }
+
         @XmlElement
+
         private String script;
 
         @XmlElement
@@ -334,7 +451,7 @@ public class ScriptRunner
 
         private String asString(StringWriter sw)
         {
-            return Preconditions.checkNotNull(sw, "Precondition failure: string writer is null")
+            return Assertions.notNull("StringWriter sw", sw)
                     .getBuffer()
                     .toString();
         }
@@ -372,6 +489,80 @@ public class ScriptRunner
         public void setErr(StringWriter err)
         {
             this.err = err;
+        }
+    }
+
+    @XmlRootElement
+    public static class SessionIdWrapper
+    {
+        @XmlElement
+        String sessionId;
+
+        public SessionIdWrapper(String sessionId, String languageName, String languageVersion)
+        {
+            this.sessionId = sessionId;
+            this.languageName = languageName;
+            this.languageVersion = languageVersion;
+        }
+
+        public String getLanguageName()
+        {
+            return languageName;
+        }
+
+        public void setLanguageName(String languageName)
+        {
+            this.languageName = languageName;
+        }
+
+        @XmlElement
+        String languageName;
+
+        @XmlElement
+        String languageVersion;
+
+        public String getSessionId()
+        {
+            return sessionId;
+        }
+
+        public void setSessionId(String sessionId)
+        {
+            this.sessionId = sessionId;
+        }
+    }
+
+    @XmlRootElement
+    public static class SessionIdCollectionWrapper
+    {
+        public SessionIdCollectionWrapper(List<SessionIdWrapper> sessions)
+        {
+            this.sessions = sessions;
+        }
+
+        public List<SessionIdWrapper> getSessions()
+        {
+            return sessions;
+        }
+
+        public void setSessions(List<SessionIdWrapper> sessions)
+        {
+            this.sessions = sessions;
+        }
+
+        @XmlElement
+        List<SessionIdWrapper> sessions;
+
+        public SessionIdCollectionWrapper addSession(SessionIdWrapper id)
+        {
+            sessions.add(id);
+            return this;
+        }
+
+        public SessionIdCollectionWrapper addSession(Iterable<SessionIdWrapper> ids)
+        {
+            Iterables.addAll(sessions, ids);
+            return this;
         }
     }
 

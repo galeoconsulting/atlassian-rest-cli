@@ -13,7 +13,7 @@ $(document).ready(function(){
     var console = $('<div class="console">');
     $('#cli-holder').append(console);
     var controller = console.console({
-        welcomeMessage          : 'Jira REST Cli console. Click Control-enter to evaluate.',
+        welcomeMessage          : 'Jira Cli console. Click C-enter (Win) / ^-enter (Mac) to evaluate.',
         promptLabel             : 'cli> ',
         continuedPromptLabel    : ' ==> ',
         promptHistory           : true,

@@ -1,9 +1,9 @@
 package com.blogspot.leonardinius.actions;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 
 import javax.script.ScriptEngineFactory;
 import java.util.Collections;
@@ -35,7 +35,7 @@ public class CliAction extends JiraWebActionSupport
         List<LanguageBean> list = Lists.newArrayList();
         for (ScriptEngineFactory factory : scriptService.getRegisteredScriptEngines())
         {
-            list.add(makeBean(factory));
+            list.add(new LanguageBean(LanguageUtils.getLanguageName(factory), LanguageUtils.getVersionString(factory)));
         }
 
         Collections.sort(list, new Comparator<LanguageBean>()
@@ -49,23 +49,7 @@ public class CliAction extends JiraWebActionSupport
         return list;
     }
 
-    private LanguageBean makeBean(ScriptEngineFactory factory)
-    {
-        String version = factory.getLanguageVersion();
-        if (StringUtils.containsIgnoreCase(version, "jruby 1.5.6"))
-        {
-            version = "jruby 1.5.6";
-        }
-        String languageName = factory.getLanguageName();
-        if ("ECMAScript".equals(languageName)
-                && factory.getNames().contains("JavaScript"))
-        {
-            languageName = "JavaScript";
-        }
-        return new LanguageBean(StringUtils.capitalize(languageName), version);
-    }
-
-// -------------------------- INNER CLASSES --------------------------
+    // -------------------------- INNER CLASSES --------------------------
 
     public static class LanguageBean
     {

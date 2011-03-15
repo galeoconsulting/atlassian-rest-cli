@@ -31,7 +31,6 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
 
 // --------------------- Interface DisposableBean ---------------------
 
-
     @Override
     public void destroy() throws Exception
     {
