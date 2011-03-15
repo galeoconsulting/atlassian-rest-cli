@@ -118,12 +118,11 @@ public class ScriptRunner
     private ScriptEngine createScriptEngine(String scriptLanguage, Script script)
     {
         ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
-
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
                 put("log", LOG);
                 put("componentManager", ComponentManager.getInstance());
-                put("self", this.getClass().getClassLoader());
+                put("selfInstance", this.getClass().getClassLoader());
             }});
 
         engine.getContext().setAttribute(ScriptEngine.FILENAME, scriptName(script.getFilename()), ScriptContext.ENGINE_SCOPE);

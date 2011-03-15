@@ -22,6 +22,10 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 
     public JRubyRegistrarImpl(ScriptService scriptService)
     {
+        /* the following property is necessary for ruby, otherwise we can't retrieve the variables set in ruby
+               http://yokolet.blogspot.com/2009/08/redbridge-and-jruby-embed-api-update.html
+        */
+        System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
         this.scriptService = scriptService;
         engineFactory = new JRubyEngineFactory();
     }
@@ -30,7 +34,6 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 
 
 // --------------------- Interface DisposableBean ---------------------
-
 
     @Override
     public void destroy() throws Exception
