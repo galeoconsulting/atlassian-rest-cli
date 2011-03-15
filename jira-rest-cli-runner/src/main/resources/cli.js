@@ -27,7 +27,6 @@ $(document).ready(function(){
         commandHandle           : function(scriptText, reporter,e){
              if(e.ctrlKey){
 
-                var payload = {script : scriptText, argv: []};
                 var appendOutErr = function(result, data){
                     if(data.out && data.out != ""){
                         result.push({msg : ["OUT:\n", data.out].join(''), className:"jquery-console-message-out"});
@@ -37,6 +36,10 @@ $(document).ready(function(){
                     }
                     return result;
                 }
+
+                var continuePrompt = function(enable){ controller.continuedPrompt = enable; };
+
+                var payload = {script : scriptText, argv: []};
 
                 $.ajax({
                     url         : AJS.format("{0}/rest/rest-scripting/1.0/cli/{1}", window.restCliBaseUrl, $("#cli-language").val()),
@@ -67,7 +70,7 @@ $(document).ready(function(){
                                 textStatus || '',
                                 errorThrown || '',
                                 tryIt(function(){ return  XMLHttpRequest.status; }, 'Unknown')));
-                        controller.continuedPrompt = false;
+                        continuePrompt(false);
                         reporter();
                     },
                     success     : function(data) //, textStatus, XMLHttpRequest)
@@ -76,7 +79,7 @@ $(document).ready(function(){
                         result.push({msg : data.evalResult, className:"jquery-console-message-value"});
                         result = appendOutErr(result, data);
 
-                        controller.continuedPrompt = false;
+                        continuePrompt(false);
                         reporter(result);
                     },
                     type        : 'POST',
@@ -84,10 +87,11 @@ $(document).ready(function(){
                     dataType    : 'json',
                     contentType : 'application/json'
                 });
+
                 return;
              }
 
-             controller.continuedPrompt = true;
+             continuePrompt(true);
              return;
         }
     });

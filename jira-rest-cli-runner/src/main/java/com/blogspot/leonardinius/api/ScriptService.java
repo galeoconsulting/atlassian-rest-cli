@@ -27,4 +27,6 @@ public interface ScriptService
     void registerEngineLanguage(String language, ScriptEngineFactory factory);
 
     void registerEngineMime(String mime, ScriptEngineFactory factory);
+
+    void removeEngine(ScriptEngineFactory factory);
 }

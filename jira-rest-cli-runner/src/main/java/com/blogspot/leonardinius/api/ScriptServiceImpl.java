@@ -121,4 +121,10 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
         scriptEngineManager.registerEngineMimeType(checkNotNull(extension), checkNotNull(factory));
         registeredEngines.put(factory, DUMMY);
     }
+
+    @Override
+    public void removeEngine(ScriptEngineFactory factory)
+    {
+        registeredEngines.remove(factory);
+    }
 }
