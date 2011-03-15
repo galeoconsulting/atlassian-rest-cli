@@ -60,7 +60,11 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
     @Override
     public void destroy() throws Exception
     {
-        scriptService.removeEngine(engineFactory);
+        synchronized (lock)
+        {
+            scriptService.removeEngine(engineFactory);
+            engineFactory = null;
+        }
     }
 
 // --------------------- Interface InitializingBean ---------------------

@@ -41,8 +41,6 @@ public class ScriptRunner
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptRunner.class);
 
-    private static final String CLI_SESSION_ID = "Rest-jsr223-Cli-Session-Id";
-
     private final ScriptService scriptService;
     private final JiraAuthenticationContext context;
 
@@ -122,7 +120,7 @@ public class ScriptRunner
         {{
                 put("log", LOG);
                 put("componentManager", ComponentManager.getInstance());
-                put("selfInstance", this.getClass().getClassLoader());
+                put("selfScriptRunner", ScriptRunner.this);
             }});
 
         engine.getContext().setAttribute(ScriptEngine.FILENAME, scriptName(script.getFilename()), ScriptContext.ENGINE_SCOPE);
@@ -180,7 +178,8 @@ public class ScriptRunner
 
     private Response responseScriptError(final Throwable th, String out, String err)
     {
-        return makeEntityResponseRequest(new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
+        return makeEntityResponseRequest(
+                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
     }
 
     @POST
