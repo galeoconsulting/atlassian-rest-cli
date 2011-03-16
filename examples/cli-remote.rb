@@ -71,7 +71,10 @@ module RESTCli
                     end
                 end
             ensure
-                deleteSession(sessionId) unless sessionId.nil? and not killSessionOnExit
+                if !sessionId.nil? and killSessionOnExit
+                    $stdout.puts "Session state cleanup: #{sessionId}";
+                    deleteSession(sessionId)
+                end
             end
         end
 
@@ -121,5 +124,6 @@ cli = RESTCli::Cli.new({:proto => 'http',
                         :context => 'jira/'})
 
 cli.login('admin', 'admin')
-puts "Active ruby sessions: " + cli.listSessions.join(', ')
+sessions = cli.listSessions
+puts "Active ruby sessions: " + sessions.join(', ') unless sessions.empty?
 cli.repl()
