@@ -1,4 +1,4 @@
- require 'rubygems'
+require 'rubygems'
 require 'restclient'
 require 'json'
 
@@ -47,7 +47,7 @@ def repl(sessionId = nil, killSessionOnExit = true)
         puts " **  Type 'quit' to exit the loop       ** "
         puts " ***************************************** "
         while true
-            $stdout.print "  JIRA-CLI>> "
+            $stdout.print "JIRA-CLI>> "
             input = gets()
             case input.strip
             when "quit"
@@ -55,9 +55,9 @@ def repl(sessionId = nil, killSessionOnExit = true)
             else
                 out = cli(sessionId, input)
             end
-            $stdout.print "  JIRA-CLI=> ", out["evalResult"], "\n"
             $stdout.puts  out["out"] unless out["out"] == ""
             $stderr.puts  out["err"] unless out["err"] == ""
+            $stdout.print "JIRA-CLI=> ", out["evalResult"], "\n" 
         end
     ensure
         deleteSession(sessionId) unless sessionId.nil? and not killSessionOnExit
