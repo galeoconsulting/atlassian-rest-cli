@@ -25,7 +25,7 @@
     <component key="rhino-registrar" name="Rhino Registrar" public="false"
                interface="com.blogspot.leonardinius.api.Registrar"
                class="com.blogspot.leonardinius.api.impl.RhinoRegistrarImpl">
-        <description>Provides Javascript Rhino on top of javax.script.ScriptEngineManager</description>
+        <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
     </component>
 
     <web-resource key="cli-js-css" name="jquery-console javascript and css resources">
