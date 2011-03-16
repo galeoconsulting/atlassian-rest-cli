@@ -50,8 +50,7 @@ def repl(sessionId = nil, killSessionOnExit = true)
             $stdout.print "JIRA-CLI>> "
             input = gets()
             case input.strip
-            when "quit"
-                break;
+            when "quit" then break;
             else
                 out = cli(sessionId, input)
             end
@@ -69,4 +68,4 @@ authData = login(username, password)
 OPTS[:cookies] = {authData["name"] => authData["value"] }
 repl()
 
-quit
+
