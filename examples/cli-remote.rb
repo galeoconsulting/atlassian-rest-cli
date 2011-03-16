@@ -108,7 +108,7 @@ module RESTCli
         end
 
         def update_prompt(io)
-            s = io.instance_variable_get('@line_no').to_s
+            s = (io.instance_variable_get('@line_no') + 1).to_s
             io.prompt= "JIRA-CLI(#{"0" * (5-s.length)}#{s})>> "
             io
         end
