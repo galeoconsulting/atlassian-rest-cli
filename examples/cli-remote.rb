@@ -1,4 +1,5 @@
-require 'rest_client'
+ require 'rubygems'
+require 'restclient'
 require 'json'
 
 def from_json(str)
