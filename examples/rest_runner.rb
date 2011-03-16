@@ -6,7 +6,7 @@ require 'json'
 url = "#{proto}://#{host}:#{port}/#{context}rest/rest-scripting/1.0/execute/groovy"
 
 
-script = File.new(Dir.pwd + "/" + "cli_script.groovy").read
+script = File.new(Dir.pwd + "/" + "sample.groovy").read
 payload = { 'script' => script, 'filename' => 'filename', 'argv' => [] }.to_json
 data = RestClient.post(url, payload,
                        :content_type => :json, :accept => :json,

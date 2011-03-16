@@ -19,7 +19,7 @@ client.contentType = ContentType.JSON
 client.headers.put("Cookie", "jira.conglomerate.cookie=; JSESSIONID=283C0269F172BC30EEE865B52449D0AB")
 
 
-File file = new File(System.getProperty("user.dir"), "cli_script.groovy");
+File file = new File(System.getProperty("user.dir"), "sample.groovy");
 
 def response = client.post(
         filename: file.name,

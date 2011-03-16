@@ -13,7 +13,7 @@ $(document).ready(function(){
     var console = $('<div class="console">');
     $('#cli-holder').append(console);
     var controller = console.console({
-        welcomeMessage          : 'Jira Cli console. Click C-enter (Win) / ^-enter (Mac) to evaluate.',
+        welcomeMessage          : 'Jira Cli console. Click Ctrl-enter (Win) / ^-enter (Mac) to evaluate.',
         promptLabel             : 'cli> ',
         continuedPromptLabel    : ' ==> ',
         promptHistory           : true,
@@ -43,7 +43,7 @@ $(document).ready(function(){
                 var payload = {script : scriptText, argv: []};
 
                 $.ajax({
-                    url         : AJS.format("{0}/rest/rest-scripting/1.0/cli/{1}", window.restCliBaseUrl, $("#cli-language").val()),
+                    url         : AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", window.restCliBaseUrl, $("#cli-language").val()),
                     data        : JSON.stringify(payload),
                     error       : function(XMLHttpRequest, textStatus, errorThrown)
                     {

@@ -42,9 +42,11 @@ public class ScriptRunner implements DisposableBean
 // ------------------------------ FIELDS ------------------------------
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptRunner.class);
+
     private static final String LANGUAGE = "language";
-    private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
     private static final String SESSION_ID = "sessionId";
+
+    private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
 
     private final ScriptService scriptService;
     private final ScriptSessionManager sessionManager;
@@ -77,14 +79,14 @@ public class ScriptRunner implements DisposableBean
 // -------------------------- OTHER METHODS --------------------------
 
     @POST
-    @Path("/cli")
+    @Path("/sessions/{" + SESSION_ID + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response cli(@PathParam("sessionId") final String sessionId, Script script)
+    public Response cli(@PathParam(SESSION_ID) final String sessionId, Script script)
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+            return responseForbidden();
         }
 
         ScriptEngine engine;
@@ -114,6 +116,15 @@ public class ScriptRunner implements DisposableBean
     private boolean isAdministrator()
     {
         return context.getUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getUser());
+    }
+
+    private Response responseForbidden()
+    {
+        return Response.serverError()
+                .entity(createErrorCollection(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS)))
+                .cacheControl(NO_CACHE)
+
+                .build();
     }
 
     private Response responseInternalError(List<String> errorMessages)
@@ -184,14 +195,14 @@ public class ScriptRunner implements DisposableBean
     }
 
     @DELETE
-    @Path("/sessions/id/{" + SESSION_ID + "}")
+    @Path("/sessions/{" + SESSION_ID + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response deleteSession(@QueryParam(SESSION_ID) String sessionId)
+    public Response deleteSession(@PathParam(SESSION_ID) String sessionId)
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+            return responseForbidden();
         }
 
         if (sessionManager.removeSession(sessionId) == null)
@@ -210,7 +221,7 @@ public class ScriptRunner implements DisposableBean
     {
         if (!isAdministrator())
         {
-            return responseInternalError(Arrays.asList(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+            return responseForbidden();
         }
 
         ScriptEngine engine;
@@ -276,7 +287,7 @@ public class ScriptRunner implements DisposableBean
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+            return responseForbidden();
         }
 
         SessionIdCollectionWrapper ids = new SessionIdCollectionWrapper(Lists.<SessionIdWrapper>newArrayList());
@@ -291,20 +302,20 @@ public class ScriptRunner implements DisposableBean
     }
 
     @PUT
-    @Path("/sessions/language/{" + LANGUAGE + "}")
+    @Path("/sessions")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response newSession(@QueryParam(LANGUAGE) String scriptLanguage)
+    public Response newSession(Language language)
     {
         if (!isAdministrator())
         {
-            return responseInternalError(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS));
+            return responseForbidden();
         }
 
         ScriptEngine engine;
         try
         {
-            engine = createScriptEngine(scriptLanguage, new Script("", "cli", ImmutableList.<String>of()));
+            engine = createScriptEngine(language.language, new Script("", "cli", ImmutableList.<String>of()));
         }
         catch (IllegalArgumentException e)
         {
@@ -318,6 +329,13 @@ public class ScriptRunner implements DisposableBean
     }
 
 // -------------------------- INNER CLASSES --------------------------
+
+    @XmlRootElement
+    public static class Language
+    {
+        @XmlElement
+        private String language;
+    }
 
     @XmlRootElement
     public static class ScriptErrors
@@ -376,6 +394,10 @@ public class ScriptRunner implements DisposableBean
     @XmlRootElement
     public static class Script
     {
+        public Script()
+        {
+        }
+
         public Script(String script, String filename, List<String> argv)
         {
             this.script = script;

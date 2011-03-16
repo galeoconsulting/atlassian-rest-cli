@@ -55,7 +55,7 @@ public final class ScriptSessionManagerImpl implements ScriptSessionManager, Ini
     public String putSession(ScriptEngine engine)
     {
         String sessionId = Preconditions.checkNotNull(nextSessionId(), "nextSessionId");
-        if (cliSessions.putIfAbsent(sessionId, engine) == null)
+        if (cliSessions.putIfAbsent(sessionId, engine) != null)
         {
             throw new AssertionError("Internal implementation bug: UUID considered to be unique enough.");
         }
