@@ -285,7 +285,7 @@ public class ScriptRunner implements DisposableBean
     @Path("/sessions")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response listSessions()
+    public Response listSessions(@QueryParam(LANGUAGE) @DefaultValue("") String language)
     {
         if (!isAdministrator())
         {
@@ -295,9 +295,16 @@ public class ScriptRunner implements DisposableBean
         SessionIdCollectionWrapper ids = new SessionIdCollectionWrapper(Lists.<SessionIdWrapper>newArrayList());
         for (Map.Entry<SessionId, ScriptSessionManager.ScriptSession> entry : sessionManager.listAllSessions().entrySet())
         {
-            ids.addSession(new SessionIdWrapper(entry.getKey().getSessionId(),
-                    LanguageUtils.getLanguageName(entry.getValue().getScriptEngine().getFactory()),
-                    LanguageUtils.getVersionString(entry.getValue().getScriptEngine().getFactory())));
+            String languageName = LanguageUtils.getLanguageName(entry.getValue().getScriptEngine().getFactory());
+            if (StringUtils.isBlank(languageName)
+                    || StringUtils.equals(language, languageName))
+            {
+                String sessionId = entry.getKey().getSessionId();
+                String versionString = LanguageUtils.getVersionString(entry.getValue().getScriptEngine().getFactory());
+
+                ids.addSession(new SessionIdWrapper(sessionId, languageName,
+                        versionString));
+            }
         }
 
         return responseOk(ids);
