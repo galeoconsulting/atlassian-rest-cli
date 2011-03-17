@@ -33,6 +33,8 @@ import java.io.StringWriter;
 import java.util.*;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
+import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
+import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
@@ -89,10 +91,10 @@ public class ScriptRunner implements DisposableBean
             return responseForbidden();
         }
 
-        ScriptEngine engine;
+        ScriptSessionManager.ScriptSession scriptSession;
         try
         {
-            engine = Assertions.notNull("Session instance", sessionManager.getSession(sessionId));
+            scriptSession = Assertions.notNull("Session instance", sessionManager.getSession(SessionId.valueOf(sessionId)));
         }
         catch (IllegalArgumentException e)
         {
@@ -102,7 +104,7 @@ public class ScriptRunner implements DisposableBean
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            return responseEvalOk(eval(engine, script, consoleOutputBean));
+            return responseEvalOk(eval(scriptSession.getScriptEngine(), script, consoleOutputBean));
         }
         catch (ScriptException e)
         {
@@ -205,7 +207,7 @@ public class ScriptRunner implements DisposableBean
             return responseForbidden();
         }
 
-        if (sessionManager.removeSession(sessionId) == null)
+        if (sessionManager.removeSession(SessionId.valueOf(sessionId)) == null)
         {
             return Response.noContent().cacheControl(NO_CACHE).build();
         }
@@ -291,11 +293,11 @@ public class ScriptRunner implements DisposableBean
         }
 
         SessionIdCollectionWrapper ids = new SessionIdCollectionWrapper(Lists.<SessionIdWrapper>newArrayList());
-        for (Map.Entry<String, ScriptEngine> entry : sessionManager.listAllSessions().entrySet())
+        for (Map.Entry<SessionId, ScriptSessionManager.ScriptSession> entry : sessionManager.listAllSessions().entrySet())
         {
-            ids.addSession(new SessionIdWrapper(entry.getKey(),
-                    LanguageUtils.getLanguageName(entry.getValue().getFactory()),
-                    LanguageUtils.getVersionString(entry.getValue().getFactory())));
+            ids.addSession(new SessionIdWrapper(entry.getKey().getSessionId(),
+                    LanguageUtils.getLanguageName(entry.getValue().getScriptEngine().getFactory()),
+                    LanguageUtils.getVersionString(entry.getValue().getScriptEngine().getFactory())));
         }
 
         return responseOk(ids);
@@ -322,10 +324,11 @@ public class ScriptRunner implements DisposableBean
             return responseInternalError(Arrays.asList((e.getMessage())));
         }
 
-        String sessionId = sessionManager.putSession(engine);
-        return Response.ok(new SessionIdWrapper(sessionId,
+        SessionId sessionId = sessionManager.putSession(ScriptSession.valueOf(engine));
+        return Response.ok(new SessionIdWrapper(sessionId.getSessionId(),
                 LanguageUtils.getLanguageName(engine.getFactory()),
-                LanguageUtils.getVersionString(engine.getFactory()))).cacheControl(NO_CACHE).build();
+                LanguageUtils.getVersionString(engine.getFactory())))
+                .cacheControl(NO_CACHE).build();
     }
 
 // -------------------------- INNER CLASSES --------------------------

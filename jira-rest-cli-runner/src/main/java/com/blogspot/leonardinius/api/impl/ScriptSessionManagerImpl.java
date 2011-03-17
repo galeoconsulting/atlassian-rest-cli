@@ -16,7 +16,7 @@ public final class ScriptSessionManagerImpl implements ScriptSessionManager, Ini
 {
 // ------------------------------ FIELDS ------------------------------
 
-    private final ConcurrentMap<String, ScriptEngine> cliSessions = new ConcurrentHashMap<String, ScriptEngine>();
+    private final ConcurrentMap<SessionId, ScriptSession> cliSessions = new ConcurrentHashMap<SessionId, ScriptSession>();
 
 // ------------------------ INTERFACE METHODS ------------------------
 
@@ -46,30 +46,13 @@ public final class ScriptSessionManagerImpl implements ScriptSessionManager, Ini
     }
 
     @Override
-    public ScriptEngine getSession(String sessionId)
+    public ScriptSession getSession(SessionId sessionId)
     {
         return cliSessions.get(validSessionId(sessionId));
     }
 
     @Override
-    public String putSession(ScriptEngine engine)
-    {
-        String sessionId = Preconditions.checkNotNull(nextSessionId(), "nextSessionId");
-        if (cliSessions.putIfAbsent(sessionId, engine) != null)
-        {
-            throw new AssertionError("Internal implementation bug: UUID considered to be unique enough.");
-        }
-        return sessionId;
-    }
-
-    @Override
-    public ScriptEngine removeSession(String sessionId)
-    {
-        return cliSessions.remove(validSessionId(sessionId));
-    }
-
-    @Override
-    public Map<String, ScriptEngine> listAllSessions()
+    public Map<SessionId, ScriptSession> listAllSessions()
     {
         return ImmutableMap.copyOf(cliSessions);
     }
@@ -81,13 +64,30 @@ public final class ScriptSessionManagerImpl implements ScriptSessionManager, Ini
         cliSessions.clear();
     }
 
-    private String nextSessionId()
+    @Override
+    public SessionId putSession(ScriptSession session)
     {
-        return UUID.randomUUID().toString();
+        SessionId sessionId = Preconditions.checkNotNull(nextSessionId(), "nextSessionId");
+        if (cliSessions.putIfAbsent(sessionId, session) != null)
+        {
+            throw new AssertionError("Internal implementation bug: UUID considered to be unique enough.");
+        }
+        return sessionId;
     }
 
-    private String validSessionId(final String sessionId)
+    private SessionId nextSessionId()
     {
-        return UUID.fromString(sessionId).toString();
+        return SessionId.valueOf(UUID.randomUUID().toString());
+    }
+
+    @Override
+    public ScriptSession removeSession(SessionId sessionId)
+    {
+        return cliSessions.remove(validSessionId(sessionId));
+    }
+
+    private SessionId validSessionId(final SessionId sessionId)
+    {
+        return SessionId.valueOf(UUID.fromString(sessionId.getSessionId()).toString());
     }
 }
