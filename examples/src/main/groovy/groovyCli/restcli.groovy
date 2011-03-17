@@ -1,8 +1,4 @@
-/*
- * for some reason doesn't work
- *
- * for the sake of argument - implemented the same with the help of Ruby 'rest_client'
- */
+package groovyCli
 
 import groovyx.net.http.ContentType
 import groovyx.net.http.HttpResponseDecorator

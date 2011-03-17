@@ -53,9 +53,7 @@ public interface ScriptSessionManager
 
             SessionId sessionId1 = (SessionId) o;
 
-            if (!sessionId.equals(sessionId1.sessionId)) return false;
-
-            return true;
+            return sessionId.equals(sessionId1.sessionId);
         }
 
         @Override
@@ -87,9 +85,7 @@ public interface ScriptSessionManager
 
             ScriptSession that = (ScriptSession) o;
 
-            if (!scriptEngine.equals(that.scriptEngine)) return false;
-
-            return true;
+            return scriptEngine.equals(that.scriptEngine);
         }
 
         @Override

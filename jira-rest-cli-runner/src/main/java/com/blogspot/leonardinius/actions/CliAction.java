@@ -3,12 +3,19 @@ package com.blogspot.leonardinius.actions;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
+import com.blogspot.leonardinius.api.ScriptSessionManager;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import javax.script.ScriptEngineFactory;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+
+import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
+import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
 
 /**
  * User: leonidmaslov
@@ -20,22 +27,34 @@ public class CliAction extends JiraWebActionSupport
 // ------------------------------ FIELDS ------------------------------
 
     private final ScriptService scriptService;
+    private final ScriptSessionManager sessionManager;
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public CliAction(ScriptService scriptService)
+    public CliAction(ScriptService scriptService, ScriptSessionManager sessionManager)
     {
         this.scriptService = scriptService;
+        this.sessionManager = sessionManager;
     }
 
 // -------------------------- OTHER METHODS --------------------------
+
+    public Map<String, LanguageBean> getLiveSessions()
+    {
+        Map<String, LanguageBean> map = Maps.newHashMap();
+        for (Map.Entry<SessionId, ScriptSession> entry : sessionManager.listAllSessions().entrySet())
+        {
+            map.put(entry.getKey().getSessionId(), LanguageBean.valueOf(entry.getValue().getScriptEngine().getFactory()));
+        }
+        return map;
+    }
 
     public List<LanguageBean> getRegisteredLanguages()
     {
         List<LanguageBean> list = Lists.newArrayList();
         for (ScriptEngineFactory factory : scriptService.getRegisteredScriptEngines())
         {
-            list.add(new LanguageBean(LanguageUtils.getLanguageName(factory), LanguageUtils.getVersionString(factory)));
+            list.add(LanguageBean.valueOf(factory));
         }
 
         Collections.sort(list, new Comparator<LanguageBean>()
@@ -49,7 +68,7 @@ public class CliAction extends JiraWebActionSupport
         return list;
     }
 
-    // -------------------------- INNER CLASSES --------------------------
+// -------------------------- INNER CLASSES --------------------------
 
     public static class LanguageBean
     {
@@ -71,6 +90,12 @@ public class CliAction extends JiraWebActionSupport
         public String getVersion()
         {
             return version;
+        }
+
+        public static LanguageBean valueOf(ScriptEngineFactory factory)
+        {
+            ScriptEngineFactory arg = Preconditions.checkNotNull(factory, "factory");
+            return new LanguageBean(LanguageUtils.getLanguageName(arg), LanguageUtils.getVersionString(arg));
         }
     }
 }
