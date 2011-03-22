@@ -139,7 +139,7 @@
         <module>../jira-rest-cli-runner</module>
         <module>../jira-rest-cli-groovy</module>
         <module>../jira-rest-cli-jruby</module>
-        <module>../examples</module>
+        <module>../cli-examples</module>
     </modules>
 
 </project>

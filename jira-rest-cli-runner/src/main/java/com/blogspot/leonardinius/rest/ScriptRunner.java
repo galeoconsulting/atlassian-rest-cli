@@ -296,7 +296,7 @@ public class ScriptRunner implements DisposableBean
         for (Map.Entry<SessionId, ScriptSessionManager.ScriptSession> entry : sessionManager.listAllSessions().entrySet())
         {
             String languageName = LanguageUtils.getLanguageName(entry.getValue().getScriptEngine().getFactory());
-            if (StringUtils.isBlank(languageName)
+            if (StringUtils.isBlank(language)
                     || StringUtils.equals(language, languageName))
             {
                 String sessionId = entry.getKey().getSessionId();
