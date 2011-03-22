@@ -127,7 +127,7 @@ public class RestCli
       for (def i = 1; loopCond; )
       {
 
-        System.out.printf("rest-cli(%1\$05d)", i++)
+        System.out.printf("rest-cli(%1\$05d)>", i++)
         String line = console.readLine();
         switch (line.trim())
         {
