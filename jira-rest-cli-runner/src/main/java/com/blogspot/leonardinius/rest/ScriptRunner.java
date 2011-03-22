@@ -9,6 +9,7 @@ import com.atlassian.jira.util.dbc.Assertions;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -192,8 +193,28 @@ public class ScriptRunner implements DisposableBean
 
     private Response responseScriptError(final Throwable th, String out, String err)
     {
-        return responseOk(
-                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(ExceptionUtils.getStackTrace(th))), out, err));
+        return responseError(
+                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(getStackTrace(th))), out, err));
+    }
+
+    private String getStackTrace(Throwable th)
+    {
+        if (th == null)
+        {
+            return "";
+        }
+
+        List<StackTraceElement> elements = Lists.newArrayList();
+        for (StackTraceElement st : th.getStackTrace())
+        {
+            if (st.getClassName() == getClass().getName())
+                break;
+            elements.add(st);
+        }
+
+        return new StringBuilder(ExceptionUtils.getMessage(th))
+                .append(" at ")
+                .append(Joiner.on("\n ").skipNulls().join(elements)).toString();
     }
 
     @DELETE

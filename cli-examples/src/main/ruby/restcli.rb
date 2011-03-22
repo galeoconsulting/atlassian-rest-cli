@@ -66,10 +66,19 @@ module RESTCli
           when "quit" then break;
           when "!q" then break;
           when "!r" then
-            out = eval_input(sessionId, stdinReset)
-            $stdout.puts  out["out"] unless out["out"] == ""
-            $stderr.puts  out["err"] unless out["err"] == ""
-            $stdout.print "rest-cli=> ", out["evalResult"], "\n"
+            begin
+                out = eval_input(sessionId, stdinReset)
+                $stdout.puts  out["out"] unless out["out"] == ""
+                $stderr.puts  out["err"] unless out["err"] == ""
+                $stdout.print "rest-cli=> ", out["evalResult"], "\n"
+            rescue RestClient::Exception => e
+                out = from_json(e.http_body)
+                message = out['errors'] && out['errors']['errorMessages'] || ''
+                message = message.join("\n") if message.is_a? Array
+                $stdout.puts  out["out"] unless out["out"] == ""
+                $stderr.puts  out["err"] unless out["err"] == ""
+                $stderr.puts "----\n#{e.message}: #{message}"
+            end
           end
         end
       ensure
