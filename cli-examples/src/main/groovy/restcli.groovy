@@ -120,7 +120,7 @@ public class RestCli
 
     try
     {
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in))
+      Console console = new Console()
       def lines = [];
 
       def loopCond = true;
@@ -128,7 +128,7 @@ public class RestCli
       {
 
         System.out.printf("rest-cli(%1\$05d)", i++)
-        String line = br.readLine();
+        String line = console.readLine();
         switch (line.trim())
         {
           case '!q':
