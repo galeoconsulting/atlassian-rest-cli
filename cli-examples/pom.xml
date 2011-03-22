@@ -51,6 +51,31 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.groovy.maven.runtime</groupId>-->
+            <!--<artifactId>gmaven-runtime-default</artifactId>-->
+            <!--<version>1.0-rc-3</version>-->
+        <!--</dependency>-->
     </dependencies>
+
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.groovy.maven</groupId>-->
+                <!--<artifactId>gmaven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--&lt;!&ndash;<goal>generateStubs</goal>&ndash;&gt;-->
+                            <!--<goal>compile</goal>-->
+                            <!--&lt;!&ndash;<goal>generateTestStubs</goal>&ndash;&gt;-->
+                            <!--<goal>testCompile</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
 
 </project>

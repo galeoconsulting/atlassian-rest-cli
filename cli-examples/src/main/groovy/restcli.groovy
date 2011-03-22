@@ -168,8 +168,10 @@ def cli = new RestCli([
         'context': 'jira', //
 ]).login('admin', 'admin')
 
-if(!cli.listSessions().isEmpty()){
+if (!cli.listSessions().isEmpty())
+{
     System.out.println "Active groovy sessions: ${cli.listSessions().join(", ")}"
 }
 
 cli.repl()
+
