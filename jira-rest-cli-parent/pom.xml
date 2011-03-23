@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blogspot.leonardinius</groupId>
@@ -31,21 +32,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.atlassian.aui</groupId>
-                <artifactId>auiplugin</artifactId>
-                <version>${aui.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>jira-rest-plugin</artifactId>
                 <version>${jira.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.plugins.rest</groupId>
-                <artifactId>atlassian-rest-common</artifactId>
-                <version>${jira.rest.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -129,10 +118,8 @@
     </build>
 
     <properties>
-        <jira.version>4.2</jira.version>
+        <jira.version>4.3</jira.version>
         <jira.data.version>4.1.1</jira.data.version>
-        <aui.version>3.0.9</aui.version>
-        <jira.rest.version>2.1.0</jira.rest.version>
     </properties>
 
     <modules>

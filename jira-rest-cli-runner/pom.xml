@@ -22,16 +22,8 @@
             <artifactId>atlassian-jira</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.aui</groupId>
-            <artifactId>auiplugin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-plugin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins.rest</groupId>
-            <artifactId>atlassian-rest-common</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
