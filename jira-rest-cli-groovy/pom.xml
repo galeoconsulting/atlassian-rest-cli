@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.blogspot.leonardinius</groupId>
         <artifactId>jira-rest-cli-parent</artifactId>
-        <version>0.3</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.blogspot.leonardinius</groupId>
     <artifactId>jira-rest-cli-groovy</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>jira-rest-cli-groovy</name>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.blogspot.leonardinius</groupId>
             <artifactId>jira-rest-cli-runner</artifactId>
-            <version>0.3</version>
+            <version>0.4-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
