@@ -11,7 +11,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cli-examples</artifactId>
-
+    <name>cli-examples</name>
+    <description>REST-Cli sample clients in terms of Groovy, Ruby/JRuby shells.</description>
 
     <repositories>
         <repository>
