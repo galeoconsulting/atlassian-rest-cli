@@ -203,7 +203,4 @@ public class RestCli
         if (jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
     }
-
-
 }
-
