@@ -7,6 +7,7 @@ import jline.ConsoleReader
 import org.apache.commons.lang.StringEscapeUtils
 import org.codehaus.jettison.json.JSONArray
 import org.codehaus.jettison.json.JSONObject
+import org.apache.commons.lang.StringUtils
 
 public class RestCli
 {
@@ -75,7 +76,8 @@ public class RestCli
 
     List listSessions()
     {
-        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //
+        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )
+                .queryParam('language', 'groovy') //
                 .cookie(authCookie) //
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
@@ -84,10 +86,7 @@ public class RestCli
         def sessionIds = [];
         for (int i = 0; i < sessions.length(); i++)
         {
-            if (sessions.get(i)['languageName'].toLowerCase().equals('groovy'))
-            {
-                sessionIds.add(sessions.get(i)['sessionId'])
-            }
+            sessionIds.add(sessions.get(i)['sessionId'])
         }
         sessionIds
     }
@@ -181,9 +180,10 @@ public class RestCli
                     'context': 'jira', //
             ]).login('admin', 'admin')
 
-            if (!cli.listSessions().isEmpty())
+            def List sessions = cli.listSessions();
+            if (!sessions.isEmpty())
             {
-                System.out.println "Active groovy sessions: ${cli.listSessions().join(", ")}"
+                System.out.println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
             }
 
             cli.repl()
@@ -199,8 +199,9 @@ public class RestCli
         JSONObject jso = e.response.getEntity(JSONObject.class)
         String message = "${jso.has('error') ? jso['error'] : ''}${jso.has('errors') ? jso['errors']['errorMessages'].join('') : ''}";
         message = StringEscapeUtils.unescapeJavaScript(message)
-        if (jso['out'] != '') System.out.println jso['out']
-        if (jso['err'] != '') System.err.println jso['err']
+        message = StringUtils.defaultIfEmpty(message, e.getMessage())
+        if (jso.has('out') && jso['out'] != '') System.out.println jso['out']
+        if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
     }
 }

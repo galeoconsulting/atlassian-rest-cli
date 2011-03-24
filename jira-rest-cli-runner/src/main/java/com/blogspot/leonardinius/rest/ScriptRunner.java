@@ -318,7 +318,7 @@ public class ScriptRunner implements DisposableBean
         {
             String languageName = LanguageUtils.getLanguageName(entry.getValue().getScriptEngine().getFactory());
             if (StringUtils.isBlank(language)
-                    || StringUtils.equals(language, languageName))
+                    || StringUtils.equalsIgnoreCase(language, languageName))
             {
                 String sessionId = entry.getKey().getSessionId();
                 String versionString = LanguageUtils.getVersionString(entry.getValue().getScriptEngine().getFactory());
