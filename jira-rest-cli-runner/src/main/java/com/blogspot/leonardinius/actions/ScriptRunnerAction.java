@@ -24,7 +24,7 @@ import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
  * Time: 11:34 AM
  */
 @WebSudoRequired
-public class CliAction extends JiraWebActionSupport
+public class ScriptRunnerAction extends JiraWebActionSupport
 {
 // ------------------------------ FIELDS ------------------------------
 
@@ -33,13 +33,23 @@ public class CliAction extends JiraWebActionSupport
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public CliAction(ScriptService scriptService, ScriptSessionManager sessionManager)
+    public ScriptRunnerAction(ScriptService scriptService, ScriptSessionManager sessionManager)
     {
         this.scriptService = scriptService;
         this.sessionManager = sessionManager;
     }
 
 // -------------------------- OTHER METHODS --------------------------
+
+    public String doCli()
+    {
+        return "cli";
+    }
+
+    public String doExec()
+    {
+        return "exec";
+    }
 
     public Map<String, LanguageBean> getLiveSessions()
     {

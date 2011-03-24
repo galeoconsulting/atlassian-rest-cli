@@ -11,17 +11,8 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
 <br/>
 <br/>
 
-<table width="99%"><tr><td>
-<div id="cli-holder"></div>
-</td></tr></table>
-
-
-
-<select id="sessiondata">
- #foreach($session in $action.liveSessions.entrySet())
- $session
-  <option value="$action.htmlEncode($session.key)">$action.htmlEncode($session.value.name) - $action.htmlEncode($session.value.version)</option>
- #end
-</select>
-<br/>
-<br/>
+<table width="99%">
+    <tr><td>
+        <div id="cli-holder"></div>
+    </td></tr>
+</table>

@@ -27,6 +27,12 @@ module RESTCli
         session = from_json(logindata)["session"]
         @sessionOpts.merge!({:cookies => {session["name"] => session["value"] } })
     end
+
+    def logout()
+        cr = RestClient.delete(loginUrl, sessionOpts)
+        @sessionOpts.merge!({:cookies => nil })
+        cr
+    end
       
     def attachSession
       sessionId = RestClient.put("#{cliBaseUrl}/sessions", {"language" => "ruby"}.to_json, sessionOpts)
@@ -136,4 +142,8 @@ cli = RESTCli::Cli.new({:proto => 'http',
 cli.login('admin', 'admin')
 sessions = cli.listSessions
 puts "Active ruby sessions: " + sessions.join(', ') unless sessions.empty?
-cli.repl()
+begin
+    cli.repl()
+ensure
+    cli.logout()
+end

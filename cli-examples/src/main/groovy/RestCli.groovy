@@ -5,9 +5,9 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
 import jline.ConsoleReader
 import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang.StringUtils
 import org.codehaus.jettison.json.JSONArray
 import org.codehaus.jettison.json.JSONObject
-import org.apache.commons.lang.StringUtils
 
 public class RestCli
 {
@@ -50,12 +50,26 @@ public class RestCli
 
     def login(def username, def password)
     {
-        def cookie = client.resource(loginUrl()).type(MediaType.APPLICATION_JSON)    //
+        def cookie = client.resource(loginUrl())
+                .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
         authCookie = new NewCookie(cookie['name'], cookie['value']);
 
         return this;
+    }
+
+    def logout()
+    {
+        ClientResponse cr = client.resource(loginUrl())
+                .cookie(authCookie) //
+                .type(MediaType.APPLICATION_JSON)    //
+                .accept(MediaType.APPLICATION_JSON)  //
+                .delete(ClientResponse.class);
+
+        assert cr.status == 204;
+        authCookie = null;
+        cr
     }
 
 
@@ -171,9 +185,10 @@ public class RestCli
 
     public static void main(String[] args)
     {
+        RestCli cli;
         try
         {
-            def cli = new RestCli([
+            cli = new RestCli([
                     'proto': 'http', //
                     'host': 'localhost', //
                     'port': '2990', //
@@ -191,6 +206,13 @@ public class RestCli
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
             defaultHandleError(e)
+        }
+        finally
+        {
+            if (cli != null)
+            {
+                cli.logout();
+            }
         }
     }
 
