@@ -3,14 +3,14 @@ package com.blogspot.leonardinius.api.impl;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.MapMaker;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -27,7 +27,9 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
 
     private ScriptEngineManager scriptEngineManager;
 
-    private final Map<ScriptEngineFactory, Object> registeredEngines = new WeakHashMap<ScriptEngineFactory, Object>();
+    private final ConcurrentMap<ScriptEngineFactory, Object> registeredEngines = new MapMaker()
+            .weakKeys()
+            .makeMap();
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
@@ -124,8 +126,8 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
     }
 
     @Override
-    public void removeEngine(ScriptEngineFactory factory)
+    public boolean removeEngine(ScriptEngineFactory factory)
     {
-        registeredEngines.remove(factory);
+        return registeredEngines.remove(factory, DUMMY);
     }
 }

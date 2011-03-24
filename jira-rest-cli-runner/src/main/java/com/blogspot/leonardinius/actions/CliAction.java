@@ -1,6 +1,7 @@
 package com.blogspot.leonardinius.actions;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.websudo.WebSudoRequired;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
@@ -22,6 +23,7 @@ import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
  * Date: 3/13/11
  * Time: 11:34 AM
  */
+@WebSudoRequired
 public class CliAction extends JiraWebActionSupport
 {
 // ------------------------------ FIELDS ------------------------------

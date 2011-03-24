@@ -44,8 +44,8 @@ module RESTCli
     end
     
     def listSessions
-      sessions = RestClient.get("#{cliBaseUrl}/sessions", sessionOpts)
-      from_json(sessions)["sessions"].select{|i| i["languageName"].downcase["ruby"] }.map{ |e| e["sessionId"]}
+      sessions = RestClient.get("#{cliBaseUrl}/sessions", sessionOpts.merge( :params => {"language" => "ruby"}))
+      from_json(sessions)["sessions"].map{ |e| e["sessionId"]}
     end
       
     def repl(sessionId = nil, killSessionOnExit = true)

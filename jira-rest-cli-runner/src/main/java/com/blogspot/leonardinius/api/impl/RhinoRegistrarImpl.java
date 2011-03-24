@@ -55,6 +55,7 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
 
 // ------------------------ INTERFACE METHODS ------------------------
 
+
 // --------------------- Interface DisposableBean ---------------------
 
     @Override
@@ -62,7 +63,10 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
     {
         synchronized (lock)
         {
-            scriptService.removeEngine(engineFactory);
+            if (engineFactory != null)
+            {
+                scriptService.removeEngine(engineFactory);
+            }
             engineFactory = null;
         }
     }

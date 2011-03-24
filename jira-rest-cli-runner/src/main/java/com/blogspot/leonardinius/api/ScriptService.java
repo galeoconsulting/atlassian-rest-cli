@@ -28,5 +28,5 @@ public interface ScriptService
 
     void registerEngineMime(String mime, ScriptEngineFactory factory);
 
-    void removeEngine(ScriptEngineFactory factory);
+    boolean removeEngine(ScriptEngineFactory factory);
 }
