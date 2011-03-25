@@ -9,8 +9,12 @@ import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.script.ScriptEngineFactory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,12 +36,26 @@ public class ScriptRunnerAction extends JiraWebActionSupport
     private final ScriptService scriptService;
     private final ScriptSessionManager sessionManager;
 
+    private String sessionId;
+
 // --------------------------- CONSTRUCTORS ---------------------------
 
     public ScriptRunnerAction(ScriptService scriptService, ScriptSessionManager sessionManager)
     {
         this.scriptService = scriptService;
         this.sessionManager = sessionManager;
+    }
+
+// --------------------- GETTER / SETTER METHODS ---------------------
+
+    public String getSessionId()
+    {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId)
+    {
+        this.sessionId = sessionId;
     }
 
 // -------------------------- OTHER METHODS --------------------------
@@ -55,6 +73,25 @@ public class ScriptRunnerAction extends JiraWebActionSupport
     public String doList()
     {
         return "list";
+    }
+
+    public SessionBean getLiveCliSession()
+    {
+        if (StringUtils.isBlank(getSessionId()))
+        {
+            return null;
+        }
+
+        Iterable<SessionBean> iterable = Iterables.filter(getLiveSessions(), new Predicate<SessionBean>()
+        {
+            @Override
+            public boolean apply(@Nullable SessionBean input)
+            {
+                return StringUtils.equals(getSessionId(), input.getSessionId());
+            }
+        });
+
+        return iterable.iterator().hasNext() ? iterable.iterator().next() : null;
     }
 
     public List<SessionBean> getLiveSessions()

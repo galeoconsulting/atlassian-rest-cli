@@ -10,7 +10,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
     <div>
     <b>Please specify scripting language:</b>
     <select id="cli-language">
-     #foreach($lng in $action.registeredLanguages)
+     #foreach($lng in $registeredLanguages)
       <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
      #end
     </select>
