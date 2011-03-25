@@ -10,7 +10,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
     <div>
     <b>Create new session:</b>
     <select id="cli-language">
-     #foreach($lng in $action.registeredLanguages)
+     #foreach($lng in $registeredLanguages)
       <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
      #end
     </select>
@@ -32,7 +32,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
         </thead>
 
         <tbody>
-            #foreach($session in $action.liveSessions)
+            #foreach($session in $liveSessions)
             <tr class="rowNormal">
                 <td>${action.htmlEncode($session.sessionId)}</td>
                 <td>
@@ -46,7 +46,8 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
 
                 <td>
                     <input type="hidden" value="${action.htmlEncode($session.sessionId)}"/>
-                    <a href="#">Connect</a> |
+<a href="${requestContext.baseUrl}/secure/admin/restCli!cli.jspa?atl_token=${atl_token}&sessionId=${action.htmlEncode($session.sessionId)}">
+                        Connect</a> |
                     <a href="#" onclick="javascript: deleteSessionSession(this); return false;">Delete</a>
                 </td>
             </tr>

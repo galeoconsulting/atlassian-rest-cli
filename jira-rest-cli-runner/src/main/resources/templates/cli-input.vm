@@ -1,12 +1,42 @@
 $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
-<b>Please specify scripting language:</b>
-<select id="cli-language">
- #foreach($lng in $action.registeredLanguages)
-  <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
- #end
-</select>
-<br/>
-<br/>
 
+<table class="jiraform  maxWidth">
+<tr>
+    <td class="jiraformheader">
+    <h3 class="formtitle">CLI session $!sessionId</h3></td>
+</tr>
+<tr>
+    <td class="jiraformbody">
+    <div>
+    <u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>
 
+    #if($liveCliSession)
+    <table class="grid centered maxWidth">
+    <tr><td>
+        <div id="cli-holder"></div>
+    </td></tr>
+    </table>
+    #else
+        <h3 syle="color:red">Could not locate session</h3>
+    #end
 
+    </div>
+    </td>
+</tr>
+</table>
+
+#if($liveCliSession)
+<script type="text/javascript">
+(function(jq){
+    jq(document).ready(function(){
+        com.blogspot.leonardinius.restcli.executor({
+            ajaxUrl    : function(){ return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}", "${requestContext.baseUrl}", "$sessionId") ;},
+            container  : jq('#cli-holder'),
+            welcomeMessage
+                       : '${liveCliSession.language}:${liveCliSession.version}.'
+                        + ' --/-- Press Ctrl-Enter/^-Enter to evaluate.'
+        });
+    });
+})(jQuery);
+</script>
+#end
