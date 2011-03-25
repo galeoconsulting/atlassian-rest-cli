@@ -225,8 +225,8 @@ public class RestCli
         else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
             message = jso['errors']['errorMessages'].join('')
         else message = ''
-        message = StringEscapeUtils.unescapeJavaScript(message)
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
+        message = StringEscapeUtils.unescapeJavaScript(message)
         if (jso.has('out') && jso['out'] != '') System.out.println jso['out']
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
