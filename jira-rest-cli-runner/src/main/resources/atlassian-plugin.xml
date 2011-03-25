@@ -50,6 +50,7 @@
             <action name="com.blogspot.leonardinius.actions.ScriptRunnerAction"
                     alias="restCli">
                 <view name="exec">/templates/exec-input.vm</view>
+                <view name="list">/templates/cli-list.vm</view>
                 <view name="cli">/templates/cli-input.vm</view>
             </action>
         </actions>
@@ -75,7 +76,7 @@
     <web-item key="cli-runner-web-item" name="Script CLI" section="system.admin/cli-web-section"
               weight="10">
         <label key="cli.web.section.cli_link"/>
-        <link linkId="rest_cli_runner">/secure/admin/restCli!cli.jspa?atl_token=${atl_token}</link>
+        <link linkId="rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>

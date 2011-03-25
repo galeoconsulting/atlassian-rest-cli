@@ -1,6 +1,3 @@
-<script>
-  window.restCliBaseUrl = "${requestContext.baseUrl}";
-</script>
 $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
 <b>Please specify scripting language:</b>
 <select id="cli-language">
@@ -11,8 +8,5 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
 <br/>
 <br/>
 
-<table width="99%">
-    <tr><td>
-        <div id="cli-holder"></div>
-    </td></tr>
-</table>
+
+

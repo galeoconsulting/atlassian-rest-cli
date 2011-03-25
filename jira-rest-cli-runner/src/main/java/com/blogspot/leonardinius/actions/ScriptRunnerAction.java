@@ -1,19 +1,20 @@
 package com.blogspot.leonardinius.actions;
 
+import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.sal.api.user.UserProfile;
 import com.atlassian.sal.api.websudo.WebSudoRequired;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import javax.script.ScriptEngineFactory;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
@@ -51,14 +52,39 @@ public class ScriptRunnerAction extends JiraWebActionSupport
         return "exec";
     }
 
-    public Map<String, LanguageBean> getLiveSessions()
+    public String doList()
     {
-        Map<String, LanguageBean> map = Maps.newHashMap();
+        return "list";
+    }
+
+    public List<SessionBean> getLiveSessions()
+    {
+        List<SessionBean> list = Lists.newArrayList();
+
         for (Map.Entry<SessionId, ScriptSession> entry : sessionManager.listAllSessions().entrySet())
         {
-            map.put(entry.getKey().getSessionId(), LanguageBean.valueOf(entry.getValue().getScriptEngine().getFactory()));
+            list.add(SessionBean.newInstance(entry.getKey(), entry.getValue()));
         }
-        return map;
+
+        Collections.sort(list, new Comparator<SessionBean>()
+        {
+            @Override
+            public int compare(SessionBean o1, SessionBean o2)
+            {
+                long cmp;
+                if (o2.getCreatedAtTimestamp() < 0)
+                {
+                    cmp = -(o2.getCreatedAtTimestamp() - o1.getCreatedAtTimestamp());
+                } else
+                {
+                    cmp = o1.getCreatedAtTimestamp() - o2.getCreatedAtTimestamp();
+                }
+
+                return cmp == 0 ? 0 : cmp < 0 ? -1 : 1;
+            }
+        });
+
+        return list;
     }
 
     public List<LanguageBean> getRegisteredLanguages()
@@ -82,13 +108,13 @@ public class ScriptRunnerAction extends JiraWebActionSupport
 
 // -------------------------- INNER CLASSES --------------------------
 
-    public static class LanguageBean
+    public static final class LanguageBean
     {
         private final String name;
 
         private final String version;
 
-        public LanguageBean(String name, String version)
+        private LanguageBean(String name, String version)
         {
             this.name = name;
             this.version = version;
@@ -108,6 +134,74 @@ public class ScriptRunnerAction extends JiraWebActionSupport
         {
             ScriptEngineFactory arg = Preconditions.checkNotNull(factory, "factory");
             return new LanguageBean(LanguageUtils.getLanguageName(arg), LanguageUtils.getVersionString(arg));
+        }
+    }
+
+    public static final class SessionBean
+    {
+        private static final DateFormat SIMPLE_DATE_FORMAT = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MEDIUM,
+                SimpleDateFormat.LONG);
+
+        private final String language;
+        private final String version;
+        private final String sessionId;
+        private final UserProfile creator;
+        private final long createdAt;
+
+        private SessionBean(String sessionId, String language, String version, UserProfile creator, long createdAt)
+        {
+            this.language = language;
+            this.version = version;
+            this.sessionId = sessionId;
+            this.creator = creator;
+            this.createdAt = createdAt;
+        }
+
+        public static SessionBean newInstance(SessionId sessionId, ScriptSession session)
+        {
+            Preconditions.checkNotNull(sessionId, "sessionId");
+            Preconditions.checkNotNull(session, "session");
+
+            return new SessionBean(sessionId.getSessionId(),
+                    LanguageUtils.getLanguageName(session.getScriptEngine().getFactory()),
+                    LanguageUtils.getVersionString(session.getScriptEngine().getFactory()),
+                    getUserProfile(session.getCreator()),
+                    session.getCreatedAt());
+        }
+
+        private static UserProfile getUserProfile(String username)
+        {
+            return ComponentManager.getOSGiComponentInstanceOfType(UserManager.class).getUserProfile(username);
+        }
+
+        public String getLanguage()
+        {
+            return language;
+        }
+
+        public String getVersion()
+        {
+            return version;
+        }
+
+        public String getSessionId()
+        {
+            return sessionId;
+        }
+
+        public UserProfile getCreator()
+        {
+            return creator;
+        }
+
+        public long getCreatedAtTimestamp()
+        {
+            return createdAt;
+        }
+
+        public String getCreatedAt()
+        {
+            return SIMPLE_DATE_FORMAT.format(new Date(createdAt));
         }
     }
 }

@@ -1,18 +1,41 @@
-<script>
-  window.restCliBaseUrl = "${requestContext.baseUrl}";
-</script>
 $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-runner:cli-js-css")
-<b>Please specify scripting language:</b>
-<select id="cli-language">
- #foreach($lng in $action.registeredLanguages)
-  <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
- #end
-</select>
-<br/>
-<br/>
 
-<table width="99%">
+<table class="jiraform  maxWidth">
+<tr>
+    <td class="jiraformheader">
+    <h3 class="formtitle">Non-interactive session</h3></td>
+</tr>
+<tr>
+    <td class="jiraformbody">
+    <div>
+    <b>Please specify scripting language:</b>
+    <select id="cli-language">
+     #foreach($lng in $action.registeredLanguages)
+      <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
+     #end
+    </select>
+    <br/>
+
+    <table class="grid centered maxWidth">
     <tr><td>
         <div id="cli-holder"></div>
     </td></tr>
+    </table>
+    </div>
+    </td>
+</tr>
 </table>
+
+<script type="text/javascript">
+(function(jq){
+    jq(document).ready(function(){
+        var baseUrl = "${requestContext.baseUrl}";
+        com.blogspot.leonardinius.restcli.executor({
+            ajaxUrl    : function(){ return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, jq("#cli-language").val()) ;},
+            container  : jq('#cli-holder'),
+            welcomeMessage
+                       : 'State is not preserved between different evaluation. -/- Press Ctrl-Enter/^-Enter to evaluate.'
+        });
+    });
+})(jQuery);
+</script>

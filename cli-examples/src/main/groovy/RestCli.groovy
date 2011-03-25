@@ -50,8 +50,7 @@ public class RestCli
 
     def login(def username, def password)
     {
-        def cookie = client.resource(loginUrl())
-                .type(MediaType.APPLICATION_JSON)    //
+        def cookie = client.resource(loginUrl()).type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
         authCookie = new NewCookie(cookie['name'], cookie['value']);
@@ -61,8 +60,7 @@ public class RestCli
 
     def logout()
     {
-        ClientResponse cr = client.resource(loginUrl())
-                .cookie(authCookie) //
+        ClientResponse cr = client.resource(loginUrl()).cookie(authCookie) //
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .delete(ClientResponse.class);
@@ -219,7 +217,14 @@ public class RestCli
     private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e)
     {
         JSONObject jso = e.response.getEntity(JSONObject.class)
-        String message = "${jso.has('error') ? jso['error'] : ''}${jso.has('errors') ? jso['errors']['errorMessages'].join('') : ''}";
+        String message;
+        if (jso.has('error'))                                                // server error
+            message = jso['error']
+        else if (jso.has('errorMessages'))                                   // app internal errors (validations, asserions)
+            message = jso['errorMessages'].join('')
+        else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
+            message = jso['errors']['errorMessages'].join('')
+        else message = ''
         message = StringEscapeUtils.unescapeJavaScript(message)
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
         if (jso.has('out') && jso['out'] != '') System.out.println jso['out']

@@ -3,6 +3,7 @@ package com.blogspot.leonardinius.api;
 import com.google.common.base.Preconditions;
 
 import javax.script.ScriptEngine;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -26,7 +27,7 @@ public interface ScriptSessionManager
 
 // -------------------------- INNER CLASSES --------------------------
 
-    public static class SessionId
+    public static final class SessionId
     {
         private final String sessionId;
 
@@ -63,40 +64,62 @@ public interface ScriptSessionManager
         }
     }
 
-    public static class ScriptSession
+    public static final class ScriptSession
     {
         private final ScriptEngine scriptEngine;
+        private final long createdAt;
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (!(o instanceof ScriptSession)) return false;
+
+            ScriptSession that = (ScriptSession) o;
+
+            if (createdAt != that.createdAt) return false;
+            if (creator != null ? !creator.equals(that.creator) : that.creator != null) return false;
+            if (scriptEngine != null ? !scriptEngine.equals(that.scriptEngine) : that.scriptEngine != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = scriptEngine != null ? scriptEngine.hashCode() : 0;
+            result = 31 * result + (int) (createdAt ^ (createdAt >>> 32));
+            result = 31 * result + (creator != null ? creator.hashCode() : 0);
+            return result;
+        }
+
+        public String getCreator()
+        {
+            return creator;
+        }
+
+        private final String creator;
 
         public ScriptEngine getScriptEngine()
         {
             return scriptEngine;
         }
 
-        private ScriptSession(ScriptEngine scriptEngine)
+        private ScriptSession(ScriptEngine scriptEngine, long createdAt, String userId)
         {
+            this.createdAt = createdAt;
+            this.creator = userId;
             this.scriptEngine = Preconditions.checkNotNull(scriptEngine, "ScriptEngine");
         }
 
-        @Override
-        public boolean equals(Object o)
+        public long getCreatedAt()
         {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ScriptSession that = (ScriptSession) o;
-
-            return scriptEngine.equals(that.scriptEngine);
+            return createdAt;
         }
 
-        @Override
-        public int hashCode()
+        public static ScriptSession newInstance(String creator, ScriptEngine engine)
         {
-            return scriptEngine.hashCode();
-        }
-
-        public static ScriptSession valueOf(ScriptEngine engine)
-        {
-            return new ScriptSession(engine);
+            return new ScriptSession(engine, new Date().getTime(), creator);
         }
     }
 }

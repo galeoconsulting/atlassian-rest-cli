@@ -79,7 +79,9 @@ module RESTCli
                 $stdout.print "rest-cli=> ", out["evalResult"], "\n"
             rescue RestClient::Exception => e
                 out = from_json(e.http_body)
-                message = out['errors'] && out['errors']['errorMessages'] || ''
+                message = if out['error'] then out['error']                               ## server errors
+                          elsif out['errorMessages'] then out['errorMessages']            ## internal app errors (validations, assertions)
+                          else out['errors'] && out['errors']['errorMessages'] || '' end  ## evaluation errors
                 message = message.join("\n") if message.is_a? Array
                 $stdout.puts  out["out"] unless out["out"] == ""
                 $stderr.puts  out["err"] unless out["err"] == ""

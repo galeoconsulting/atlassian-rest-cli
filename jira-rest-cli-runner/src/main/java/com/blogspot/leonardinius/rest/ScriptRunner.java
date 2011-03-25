@@ -1,5 +1,6 @@
 package com.blogspot.leonardinius.rest;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.rest.api.util.ErrorCollection;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -10,6 +11,7 @@ import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -118,7 +120,7 @@ public class ScriptRunner implements DisposableBean
 
     private boolean isAdministrator()
     {
-        return context.getUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getUser());
+        return context.getLoggedInUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getLoggedInUser());
     }
 
     private Response responseForbidden()
@@ -352,11 +354,16 @@ public class ScriptRunner implements DisposableBean
             return responseInternalError(Arrays.asList((e.getMessage())));
         }
 
-        SessionId sessionId = sessionManager.putSession(ScriptSession.valueOf(engine));
+        SessionId sessionId = sessionManager.putSession(ScriptSession.newInstance(getActorName(context.getLoggedInUser()), engine));
         return Response.ok(new SessionIdWrapper(sessionId.getSessionId(),
                 LanguageUtils.getLanguageName(engine.getFactory()),
                 LanguageUtils.getVersionString(engine.getFactory())))
                 .cacheControl(NO_CACHE).build();
+    }
+
+    private String getActorName(User user)
+    {
+        return Preconditions.checkNotNull(user).getName();
     }
 
 // -------------------------- INNER CLASSES --------------------------
