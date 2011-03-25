@@ -14,7 +14,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
       <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name) - $action.htmlEncode($lng.version)</option>
      #end
     </select>
-    &nbsp;<a href="#" onclick="javascript: makeNewSession(this); return false;">Create</a>
+    &nbsp;<a href="#" onclick="javascript: makeNewSession(this); return false;">create</a>
     &nbsp;<u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>.
     <br/>
     <hr/>
