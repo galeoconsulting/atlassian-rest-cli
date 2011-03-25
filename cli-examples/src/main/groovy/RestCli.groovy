@@ -220,7 +220,7 @@ public class RestCli
         String message;
         if (jso.has('error'))                                                // server error
             message = jso['error']
-        else if (jso.has('errorMessages'))                                   // app internal errors (validations, asserions)
+        else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
             message = jso['errorMessages'].join('')
         else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
             message = jso['errors']['errorMessages'].join('')
