@@ -36,7 +36,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.jira-rest-cli-run
             <tr class="rowNormal">
                 <td>${action.htmlEncode($session.sessionId)}</td>
                 <td>
-                <a href="${action.htmlEncode($session.creator.profilePageUri.toString())}">
+                <a href="${requestContext.baseUrl}${action.htmlEncode($session.creator.profilePageUri.toString())}">
                 ${action.htmlEncode("${session.creator.username}")}:
                     <i>${action.htmlEncode("(${session.creator.fullName} <${session.creator.email}>)")}</i>
                     </a></td>
