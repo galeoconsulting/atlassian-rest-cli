@@ -47,6 +47,7 @@ provider.
 accordingly.
 
 NB: on my local dev environment I install all the plugins using atlas-cli since I launch JIRA using atlas-run / atlas-debug commands.
+You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
 
 ##Ok, it's useful. How could I help?
 * High priority: Documentation - both creating one and understanding what actually is missing. Even GitHub issues for this are welcome.
