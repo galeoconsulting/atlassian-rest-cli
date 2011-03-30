@@ -51,6 +51,7 @@ How to start?
 provider.
 1. If you want to try out JRuby or Groovy language support - then you should install jira-rest-cli-jruby or jira-rest-cli-groovy
 accordingly.
+
 NB: on my local dev environment I install all the plugins using atlas-cli since I launch JIRA using atlas-run / atlas-debug commands.
 
 Ok, it's useful. How could I help?
