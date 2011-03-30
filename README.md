@@ -37,11 +37,11 @@ How to start?
 =============
 1.  Build project
 
-    git clone git@github.com:leonardinius/jira-rest-cli.git
-    cd jira-rest-cli/
-    git submodule init
-    cd jira-rest-cli-parent/
-    atlas-mvn clean install
+  git clone git@github.com:leonardinius/jira-rest-cli.git
+  cd jira-rest-cli/
+  git submodule init
+  cd jira-rest-cli-parent/
+  atlas-mvn clean install
 
 1. To start play with the REST Cli - you need to install jira-rest-cli-runner plugin, which is a main entry point and Rhino language
 provider.
