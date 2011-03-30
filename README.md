@@ -1,14 +1,15 @@
 Introduction
 =============
 JIRA plugin which provides a possibility to use your favorite programming language to script and interact with JIRA server realtime. The plugin provide following working modes:
+* JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuos working session support and no working context preservation between invocations.
+* JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute script code in the scripting session context - state is preserved between invocations.
+* The are sample console clients available (Ruby, Groovy) which works similar to interactive language shells (irb, groovysh).
 
-JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuos working session support and no working context preservation between invocations.
-JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute script code in the scripting session context - state is preserved between invocations.
-The are sample console clients available (Ruby, Groovy) which works similar to interactive language shells (irb, groovysh).
 At the moment following programming languages are supported:
-JavaScript (Rhino) shipped with Oracle JDK - default
-Groovy 1.7.9 - separate
-JRuby 1.5.6 - separate.
+* JavaScript (Rhino) shipped with Oracle JDK - default
+* Groovy 1.7.9 - separate
+* JRuby 1.5.6 - separate.
+
 Languages are implemented as standalone plug-able components, installed separately, except for Rhino available by default.
 
 The target is to come as close to Firebug / IRB / Groovysh as possible :)
@@ -19,6 +20,7 @@ Alternatives
 * [Jira Scripting Suite](https://plugins.atlassian.com/plugin/details/16346) - provides a convenient way to put custom conditions, validators and post-functions into workflow in a form of
 Jython scripts..
 * [Script Runner](https://plugins.atlassian.com/plugin/details/6820) - provide ability to script (JSR-223 capable) workflow validators, conditions, etc..
+
 What's wrong with? Actually - nothing. They are great pieces of software and they excellently do they should do - extend JIRA functionality and provide possibility to easily extend workflows (Jira Scripting Suite, Script Runner) w/o need to restart Jira server, or provide access to built-in remote access (Python CLI for JIRA).
 The thing I've missed here - is to play with Jira API in the realtime, see what's inside of teddy bear looks like (latvian: kas lācītim vēderā) and the ability to use the same approach to automate certain operations.
 
