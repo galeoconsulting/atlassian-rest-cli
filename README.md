@@ -1,6 +1,7 @@
 Introduction
 =============
 JIRA plugin which provides a possibility to use your favorite programming language to script and interact with JIRA server realtime. The plugin provide following working modes:
+
 * JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuos working session support and no working context preservation between invocations.
 * JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute script code in the scripting session context - state is preserved between invocations.
 * The are sample console clients available (Ruby, Groovy) which works similar to interactive language shells (irb, groovysh).
