@@ -15,6 +15,8 @@ Languages are implemented as standalone plug-able components, installed separate
 
 The target is to come as close to Firebug / IRB / Groovysh as possible :)
 
+You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
+
 ##Alternatives
 * [Python CLI for JIRA](https://plugins.atlassian.com/plugin/details/16346) - basically cli interface to JIRA SOAP interface;
 * [Jira Scripting Suite](https://plugins.atlassian.com/plugin/details/16346) - provides a convenient way to put custom conditions, validators and post-functions into workflow in a form of
