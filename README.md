@@ -36,6 +36,7 @@ I would really appreciate if you will think out other use-cases and will report 
 How to start?
 =============
 1.  Build project
+
     git clone git@github.com:leonardinius/jira-rest-cli.git
     cd jira-rest-cli/
     git submodule init
