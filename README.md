@@ -7,6 +7,7 @@ JIRA plugin which provides a possibility to use your favorite programming langua
 * The are sample console clients available (Ruby, Groovy) which works similar to interactive language shells (irb, groovysh).
 
 At the moment following programming languages are supported:
+
 * JavaScript (Rhino) shipped with Oracle JDK - default
 * Groovy 1.7.9 - separate
 * JRuby 1.5.6 - separate.
