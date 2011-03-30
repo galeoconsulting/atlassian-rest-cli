@@ -42,6 +42,7 @@ How to start?
     git submodule init
     cd jira-rest-cli-parent/
     atlas-mvn clean install
+
 1. To start play with the REST Cli - you need to install jira-rest-cli-runner plugin, which is a main entry point and Rhino language
 provider.
 1. If you want to try out JRuby or Groovy language support - then you should install jira-rest-cli-jruby or jira-rest-cli-groovy
