@@ -44,7 +44,7 @@ I would really appreciate if you will think out other use-cases and will report 
 * To start play with the REST Cli - you need to install jira-rest-cli-runner plugin, which is a main entry point and Rhino language
 provider.
 * If you want to try out JRuby or Groovy language support - then you should install jira-rest-cli-jruby or jira-rest-cli-groovy
-accordingly.
+accordingly. <br/>
 
 **OR** you could get all this artifacts here
 
