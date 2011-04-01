@@ -46,8 +46,13 @@ provider.
 * If you want to try out JRuby or Groovy language support - then you should install jira-rest-cli-jruby or jira-rest-cli-groovy
 accordingly.
 
-NB: on my local dev environment I install all the plugins using atlas-cli since I launch JIRA using atlas-run / atlas-debug commands.
-You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
+**OR** you could get all this artifacts here
+
+* [jira-rest-cli-runner](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.0.jar) - script runner, web-console, session mgmt admin interface, rhino language support.
+* [jira-rest-cli-jruby](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.0.jar) - JRuby support
+* [jira-rest-cli-groovy](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.0.jar) - Groovy support
+ 
+NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
 
 ##Ok, it's useful. How could I help?
 * High priority: Documentation - both creating one and understanding what actually is missing. Even GitHub issues for this are welcome.
