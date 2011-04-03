@@ -35,7 +35,7 @@ public class RestCli
 
     private def baseUrl()
     {
-        "${options['proto']}://${options['host']}:${options['port']}/${options['context']}"
+        "${options.proto}://${options.host}:${options.port}/${options.context}"
     }
 
     private def loginUrl()
@@ -53,7 +53,7 @@ public class RestCli
         def cookie = client.resource(loginUrl()).type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
-        authCookie = new NewCookie(cookie['name'], cookie['value']);
+        authCookie = new NewCookie((String) cookie['name'], (String) cookie['value']);
 
         return this;
     }
@@ -94,7 +94,7 @@ public class RestCli
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .get(JSONObject.class)
-        JSONArray sessions = response['sessions']
+        JSONArray sessions = (JSONArray) response['sessions']
         def sessionIds = [];
         for (int i = 0; i < sessions.length(); i++)
         {
@@ -183,7 +183,7 @@ public class RestCli
 
     public static void main(String[] args)
     {
-        RestCli cli;
+        RestCli cli = null;
         try
         {
             cli = new RestCli([
