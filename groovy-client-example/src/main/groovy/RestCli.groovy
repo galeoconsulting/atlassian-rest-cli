@@ -110,7 +110,7 @@ public class RestCli
     def repl(sessionId = null, killSessionOnExit = true)
     {
 
-        System.out.println """
+        println """
 *****************************************
 **  JIRA REST-Groovy-Cli command line  **
 **  Type '!q' to exit the loop         **
@@ -121,7 +121,7 @@ public class RestCli
             {
 
                 def tmp = attachSession()
-                System.out.println("New session acquired: ${tmp}")
+                println("New session acquired: ${tmp}")
                 tmp
             }() : sessionId;
 
@@ -134,7 +134,7 @@ public class RestCli
             loopCond: for (;;)
             {
 
-                System.out.printf("rest-cli(%1\$05d)>> ", i++)
+                printf("rest-cli(%1\$05d)>> ", i++)
                 String line = console.readLine();
                 switch (line.trim())
                 {
@@ -154,9 +154,9 @@ public class RestCli
                         {
                             JSONObject result = eval_input(sessionId, text)
 
-                            if (result['out'] != '') System.out.println result['out']
+                            if (result['out'] != '') println result['out']
                             if (result['err'] != '') System.err.println result['err']
-                            System.out.println "rest-cli=> ${result.has('evalResult') ? result['evalResult'] : null}"
+                            println "rest-cli=> ${result.has('evalResult') ? result['evalResult'] : null}"
                         }
                         catch (com.sun.jersey.api.client.UniformInterfaceException e)
                         {
@@ -171,7 +171,7 @@ public class RestCli
         {
             if (sessionId != null && killSessionOnExit)
             {
-                System.out.println "Session state cleanup: ${sessionId}"
+                println "Session state cleanup: ${sessionId}"
                 this.deleteSession(sessionId)
             }
         }
@@ -179,16 +179,18 @@ public class RestCli
 
     public static void main(String[] args)
     {
-        CliBuilder cli = new CliBuilder(usage: 'rest-cli-groovy -h <host> -u <user> -pw <password> [options]')
+        CliBuilder cli = new CliBuilder(usage: '''rest-cli-groovy -h <host> -u <user> -
+w <password> [options]''')
         cli.h(required: true, longOpt: 'host', args: 1, argName: 'host', 'server hostname')
         cli.p(longOpt: 'port', args: 1, argName: 'port[80]', 'server port')
         cli.proto(longOpt: 'protocol', args: 1, argName: 'protocol[http]', 'http/https protocol; could be derived from port.')
         cli.c(longOpt: 'context', args: 1, argName: 'context', 'application context (e.g.: jira)')
         cli.u(required: true, longOpt: 'user', args: 1, argName: 'user', 'admin user name to connect with')
-        cli.pw(required: true, longOpt: 'password', args: 1, argName: 'password', 'password to authenticate with')
-        cli.s(longOpt: 'session', args: 1, argName: 'cli-session-id', 'CLI session id to connect to')
+        cli.w(required: true, longOpt: 'password', args: 1, argName: 'password', 'password to authenticate with')
+        cli.s(longOpt: 'session', args: 1, argName: 'cli-session-id', 'cli session id to connect to')
         cli.l(longOpt: 'list-sessions', 'list CLI session ids')
-        cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'Will terminate CLI session')
+        cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate CLI session')
+        cli.n(longOpt: 'new-session', 'will create new session and exit immediatelly')
         cli.help('print this message')
 
         def options = cli.parse(args)
@@ -213,27 +215,33 @@ public class RestCli
         try
         {
             def selfOptions = [:]
-            selfOptions.port = options.p == false ? 80 : options.p
-            selfOptions.proto = options.proto == false ? (options.p == 443 ? 'https' : 'http') : options.proto
-            selfOptions.host = options.h
-            selfOptions.context = options.c == false ? '' : options.c
-            repl = new RestCli(selfOptions).login(options.u, options.pw)
+            selfOptions.port = options.port == false ? 80 : options.port
+            selfOptions.proto = options.proto == false ? (options.port == 443 ? 'https' : 'http') : options.proto
+            selfOptions.host = options.host
+            selfOptions.context = options.context == false ? '' : options.context
+            repl = new RestCli(selfOptions).login(options.user, options.password)
 
-            if (options.l)
+            if (options.'new-session')
             {
-                def List sessions = repl.listSessions();
-                System.out.println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
-                System.exit(0);
+                println repl.attachSession()
+                System.exit(0)
             }
 
-            if (options.d != false)
+            if (options.'list-sessions')
             {
-                System.out.println "Deleting cli-session: ${options.d}"
-                repl.deleteSession(options.d)
-                System.exit(0);
+                def List sessions = repl.listSessions()
+                println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
+                System.exit(0)
             }
 
-            repl.repl(options.s == false ? null : options.s, false)
+            if (options.'drop-session' != false)
+            {
+                println "Deleting cli-session: ${options.'drop-session'}"
+                repl.deleteSession(options.'drop-session')
+                System.exit(0)
+            }
+
+            repl.repl(options.session == false ? null : options.session, options.session == false ? true : false)
         }
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
@@ -261,7 +269,7 @@ public class RestCli
         else message = ''
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
         message = StringEscapeUtils.unescapeJavaScript(message)
-        if (jso.has('out') && jso['out'] != '') System.out.println jso['out']
+        if (jso.has('out') && jso['out'] != '') println jso['out']
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
     }
