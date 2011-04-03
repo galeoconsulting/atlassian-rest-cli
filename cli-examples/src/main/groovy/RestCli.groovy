@@ -11,27 +11,23 @@ import org.codehaus.jettison.json.JSONObject
 
 public class RestCli
 {
-    private def options = [:];
+    private def Map options = [:]
     private javax.ws.rs.core.Cookie authCookie = null;
     private Client client;
 
-    public RestCli(Map opts)
+    public RestCli(Map options)
     {
-        init(opts);
-
+        init(options)
     }
 
-    def reset()
+    private def init(Map options)
     {
-        init([:]);
-    }
-
-    private def init(Map opts)
-    {
-        options.putAll(opts);
+        this.options.clear();
+        this.options.putAll(options)
         authCookie = null;
         client = Client.create(new DefaultClientConfig());
     }
+
 
     private def baseUrl()
     {
@@ -133,9 +129,9 @@ public class RestCli
         {
             ConsoleReader console = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
             def lines = [];
+            def i = 1;
 
-            def loopCond = true;
-            for (def i = 1; loopCond;)
+            loopCond: for (;;)
             {
 
                 System.out.printf("rest-cli(%1\$05d)>> ", i++)
@@ -145,7 +141,7 @@ public class RestCli
                     case '!q':
                     case 'quit':
                     case 'exit':
-                        loopCond = false; break;
+                        break loopCond; break;
                     default:
                         lines += line;
                         break;
@@ -183,23 +179,61 @@ public class RestCli
 
     public static void main(String[] args)
     {
-        RestCli cli = null;
+        CliBuilder cli = new CliBuilder(usage: 'rest-cli-groovy -h <host> -u <user> -pw <password> [options]')
+        cli.h(required: true, longOpt: 'host', args: 1, argName: 'host', 'server hostname')
+        cli.p(longOpt: 'port', args: 1, argName: 'port[80]', 'server port')
+        cli.proto(longOpt: 'protocol', args: 1, argName: 'protocol[http]', 'http/https protocol; could be derived from port.')
+        cli.c(longOpt: 'context', args: 1, argName: 'context', 'application context (e.g.: jira)')
+        cli.u(required: true, longOpt: 'user', args: 1, argName: 'user', 'admin user name to connect with')
+        cli.pw(required: true, longOpt: 'password', args: 1, argName: 'password', 'password to authenticate with')
+        cli.s(longOpt: 'session', args: 1, argName: 'cli-session-id', 'CLI session id to connect to')
+        cli.l(longOpt: 'list-sessions', 'list CLI session ids')
+        cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'Will terminate CLI session')
+        cli.help('print this message')
+
+        def options = cli.parse(args)
+
+        if (options == null || options == false)
+        {
+            return;
+        }
+
+        if (options.help)
+        {
+            cli.usage()
+            return;
+        }
+
+        doRepl(options)
+    }
+
+    private static void doRepl(def options)
+    {
+        RestCli repl = null;
         try
         {
-            cli = new RestCli([
-                    'proto': 'http', //
-                    'host': 'localhost', //
-                    'port': '2990', //
-                    'context': 'jira', //
-            ]).login('admin', 'admin')
+            def selfOptions = [:]
+            selfOptions.port = options.p == false ? 80 : options.p
+            selfOptions.proto = options.proto == false ? (options.p == 443 ? 'https' : 'http') : options.proto
+            selfOptions.host = options.h
+            selfOptions.context = options.c == false ? '' : options.c
+            repl = new RestCli(selfOptions).login(options.u, options.pw)
 
-            def List sessions = cli.listSessions();
-            if (!sessions.isEmpty())
+            if (options.l)
             {
+                def List sessions = repl.listSessions();
                 System.out.println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
+                System.exit(0);
             }
 
-            cli.repl()
+            if (options.d != false)
+            {
+                System.out.println "Deleting cli-session: ${options.d}"
+                repl.deleteSession(options.d)
+                System.exit(0);
+            }
+
+            repl.repl(options.s == false ? null : options.s, false)
         }
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
@@ -207,9 +241,9 @@ public class RestCli
         }
         finally
         {
-            if (cli != null)
+            if (repl != null)
             {
-                cli.logout();
+                repl.logout();
             }
         }
     }
