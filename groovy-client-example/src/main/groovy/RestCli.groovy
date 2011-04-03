@@ -218,6 +218,7 @@ public class RestCli
             selfOptions.proto = options.proto == false ? (options.port == 443 ? 'https' : 'http') : options.proto
             selfOptions.host = options.host
             selfOptions.context = options.context == false ? '' : options.context
+
             repl = new RestCli(selfOptions).login(options.user, options.password)
 
             if (options.'new-session')
@@ -229,7 +230,7 @@ public class RestCli
             if (options.'list-sessions')
             {
                 def List sessions = repl.listSessions()
-                println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
+                println "Active groovy sessions ($sessions.size()): ${sessions.join(", ")}"
                 System.exit(0)
             }
 
@@ -258,16 +259,18 @@ public class RestCli
     private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e)
     {
         JSONObject jso = e.response.getEntity(JSONObject.class)
-        String message;
-        if (jso.has('error'))                                                // server error
-            message = jso['error']
-        else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
-            message = jso['errorMessages'].join('')
-        else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
-            message = jso['errors']['errorMessages'].join('')
-        else message = ''
-        message = StringUtils.defaultIfEmpty(message, e.getMessage())
+        String message = '';
+        if (jso != null)
+        {
+            if (jso.has('error'))                                                // server error
+                message = jso['error']
+            else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
+                message = jso['errorMessages'].join('')
+            else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
+                message = jso['errors']['errorMessages'].join('')
+        }
         message = StringEscapeUtils.unescapeJavaScript(message)
+        message = StringUtils.defaultIfEmpty(message, e.getMessage())
         if (jso.has('out') && jso['out'] != '') println jso['out']
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
