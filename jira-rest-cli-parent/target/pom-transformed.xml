@@ -27,13 +27,13 @@
             <dependency>
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>atlassian-jira</artifactId>
-                <version>${jira.version}</version>
+                <version>4.3</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>jira-rest-plugin</artifactId>
-                <version>${jira.version}</version>
+                <version>4.3</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>jira-func-tests</artifactId>
-                <version>${jira.version}</version>
+                <version>4.3</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
