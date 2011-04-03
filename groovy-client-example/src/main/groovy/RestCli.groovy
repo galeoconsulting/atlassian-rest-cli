@@ -179,8 +179,7 @@ public class RestCli
 
     public static void main(String[] args)
     {
-        CliBuilder cli = new CliBuilder(usage: '''rest-cli-groovy -h <host> -u <user> -
-w <password> [options]''')
+        CliBuilder cli = new CliBuilder(usage: 'rest-cli-groovy -h <host> -u <user> -w <password> [options]')
         cli.h(required: true, longOpt: 'host', args: 1, argName: 'host', 'server hostname')
         cli.p(longOpt: 'port', args: 1, argName: 'port[80]', 'server port')
         cli.proto(longOpt: 'protocol', args: 1, argName: 'protocol[http]', 'http/https protocol; could be derived from port.')
@@ -243,6 +242,7 @@ w <password> [options]''')
 
             repl.repl(options.session == false ? null : options.session, options.session == false ? true : false)
         }
+
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
             defaultHandleError(e)
@@ -273,4 +273,5 @@ w <password> [options]''')
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
         System.err.println("----\nError: ${message}")
     }
+
 }
