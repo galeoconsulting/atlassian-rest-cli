@@ -15,7 +15,8 @@
     <version>1.1-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
-    <name>jira-rest-cli-groovy</name>
+    <name>REST-CLI Groovy-${groovy.version} language support</name>
+    <description>Installs Groovy-${groovy.version} scripting support for REST-CLI Script Runner</description>
 
     <repositories>
         <repository>
@@ -54,7 +55,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>1.7.9</version>
+            <version>${groovy.version}</version>
         </dependency>
 
         <dependency>
@@ -64,5 +65,9 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <properties>
+        <groovy.version>1.7.9</groovy.version>
+    </properties>
 
 </project>

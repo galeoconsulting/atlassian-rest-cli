@@ -15,7 +15,8 @@
     <version>1.1-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
-    <name>jira-rest-cli-jruby</name>
+    <name>REST-CLI JRuby-${jruby.version} language support</name>
+    <description>Installs JRuby-${jruby.version} scripting support for REST-CLI Script Runner</description>
 
     <dependencies>
         <dependency>
@@ -40,7 +41,7 @@
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby</artifactId>
-            <version>1.5.6</version>
+            <version>${jruby.version}</version>
         </dependency>
 
         <dependency>
@@ -51,5 +52,9 @@
         </dependency>
 
     </dependencies>
+
+    <properties>
+        <jruby.version>1.5.6</jruby.version>
+    </properties>
 
 </project>

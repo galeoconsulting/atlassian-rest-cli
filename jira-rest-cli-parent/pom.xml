@@ -12,8 +12,8 @@
         <url>http://leonardinius.blogspot.com/</url>
     </organization>
 
-    <name>jira-rest-cli-parent</name>
-    <description>parent pom</description>
+    <name>JIRA Rest Cli Parent</name>
+    <description>JIRA Rest Cli Parent POM</description>
     <packaging>pom</packaging>
 
     <scm>
