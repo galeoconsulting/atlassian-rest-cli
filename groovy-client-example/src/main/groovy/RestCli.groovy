@@ -187,8 +187,8 @@ public class RestCli
         cli.u(required: true, longOpt: 'user', args: 1, argName: 'user', 'admin user name to connect with')
         cli.w(required: true, longOpt: 'password', args: 1, argName: 'password', 'password to authenticate with')
         cli.s(longOpt: 'session', args: 1, argName: 'cli-session-id', 'cli session id to connect to')
-        cli.l(longOpt: 'list-sessions', 'list CLI session ids')
-        cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate CLI session')
+        cli.l(longOpt: 'list-sessions', 'list cli session ids')
+        cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate cli session')
         cli.n(longOpt: 'new-session', 'will create new session and exit immediatelly')
         cli.help('print this message')
 
@@ -242,7 +242,6 @@ public class RestCli
 
             repl.repl(options.session == false ? null : options.session, options.session == false ? true : false)
         }
-
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
             defaultHandleError(e)
