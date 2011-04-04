@@ -230,7 +230,7 @@ public class RestCli
             if (options.'list-sessions')
             {
                 def List sessions = repl.listSessions()
-                println "Active groovy sessions ($sessions.size()): ${sessions.join(", ")}"
+                println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
                 System.exit(0)
             }
 
