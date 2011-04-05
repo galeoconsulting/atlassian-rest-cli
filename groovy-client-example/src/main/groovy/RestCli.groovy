@@ -44,7 +44,7 @@ public class RestCli
         "${baseUrl()}/rest/rest-scripting/1.0"
     }
 
-    def login(def username, def password)
+    RestCli login(def username, def password)
     {
         def cookie = client.resource(loginUrl()).type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
@@ -67,7 +67,7 @@ public class RestCli
     }
 
 
-    def attachSession()
+    String attachSession()
     {
         client.resource(cliBaseUrl()).path('/sessions') //
                 .cookie(authCookie) //
@@ -82,7 +82,7 @@ public class RestCli
                 .delete(ClientResponse.class)
     }
 
-    List listSessions()
+    List<String> listSessions()
     {
         JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )
                 .queryParam('language', 'groovy') //
@@ -96,10 +96,10 @@ public class RestCli
         {
             sessionIds.add(sessions.get(i)['sessionId'])
         }
-        sessionIds
+        (sessionIds as List<String>)
     }
 
-    def eval_input(String sessionId, String input)
+    JSONObject eval_input(String sessionId, String input)
     {
         client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie) //
                 .type(MediaType.APPLICATION_JSON)    //
@@ -107,9 +107,63 @@ public class RestCli
                 .post(JSONObject.class, new JSONObject('script': input))
     }
 
-    def repl(sessionId = null, killSessionOnExit = true)
+    def doWithSession(sessionId = null, Closure closure)
     {
+        def evaluationResult
+        boolean killSessionOnExit = false
 
+        sessionId = sessionId == null ?
+            {
+
+                def tmp = attachSession()
+                println("New session acquired: ${tmp}")
+                killSessionOnExit = true
+                tmp
+            }() : sessionId;
+
+        try
+        {
+            evaluationResult = closure(sessionId)
+        }
+        finally
+        {
+            if (sessionId != null && killSessionOnExit)
+            {
+                println "Session state cleanup: ${sessionId}"
+                deleteSession(sessionId)
+            }
+        }
+
+        evaluationResult
+    }
+
+    private def defaultEval(String sessionId, String text)
+    {
+        try
+        {
+            def result = eval_input(sessionId, text)
+
+            if (result['out'] != '') println result['out']
+            if (result['err'] != '') System.err.println result['err']
+            println "rest-cli=> ${result.has('evalResult') ? result['evalResult'] : null}"
+            return result
+        }
+        catch (com.sun.jersey.api.client.UniformInterfaceException e)
+        {
+            defaultHandleError(e)
+            return e
+        }
+    }
+
+    def execute(String sessionId, String text)
+    {
+        doWithSession sessionId, { session ->
+            defaultEval(session, text)
+        }
+    }
+
+    def repl(String sessionId = null)
+    {
         println """
 *****************************************
 **  JIRA REST-Groovy-Cli command line  **
@@ -117,23 +171,13 @@ public class RestCli
 **  Type '!r' to eval user input       **
 *****************************************
 """
-        sessionId = sessionId == null ?
-            {
-
-                def tmp = attachSession()
-                println("New session acquired: ${tmp}")
-                tmp
-            }() : sessionId;
-
-        try
-        {
+        doWithSession sessionId, { session ->
             ConsoleReader console = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
             def lines = [];
             def i = 1;
 
             loopCond: for (;;)
             {
-
                 printf("rest-cli(%1\$05d)>> ", i++)
                 String line = console.readLine();
                 switch (line.trim())
@@ -147,42 +191,43 @@ public class RestCli
                         break;
                     case '!r':
                         def text = lines.join("\n");
-                        lines = []
-                        i = 1
-
-                        try
-                        {
-                            JSONObject result = eval_input(sessionId, text)
-
-                            if (result['out'] != '') println result['out']
-                            if (result['err'] != '') System.err.println result['err']
-                            println "rest-cli=> ${result.has('evalResult') ? result['evalResult'] : null}"
-                        }
-                        catch (com.sun.jersey.api.client.UniformInterfaceException e)
-                        {
-                            defaultHandleError(e)
-                        }
+                        lines = []; i = 1;
+                        defaultEval(session, text)
                         break;
                 }
 
             }
         }
-        finally
+    }
+
+
+
+    private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e)
+    {
+        JSONObject jso = e.response.getEntity(JSONObject.class)
+        String message = '';
+        if (jso != null)
         {
-            if (sessionId != null && killSessionOnExit)
-            {
-                println "Session state cleanup: ${sessionId}"
-                this.deleteSession(sessionId)
-            }
+            if (jso.has('error'))                                                // server error
+                message = jso['error']
+            else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
+                message = jso['errorMessages'].join('')
+            else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
+                message = jso['errors']['errorMessages'].join('')
         }
+        message = StringEscapeUtils.unescapeJavaScript(message)
+        message = StringUtils.defaultIfEmpty(message, e.getMessage())
+        if (jso.has('out') && jso['out'] != '') println jso['out']
+        if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
+        System.err.println("----\nError: ${message}")
     }
 
     public static void main(String[] args)
     {
         CliBuilder cli = new CliBuilder(usage: 'rest-cli-groovy -h <host> -u <user> -w <password> [options]')
         cli.h(required: true, longOpt: 'host', args: 1, argName: 'host', 'server hostname')
-        cli.p(longOpt: 'port', args: 1, argName: 'port[80]', 'server port')
-        cli.proto(longOpt: 'protocol', args: 1, argName: 'protocol[http]', 'http/https protocol; could be derived from port.')
+        cli.p(longOpt: 'port', args: 1, argName: 'port', 'server port. defaults to [80]')
+        cli.proto(longOpt: 'protocol', args: 1, argName: 'protocol', 'http/https protocol; could be derived from port. defaults to [http]')
         cli.c(longOpt: 'context', args: 1, argName: 'context', 'application context (e.g.: jira)')
         cli.u(required: true, longOpt: 'user', args: 1, argName: 'user', 'admin user name to connect with')
         cli.w(required: true, longOpt: 'password', args: 1, argName: 'password', 'password to authenticate with')
@@ -190,6 +235,7 @@ public class RestCli
         cli.l(longOpt: 'list-sessions', 'list cli session ids')
         cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate cli session')
         cli.n(longOpt: 'new-session', 'will create new session and exit immediatelly')
+        cli.f(longOpt: 'file', args: 1, argName: 'file', 'will read file and avaluate it\'s contents. use - for stdin')
         cli.help('print this message')
 
         def options = cli.parse(args)
@@ -205,10 +251,10 @@ public class RestCli
             return;
         }
 
-        doRepl(options)
+        doMain(options)
     }
 
-    private static void doRepl(def options)
+    private static void doMain(def options)
     {
         RestCli repl = null;
         try
@@ -230,7 +276,7 @@ public class RestCli
             if (options.'list-sessions')
             {
                 def List sessions = repl.listSessions()
-                println "Active groovy sessions ($sessions.size()): ${sessions.join(", ")}"
+                println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
                 System.exit(0)
             }
 
@@ -241,7 +287,13 @@ public class RestCli
                 System.exit(0)
             }
 
-            repl.repl(options.session == false ? null : options.session, options.session == false ? true : false)
+            if (options.file != false)
+            {
+                doEval(options.session, options.file, repl)
+                System.exit(0)
+            }
+
+            doRepl(options.session, repl)
         }
         catch (com.sun.jersey.api.client.UniformInterfaceException e)
         {
@@ -251,29 +303,37 @@ public class RestCli
         {
             if (repl != null)
             {
-                repl.logout();
+                repl.logout()
             }
         }
     }
 
-    private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e)
+    static def String readFully(InputStream is)
     {
-        JSONObject jso = e.response.getEntity(JSONObject.class)
-        String message = '';
-        if (jso != null)
-        {
-            if (jso.has('error'))                                                // server error
-                message = jso['error']
-            else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
-                message = jso['errorMessages'].join('')
-            else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
-                message = jso['errors']['errorMessages'].join('')
-        }
-        message = StringEscapeUtils.unescapeJavaScript(message)
-        message = StringUtils.defaultIfEmpty(message, e.getMessage())
-        if (jso.has('out') && jso['out'] != '') println jso['out']
-        if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
-        System.err.println("----\nError: ${message}")
+        Reader reader = new InputStreamReader(is)
+        StringWriter sw = new StringWriter()
+        char[] cbuf = new char[4 * 1024]
+        for (int charsRead = reader.read(cbuf); charsRead != -1; charsRead = reader.read(cbuf))
+            sw.write(cbuf, 0, charsRead);
+        return sw.toString()
+    }
+
+    private static def asSessionId(def optionValue)
+    {
+        if (optionValue == false) return null
+        if (optionValue == null) return null
+        optionValue
+    }
+
+    private static def doEval(def sessionId, String file, RestCli restCli)
+    {
+        InputStream is = "-".equals(file) ? System.in : new FileInputStream(file)
+        restCli.execute(asSessionId(sessionId), readFully(is))
+    }
+
+    private static def doRepl(def sessionId, RestCli repl)
+    {
+        repl.repl(asSessionId(sessionId))
     }
 
 }
