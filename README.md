@@ -1,9 +1,13 @@
 ##Introduction
-JIRA plugin which provides a possibility to use your favorite programming language to script and interact with JIRA server realtime. The plugin provide following working modes:
+JIRA plugin which provides a possibility to use your favorite programming language to script and interact with JIRA server realtime. The
+plugin provide following working modes:
 
-* JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuos working session support and no working context preservation between invocations.
-* JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute script code in the scripting session context - state is preserved between invocations.
-* The are sample console clients available (Ruby, Groovy) which works similar to interactive language shells (irb, groovysh).
+* JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuous working session support and no
+working context preservation between invocations.
+* JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute
+script code in the scripting session context - state is preserved between invocations.
+* The are sample console clients available (Ruby, Groovy) which work similar to interactive language shells (irb, groovysh).
+* Sample JIRA configuration scripts.
 
 At the moment following programming languages are supported:
 
@@ -19,16 +23,21 @@ You can see some screenshots in action [here](http://leonardinius.blogspot.com/2
 
 ##Alternatives
 * [Python CLI for JIRA](https://plugins.atlassian.com/plugin/details/16346) - basically cli interface to JIRA SOAP interface;
-* [Jira Scripting Suite](https://plugins.atlassian.com/plugin/details/16346) - provides a convenient way to put custom conditions, validators and post-functions into workflow in a form of
+* [Jira Scripting Suite](https://plugins.atlassian.com/plugin/details/16346) - provides a convenient way to put custom conditions,
+validators and post-functions into workflow in a form of
 Jython scripts..
-* [Script Runner](https://plugins.atlassian.com/plugin/details/6820) - provide ability to script (JSR-223 capable) workflow validators, conditions, etc..
+* [Script Runner](https://plugins.atlassian.com/plugin/details/6820) - provide ability to script (JSR-223 capable) workflow validators,
+conditions, etc..
 
-What's wrong with? Actually - nothing. They are great pieces of software and they excellently do they should do - extend JIRA functionality and provide possibility to easily extend workflows (Jira Scripting Suite, Script Runner) w/o need to restart Jira server, or provide access to built-in remote access (Python CLI for JIRA).
-The thing I've missed here - is to play with Jira API in the realtime, see what's inside of teddy bear looks like (latvian: kas lācītim vēderā) and the ability to use the same approach to automate certain operations.
+What's wrong with? Actually - nothing. They are great pieces of software and they excellently do they should do - extend JIRA functionality
+and provide possibility to easily extend workflows (Jira Scripting Suite, Script Runner) w/o need to restart Jira server, or provide access
+to built-in remote access (Python CLI for JIRA).
+The thing I've missed here - is to play with Jira API in the realtime, see what's inside of teddy bear looks like and the ability to use
+the same approach to automate certain operations (e.g. configuration deployment).
 
 ##How could I use it?
 When working with it I have several use-cases in mind:
-Use it as console-tool to script and automate certain configuration changes (local development; staging etc development rollout)
+Use it as console-tool to script and automate certain configuration changes (local development; staging etc development deployment)
 Use it as a tool to play with JIRA system API at realtime (local development needs)
 I would really appreciate if you will think out other use-cases and will report them back to me. So do it :)
 
@@ -44,14 +53,14 @@ I would really appreciate if you will think out other use-cases and will report 
 
 * To start play with the REST Cli - you need to install jira-rest-cli-runner plugin, which is a main entry point and Rhino language
 provider.
-* If you want to try out JRuby or Groovy language support - then you should install jira-rest-cli-jruby or jira-rest-cli-groovy
-accordingly. <br/>
+* To try out JRuby or Groovy language support - install jira-rest-cli-jruby or jira-rest-cli-groovy accordingly. <br/>
 
 **OR** you could get all this artifacts here
 
-* [jira-rest-cli-runner](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.0.jar) - Script runner, web-console, session mgmt admin interface, Rhino language support.
-* [jira-rest-cli-jruby](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.0.jar) - JRuby support
-* [jira-rest-cli-groovy](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.0.jar) - Groovy support
+* [jira-rest-cli-runner](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.1.jar) - Script runner, web-console,
+session mgmt admin interface, Rhino language support.
+* [jira-rest-cli-jruby](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.1.jar) - JRuby support
+* [jira-rest-cli-groovy](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.1.jar) - Groovy support
 * cli-examples - browse on GitHub, fetch locally and play around yourselves :) 
  
 NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
@@ -59,5 +68,6 @@ NB: You can see some screenshots in action [here](http://leonardinius.blogspot.c
 ##Ok, it's useful. How could I help?
 * High priority: Documentation - both creating one and understanding what actually is missing. Even GitHub issues for this are welcome.
 * Medium priority: Upload plugin to Atlassian Plugin Exchange
-* Medium priority: Improving console-cli modes sample applications (JRuby, Groovy) - cleaning up, since I'm not expert in those languages; adding command line options.
+* Medium priority: Improving console-cli modes sample applications (JRuby, Groovy) - cleaning up, since I'm not expert in those languages;
+adding command line options.
 * Low priority: improving web-interface (more Ajax-like) etc...
