@@ -114,19 +114,25 @@
             
             if(e.ctrlKey)
             {
-              var payload = {script : scriptText, argv: []};
+              var payload = {script : scriptText};
               
               $.ajax({
                 url         : typeof options.ajaxUrl == 'function' ? options.ajaxUrl() : options.ajaxUrl,
                 data        : JSON.stringify(payload),
                 error       : function(XMLHttpRequest, textStatus, errorThrown)
                 {
-                  var getScriptError = function (xhr) {
+
+                  var getAsJson = function(xhr) {
                     if(!xhr || !xhr.response) return null;
                     var data = xhr.response;
                     if(typeof data == 'string'){
                       data = tryIt(function(){ return $.parseJSON(data)}, null);
                     }
+                    return data;
+                  };
+
+                  var getScriptError = function (xhr) {
+                    var data = getAsJson(xhr);
                     if(data && data.errors && data.errors.errorMessages) return data;
                     return null;
                   };
@@ -142,7 +148,7 @@
                   else alert(
                     AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
                     textStatus  || 'unknown',
-                    errorThrown || '',
+                    errorThrown || tryIt(function(){ return getAsJson(XMLHttpRequest).message }, null) || '',
                     tryIt(function(){ return  XMLHttpRequest.status; }, 'Unknown'))
                   );
                   
