@@ -38,6 +38,7 @@ I would really appreciate if you will think out other use-cases and will report 
         git clone git@github.com:leonardinius/jira-rest-cli.git
         cd jira-rest-cli/
         git submodule init
+        git submodule update
         cd jira-rest-cli-parent/
         atlas-mvn clean install
 
