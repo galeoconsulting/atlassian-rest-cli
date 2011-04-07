@@ -65,9 +65,5 @@ session mgmt admin interface, Rhino language support.
  
 NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
 
-##Ok, it's useful. How could I help?
-* High priority: Documentation - both creating one and understanding what actually is missing. Even GitHub issues for this are welcome.
-* Medium priority: Upload plugin to Atlassian Plugin Exchange
-* Medium priority: Improving console-cli modes sample applications (JRuby, Groovy) - cleaning up, since I'm not expert in those languages;
-adding command line options.
-* Low priority: improving web-interface (more Ajax-like) etc...
+## License
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
