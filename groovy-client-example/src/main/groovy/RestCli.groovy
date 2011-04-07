@@ -99,12 +99,12 @@ public class RestCli
         (sessionIds as List<String>)
     }
 
-    JSONObject eval_input(String sessionId, String input)
+    JSONObject eval_input(String sessionId, String scriptText)
     {
         client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie) //
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
-                .post(JSONObject.class, new JSONObject('script': input))
+                .post(JSONObject.class, new JSONObject('script': scriptText))
     }
 
     def doWithSession(sessionId = null, Closure closure)
@@ -240,7 +240,7 @@ public class RestCli
 
         def options = cli.parse(args)
 
-        if (options == null || options == false)
+        if (options == null || !options)
         {
             return;
         }
@@ -260,10 +260,10 @@ public class RestCli
         try
         {
             def selfOptions = [:]
-            selfOptions.port = options.port == false ? 80 : options.port
-            selfOptions.proto = options.proto == false ? (options.port == 443 ? 'https' : 'http') : options.proto
+            selfOptions.port = !options.port ? 80 : options.port
+            selfOptions.proto = !options.proto ? (options.port == 443 ? 'https' : 'http') : options.proto
             selfOptions.host = options.host
-            selfOptions.context = options.context == false ? '' : options.context
+            selfOptions.context = !options.context ? '' : options.context
 
             repl = new RestCli(selfOptions).login(options.user, options.password)
 
@@ -280,14 +280,14 @@ public class RestCli
                 System.exit(0)
             }
 
-            if (options.'drop-session' != false)
+            if (options.'drop-session')
             {
                 println "Deleting cli-session: ${options.'drop-session'}"
                 repl.deleteSession(options.'drop-session')
                 System.exit(0)
             }
 
-            if (options.file != false)
+            if (options.file)
             {
                 doEval(options.session, options.file, repl)
                 System.exit(0)
@@ -318,10 +318,9 @@ public class RestCli
         return sw.toString()
     }
 
-    private static def asSessionId(def optionValue)
+    private static String asSessionId(def optionValue)
     {
-        if (optionValue == false) return null
-        if (optionValue == null) return null
+        if (!optionValue || optionValue == null) return null
         optionValue
     }
 
