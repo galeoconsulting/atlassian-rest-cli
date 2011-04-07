@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blogspot.leonardinius</groupId>
@@ -125,8 +126,8 @@
         <module>../jira-rest-cli-runner</module>
         <module>../jira-rest-cli-groovy</module>
         <module>../jira-rest-cli-jruby</module>
-        <module>../ruby-client-example</module>
-        <module>../groovy-client-example</module>
+        <module>../ruby-rest-client</module>
+        <module>../groovy-rest-client</module>
     </modules>
 
 </project>
