@@ -9,10 +9,4 @@ done
 BIN_HOME=`dirname "$SCRIPT_LOCATION"`
 LIB_HOME=$BIN_HOME/../lib
 
-CLASSPATH=$BIN_HOME/${pom.artifactId}-${pom.version}.jar
-for i in `ls $LIB_HOME/*.jar`;
-do
-    CLASSPATH=$CLASSPATH:$LIB_HOME/$i
-done
-
-java -cp $CLASSPATH RestCli $*
+java -cp $LIB_HOME/*:$BIN_HOME/${pom.artifactId}-${pom.version}.jar RestCli $*
