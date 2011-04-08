@@ -31,7 +31,7 @@
     <artifactId>jira-rest-cli-runner</artifactId>
     <packaging>atlassian-plugin</packaging>
 
-    <name>REST-CLI Script Runner</name>
+    <name>REST-CLI Jira Script Runner</name>
     <description>Script executor, pluggable language support, cli-session support and management.</description>
 
     <dependencies>

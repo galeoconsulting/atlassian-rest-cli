@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ruby-client-example</artifactId>
-    <name>Ruby/JRuby sample client</name>
-    <description>Ruby/JRuby sample command line client</description>
+    <name>REST-CLI Ruby/JRuby client</name>
+    <description>Ruby/JRuby command line client</description>
 
 </project>

@@ -26,8 +26,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>groovy-rest-client</artifactId>
-    <name>Groovy-${groovy.version} sample client</name>
-    <description>Groovy-${groovy.version} sample command line client (run by gmaven-${gmaven.version})</description>
+    <name>REST-CLI groovy client</name>
+    <description>REST-CLI groovy command line client (run by gmaven-${gmaven.version})</description>
 
     <repositories>
         <repository>
