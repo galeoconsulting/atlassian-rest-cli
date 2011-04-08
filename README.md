@@ -57,10 +57,10 @@ provider.
 
 **OR** you could get all this artifacts here
 
-* [jira-rest-cli-runner](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.1.jar) - Script runner, web-console,
+* [jira-rest-cli-runner](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.1-SNAPSHOT.jar) - Script runner, web-console,
 session mgmt admin interface, Rhino language support.
-* [jira-rest-cli-jruby](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.1.jar) - JRuby support
-* [jira-rest-cli-groovy](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.1.jar) - Groovy support
+* [jira-rest-cli-jruby](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.1-SNAPSHOT.jar) - JRuby support
+* [jira-rest-cli-groovy](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.1-SNAPSHOT.jar) - Groovy support
 * cli-examples - browse on GitHub, fetch locally and play around yourselves :) 
  
 NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
