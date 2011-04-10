@@ -62,9 +62,11 @@ public class RestCli
 
     RestCli login(def username, def password)
     {
-        def cookie = client.resource(loginUrl()).type(MediaType.APPLICATION_JSON)    //
+        def cookie = client.resource(loginUrl())     //
+                .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
+
         authCookie = new NewCookie((String) cookie['name'], (String) cookie['value']);
 
         return this;
@@ -72,9 +74,10 @@ public class RestCli
 
     def logout()
     {
-        ClientResponse cr = client.resource(loginUrl()).cookie(authCookie) //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
+        ClientResponse cr = client.resource(loginUrl()) //
+                .cookie(authCookie)                     //
+                .type(MediaType.APPLICATION_JSON)       //
+                .accept(MediaType.APPLICATION_JSON)     //
                 .delete(ClientResponse.class);
 
         assert cr.status == 204;
@@ -82,13 +85,12 @@ public class RestCli
         cr
     }
 
-
     String attachSession()
     {
-        client.resource(cliBaseUrl()).path('/sessions') //
-                .cookie(authCookie) //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
+        client.resource(cliBaseUrl()).path('/sessions')  //
+                .cookie(authCookie)                      //
+                .type(MediaType.APPLICATION_JSON)        //
+                .accept(MediaType.APPLICATION_JSON)      //
                 .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
     }
 
@@ -100,12 +102,13 @@ public class RestCli
 
     List<String> listSessions()
     {
-        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )
-                .queryParam('language', 'groovy') //
-                .cookie(authCookie) //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
-                .get(JSONObject.class)
+        JSONObject response = client.resource(cliBaseUrl())
+                .path('/sessions') //  )                 //
+                .queryParam('language', 'groovy')        //
+                .cookie(authCookie) //                   //
+                .type(MediaType.APPLICATION_JSON)        //
+                .accept(MediaType.APPLICATION_JSON)      //
+                .get(JSONObject.class);
         JSONArray sessions = (JSONArray) response['sessions']
         def sessionIds = [];
         for (int i = 0; i < sessions.length(); i++)
@@ -117,7 +120,8 @@ public class RestCli
 
     JSONObject eval_input(String sessionId, String scriptText)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie) //
+        client.resource(cliBaseUrl()).path('/sessions').path(sessionId)
+                .cookie(authCookie)                  //
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('script': scriptText))
