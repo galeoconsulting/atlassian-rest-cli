@@ -185,11 +185,11 @@ public class RestCli
     def repl(String sessionId = null)
     {
         println """
-*****************************************
-**  JIRA REST-Groovy-Cli command line  **
-**  Type '!q' to exit the loop         **
-**  Type '!r' to eval user input       **
-*****************************************
+*********************************************
+**  JIRA REST-Groovy-Cli command line      **
+**  Type '!q, quit, exit' to exit the loop **
+**  Type '!r' to eval user input           **
+*********************************************
 """
         doWithSession sessionId, { session ->
             ConsoleReader console = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
