@@ -39,6 +39,7 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     public GroovyRegistrarImpl(ScriptService scriptService)
     {
         this.scriptService = scriptService;
+
         this.scriptEngineFactory = new GroovyScriptEngineFactory();
     }
 
@@ -61,3 +62,4 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
         scriptService.defaultRegistration(scriptEngineFactory);
     }
 }
+

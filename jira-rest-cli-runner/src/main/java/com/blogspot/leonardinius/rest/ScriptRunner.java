@@ -190,8 +190,8 @@ public class ScriptRunner implements DisposableBean
     {
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
-                put("out", new PrintWriter(consoleOutputBean.getOut()));
-                put("err", new PrintWriter(consoleOutputBean.getErr()));
+                put("out", new PrintWriter(consoleOutputBean.getOut(), true));
+                put("err", new PrintWriter(consoleOutputBean.getErr(), true));
             }});
         engine.getContext().setWriter(consoleOutputBean.getOut());
         engine.getContext().setErrorWriter(consoleOutputBean.getErr());
