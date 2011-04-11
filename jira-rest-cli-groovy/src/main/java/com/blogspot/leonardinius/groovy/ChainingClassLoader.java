@@ -89,7 +89,11 @@ public class ChainingClassLoader extends ClassLoader
     {
         try
         {
-            return (Class<?>) MethodsHolder.findClassMethod.invoke(classloader, name);
+            Class<?> classInstance = (Class<?>) MethodsHolder.findClassMethod.invoke(classloader, name);
+            if (classInstance != null)
+            {
+                return classInstance;
+            }
         }
         catch (IllegalAccessException e)
         {
