@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.groovy;
+package com.blogspot.leonardinius.api.impl;
 
 /**
  * User: 23059892
@@ -22,6 +22,7 @@ package com.blogspot.leonardinius.groovy;
  * Time: 12:21 PM
  */
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class ChainingClassLoader extends ClassLoader
     public ChainingClassLoader(ClassLoader... classLoaders)
     {
         Validate.noNullElements(classLoaders, "ClassLoader arguments cannot be null");
-        this.classLoaders = Arrays.asList(new LinkedHashSet<ClassLoader>(Arrays.asList(classLoaders)).toArray(new ClassLoader[0]));
+        this.classLoaders = ImmutableList.of(new LinkedHashSet<ClassLoader>(Arrays.asList(classLoaders)).toArray(new ClassLoader[0]));
     }
 
 // -------------------------- OTHER METHODS --------------------------

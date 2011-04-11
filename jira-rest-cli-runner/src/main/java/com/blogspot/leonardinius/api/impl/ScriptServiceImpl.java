@@ -94,6 +94,12 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
     }
 
     @Override
+    public ClassLoader getClassLoader(ClassLoader... chainingClassLoaders)
+    {
+        return new ChainingClassLoader(chainingClassLoaders);
+    }
+
+    @Override
     public ScriptEngine getEngineByExtension(String extension)
     {
         Preconditions.checkArgument(StringUtils.isNotBlank(extension), "Script extension should be specified!");

@@ -30,6 +30,15 @@ public interface ScriptService
 
     void defaultRegistration(ScriptEngineFactory factory);
 
+    /**
+     * A class loader that delegates to a list of class loaders. The order is important as classes and resources will be
+     * loaded from the first classloader that can load them.
+     *
+     * @param chainingClassLoaders classloaders to delegate to
+     * @return chainig classloader
+     */
+    ClassLoader getClassLoader(ClassLoader... chainingClassLoaders);
+
     ScriptEngine getEngineByExtension(String extension);
 
     ScriptEngine getEngineByLanguage(String language);

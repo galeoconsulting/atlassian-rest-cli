@@ -51,20 +51,22 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
             @Override
             public ScriptEngine getScriptEngine()
             {
-                GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
-                engine.setClassLoader(getGcl());
-                return engine;
+                return GroovyRegistrarImpl.this.getScriptEngine();
             }
         };
     }
 
-    private GroovyClassLoader getGcl()
+    private ScriptEngine getScriptEngine()
     {
-        return new GroovyClassLoader(new ChainingClassLoader(
+        final ClassLoader chainedClassLoader = this.scriptService.getClassLoader(
                 GCL.class.getClassLoader(),
                 Script.class.getClassLoader(),
                 ComponentManager.class.getClassLoader(),
-                ClassLoader.getSystemClassLoader()));
+                ClassLoader.getSystemClassLoader());
+
+        GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
+        engine.setClassLoader(new GroovyClassLoader(chainedClassLoader));
+        return engine;
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
