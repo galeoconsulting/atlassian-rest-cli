@@ -40,6 +40,7 @@
               errors = tryIt(function(){ return $.parseJSON(errors)}, null);
             }
             if(errors && errors.errorMessages) return errors;
+            if(errors && errors.message) return [errors.message];
             return [];
           };
 
@@ -76,6 +77,7 @@
               errors = tryIt(function(){ return $.parseJSON(errors)}, null);
             }
             if(errors && errors.errorMessages) return errors;
+            if(errors && errors.message) return [errors.message];
             return [];
           };
 

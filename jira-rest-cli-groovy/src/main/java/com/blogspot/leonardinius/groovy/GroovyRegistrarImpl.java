@@ -40,6 +40,9 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     private final ScriptService scriptService;
     private final GroovyScriptEngineFactory scriptEngineFactory;
 
+    private GroovyClassLoader gcl;
+    private Object lock = new Object();
+
 // --------------------------- CONSTRUCTORS ---------------------------
 
     public GroovyRegistrarImpl(ScriptService scriptService)
@@ -51,25 +54,37 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
             @Override
             public ScriptEngine getScriptEngine()
             {
-                return GroovyRegistrarImpl.this.getScriptEngine();
+                GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
+                engine.setClassLoader(getClassLoader());
+                return engine;
             }
         };
     }
 
-    private ScriptEngine getScriptEngine()
+    private GroovyClassLoader getClassLoader()
     {
-        final ClassLoader chainedClassLoader = this.scriptService.getClassLoader(
-                GCL.class.getClassLoader(),
-                Script.class.getClassLoader(),
-                ComponentManager.class.getClassLoader(),
-                ClassLoader.getSystemClassLoader());
+        if (gcl == null)
+        {
+            synchronized (lock)
+            {
+                if (gcl == null)
+                {
+                    final ClassLoader chainedClassLoader = this.scriptService.getClassLoader(
+                            getClass().getClassLoader(),
+                            Script.class.getClassLoader(),
+                            ComponentManager.class.getClassLoader(),
+                            ClassLoader.getSystemClassLoader());
 
-        GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
-        engine.setClassLoader(new GroovyClassLoader(chainedClassLoader));
-        return engine;
+
+                    gcl = new GroovyClassLoader(chainedClassLoader);
+                }
+            }
+        }
+        return gcl;
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
+
 
 // --------------------- Interface DisposableBean ---------------------
 
@@ -85,12 +100,6 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     public void afterPropertiesSet() throws Exception
     {
         scriptService.defaultRegistration(scriptEngineFactory);
-    }
-
-// -------------------------- INNER CLASSES --------------------------
-
-    private static final class GCL
-    {
     }
 }
 

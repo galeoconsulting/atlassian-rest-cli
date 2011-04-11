@@ -16,11 +16,16 @@
 
 package com.blogspot.leonardinius.jruby;
 
+import com.atlassian.jira.ComponentManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
+import org.jruby.embed.PropertyName;
+import org.jruby.embed.jsr223.JRubyEngine;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.script.ScriptEngine;
 
 /**
  * User: leonidmaslov
@@ -33,6 +38,9 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 
     private final ScriptService scriptService;
     private final JRubyEngineFactory engineFactory;
+    private Object lock = new Object();
+
+    private ClassLoader chainedClassLoader;
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
@@ -43,7 +51,44 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
         */
         System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
         this.scriptService = scriptService;
-        engineFactory = new JRubyEngineFactory();
+        engineFactory = new JRubyEngineFactory()
+        {
+            @Override
+            public ScriptEngine getScriptEngine()
+            {
+                System.setProperty(PropertyName.CLASSLOADER.toString(), "context");
+
+                ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(getClassLoader());
+                try
+                {
+                    return (ScriptEngine) (JRubyEngine) super.getScriptEngine();
+                }
+                finally
+                {
+                    Thread.currentThread().setContextClassLoader(originalContextClassLoader);
+                }
+            }
+        };
+    }
+
+    private ClassLoader getClassLoader()
+    {
+        if (chainedClassLoader == null)
+        {
+            synchronized (lock)
+            {
+                if (chainedClassLoader == null)
+                {
+                    chainedClassLoader = this.scriptService.getClassLoader(
+                            getClass().getClassLoader(),
+                            JRubyEngineFactory.class.getClassLoader(),
+                            ComponentManager.class.getClassLoader(),
+                            ClassLoader.getSystemClassLoader());
+                }
+            }
+        }
+        return chainedClassLoader;
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
