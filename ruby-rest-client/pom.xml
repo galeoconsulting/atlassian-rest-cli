@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ruby-client-example</artifactId>
+    <artifactId>ruby-rest-client</artifactId>
     <name>REST-CLI Ruby/JRuby client</name>
     <description>Ruby/JRuby command line client</description>
 
