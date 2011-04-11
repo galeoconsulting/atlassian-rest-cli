@@ -16,11 +16,16 @@
 
 package com.blogspot.leonardinius.groovy;
 
+import com.atlassian.jira.ComponentManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
+import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.script.ScriptEngine;
 
 /**
  * User: leonidmaslov
@@ -40,11 +45,24 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     {
         this.scriptService = scriptService;
 
-        this.scriptEngineFactory = new GroovyScriptEngineFactory();
+        this.scriptEngineFactory = new GroovyScriptEngineFactory()
+        {
+            @Override
+            public ScriptEngine getScriptEngine()
+            {
+                GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
+                engine.setClassLoader(getGcl());
+                return engine;
+            }
+        };
+    }
+
+    private GroovyClassLoader getGcl()
+    {
+        return GCL.INSTANCE;
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
-
 
 // --------------------- Interface DisposableBean ---------------------
 
@@ -60,6 +78,16 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     public void afterPropertiesSet() throws Exception
     {
         scriptService.defaultRegistration(scriptEngineFactory);
+    }
+
+// -------------------------- INNER CLASSES --------------------------
+
+    private static final class GCL
+    {
+        private static final GroovyClassLoader INSTANCE = new GroovyClassLoader(new ChainingClassLoader(
+                GCL.class.getClassLoader(),
+                ComponentManager.class.getClassLoader(),
+                ClassLoader.getSystemClassLoader()));
     }
 }
 
