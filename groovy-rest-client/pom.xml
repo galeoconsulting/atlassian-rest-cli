@@ -88,8 +88,8 @@
             <exclusions>
                 <exclusion>
                     <!--
-                 gmaven runtime has a dependency on
-                 groovy-all v1.6 but we want 1.7.0
+                     gmaven runtime has a dependency on
+                     groovy-all v1.6 but we want 1.7.0
                     -->
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-all</artifactId>
