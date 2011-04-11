@@ -20,6 +20,7 @@ import com.atlassian.jira.ComponentManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.Script;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.springframework.beans.factory.DisposableBean;
@@ -59,7 +60,11 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
 
     private GroovyClassLoader getGcl()
     {
-        return GCL.INSTANCE;
+        return new GroovyClassLoader(new ChainingClassLoader(
+                GCL.class.getClassLoader(),
+                Script.class.getClassLoader(),
+                ComponentManager.class.getClassLoader(),
+                ClassLoader.getSystemClassLoader()));
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
@@ -84,10 +89,6 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
 
     private static final class GCL
     {
-        private static final GroovyClassLoader INSTANCE = new GroovyClassLoader(new ChainingClassLoader(
-                GCL.class.getClassLoader(),
-                ComponentManager.class.getClassLoader(),
-                ClassLoader.getSystemClassLoader()));
     }
 }
 

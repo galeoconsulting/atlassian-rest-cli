@@ -53,7 +53,7 @@ public class ChainingClassLoader extends ClassLoader
     public ChainingClassLoader(ClassLoader... classLoaders)
     {
         Validate.noNullElements(classLoaders, "ClassLoader arguments cannot be null");
-        this.classLoaders = Arrays.asList(classLoaders);
+        this.classLoaders = Arrays.asList(new LinkedHashSet<ClassLoader>(Arrays.asList(classLoaders)).toArray(new ClassLoader[0]));
     }
 
 // -------------------------- OTHER METHODS --------------------------
@@ -74,7 +74,9 @@ public class ChainingClassLoader extends ClassLoader
         {
             try
             {
-                return callFindClass(classloader, name);
+                Class<?> classInstance = callFindClass(classloader, name);
+                if (classInstance != null)
+                    return classInstance;
             }
             catch (ClassNotFoundException e)
             {
@@ -89,11 +91,7 @@ public class ChainingClassLoader extends ClassLoader
     {
         try
         {
-            Class<?> classInstance = (Class<?>) MethodsHolder.findClassMethod.invoke(classloader, name);
-            if (classInstance != null)
-            {
-                return classInstance;
-            }
+            return (Class<?>) MethodsHolder.findClassMethod.invoke(classloader, name);
         }
         catch (IllegalAccessException e)
         {
@@ -101,7 +99,11 @@ public class ChainingClassLoader extends ClassLoader
         }
         catch (InvocationTargetException e)
         {
-            throw new AssertionError(e); //unexpected
+            if (e.getTargetException() instanceof ClassNotFoundException)
+            {
+                throw (ClassNotFoundException) e.getTargetException();
+            }
+            throw new AssertionError(e); // unexpected
         }
     }
 
@@ -141,7 +143,7 @@ public class ChainingClassLoader extends ClassLoader
     }
 
     @Override
-    public Class loadClass(String name) throws ClassNotFoundException
+    public Class<?> loadClass(String name) throws ClassNotFoundException
     {
         for (ClassLoader classloader : classLoaders)
         {
