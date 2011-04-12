@@ -27,18 +27,11 @@ import javax.script.ScriptEngineFactory;
  */
 public class LanguageUtils
 {
-    private LanguageUtils()
-    {
-    }
+// -------------------------- STATIC METHODS --------------------------
 
     public static String getVersionString(ScriptEngineFactory factory)
     {
-        String version = factory.getLanguageVersion();
-        if (StringUtils.containsIgnoreCase(version, "jruby 1.5.6"))
-        {
-            version = "jruby 1.5.6";
-        }
-        return version;
+        return factory.getLanguageVersion();
     }
 
     public static String getLanguageName(ScriptEngineFactory factory)
@@ -47,8 +40,14 @@ public class LanguageUtils
         if ("ECMAScript".equals(languageName)
                 && factory.getNames().contains("JavaScript"))
         {
-            languageName = "JavaScript";
+            languageName = "JavaScript (Rhino)";
         }
         return StringUtils.capitalize(languageName);
+    }
+
+// --------------------------- CONSTRUCTORS ---------------------------
+
+    private LanguageUtils()
+    {
     }
 }

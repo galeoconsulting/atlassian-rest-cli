@@ -77,7 +77,9 @@ public class ChainingClassLoader extends ClassLoader
             {
                 Class<?> classInstance = callFindClass(classloader, name);
                 if (classInstance != null)
+                {
                     return classInstance;
+                }
             }
             catch (ClassNotFoundException e)
             {
