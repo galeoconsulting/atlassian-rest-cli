@@ -254,7 +254,7 @@ public class RestCli
         cli.s(longOpt: 'session', args: 1, argName: 'cli-session-id', 'cli session id to connect to')
         cli.l(longOpt: 'list-sessions', 'list cli session ids')
         cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate cli session')
-        cli.n(longOpt: 'new-session', 'will create new session and exit immediatelly')
+        cli.n(longOpt: 'new-session', 'will create new session and exit immediately')
         cli.f(longOpt: 'file', args: 1, argName: 'file', 'will read file and evaluate it\'s contents. use - for stdin')
         cli.help('print this message')
 
