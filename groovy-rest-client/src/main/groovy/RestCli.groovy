@@ -44,20 +44,26 @@ public class RestCli
         client = Client.create(new DefaultClientConfig());
     }
 
+    private def urljoin(String a, String b)
+    {
+        if (a.endsWith('/')) a = a.substring(0, a.length() - 1)
+        if (b.startsWith('/')) b = b.substring(1, b.length())
+        "${a}/${b}"
+    }
 
     private def baseUrl()
     {
-        "${options.proto}://${options.host}:${options.port}/${options.context}"
+        urljoin("${options.proto}://${options.host}:${options.port}", options.context)
     }
 
     private def loginUrl()
     {
-        "${baseUrl()}/rest/auth/latest/session"
+        urljoin(baseUrl(), "/rest/auth/latest/session")
     }
 
     private def cliBaseUrl()
     {
-        "${baseUrl()}/rest/rest-scripting/1.0"
+        urljoin(baseUrl(), "/rest/rest-scripting/1.0")
     }
 
     RestCli login(def username, def password)
