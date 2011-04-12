@@ -102,8 +102,7 @@ public class RestCli
 
     List<String> listSessions()
     {
-        JSONObject response = client.resource(cliBaseUrl())
-                .path('/sessions') //  )                 //
+        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )                 //
                 .queryParam('language', 'groovy')        //
                 .cookie(authCookie) //                   //
                 .type(MediaType.APPLICATION_JSON)        //
@@ -120,8 +119,7 @@ public class RestCli
 
     JSONObject eval_input(String sessionId, String scriptText)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId)
-                .cookie(authCookie)                  //
+        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie)                  //
                 .type(MediaType.APPLICATION_JSON)    //
                 .accept(MediaType.APPLICATION_JSON)  //
                 .post(JSONObject.class, new JSONObject('script': scriptText))
@@ -232,8 +230,10 @@ public class RestCli
                 message = jso['error']
             else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
                 message = jso['errorMessages'].join('')
-            else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors
+            else if (jso.has('errors') && jso['errors'].has('errorMessages'))    // evaluation errors: exceptions
                 message = jso['errors']['errorMessages'].join('')
+            else if (jso.has('message'))                                         // evaluation errors: errors, assertions etc..
+                message = jso['message']
         }
         message = StringEscapeUtils.unescapeJavaScript(message)
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
