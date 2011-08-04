@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.blogspot.leonardinius.rest;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -33,7 +49,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
@@ -50,6 +69,7 @@ public class ScriptRunner implements DisposableBean
 
     private static final String LANGUAGE = "language";
     private static final String SESSION_ID = "sessionId";
+    private static final String SCRIPT = "script";
 
     private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
 
@@ -87,7 +107,7 @@ public class ScriptRunner implements DisposableBean
     @Path("/sessions/{" + SESSION_ID + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response cli(@PathParam(SESSION_ID) final String sessionId, Script script)
+    public Response cli(@PathParam(SESSION_ID) final String sessionId, ScriptText script)
     {
         if (!isAdministrator())
         {
@@ -107,7 +127,7 @@ public class ScriptRunner implements DisposableBean
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            return responseEvalOk(eval(scriptSession.getScriptEngine(), script, consoleOutputBean));
+            return responseEvalOk(eval(scriptSession.getScriptEngine(), script.getScript(), consoleOutputBean));
         }
         catch (ScriptException e)
         {
@@ -166,18 +186,18 @@ public class ScriptRunner implements DisposableBean
         return Response.ok(entity).cacheControl(NO_CACHE).build();
     }
 
-    private ConsoleOutputBean eval(ScriptEngine engine, Script script, final ConsoleOutputBean consoleOutputBean) throws ScriptException
+    private ConsoleOutputBean eval(ScriptEngine engine, String scriptText, final ConsoleOutputBean consoleOutputBean) throws ScriptException
     {
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
-                put("out", new PrintWriter(consoleOutputBean.getOut()));
-                put("err", new PrintWriter(consoleOutputBean.getErr()));
+                put("out", new PrintWriter(consoleOutputBean.getOut(), true));
+                put("err", new PrintWriter(consoleOutputBean.getErr(), true));
             }});
         engine.getContext().setWriter(consoleOutputBean.getOut());
         engine.getContext().setErrorWriter(consoleOutputBean.getErr());
         engine.getContext().setReader(new NullReader(0));
 
-        consoleOutputBean.setEvalResult(engine.eval(script.getScript(), engine.getContext()));
+        consoleOutputBean.setEvalResult(engine.eval(scriptText, engine.getContext()));
 
         return consoleOutputBean;
     }
@@ -209,7 +229,7 @@ public class ScriptRunner implements DisposableBean
         List<StackTraceElement> elements = Lists.newArrayList();
         for (StackTraceElement st : th.getStackTrace())
         {
-            if (st.getClassName() == getClass().getName())
+            if (st.getClassName().equals(getClass().getName()))
                 break;
             elements.add(st);
         }
@@ -262,7 +282,7 @@ public class ScriptRunner implements DisposableBean
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try
         {
-            return responseEvalOk(eval(engine, script, consoleOutputBean));
+            return responseEvalOk(eval(engine, script.getScript(), consoleOutputBean));
         }
         catch (ScriptException e)
         {
@@ -299,9 +319,9 @@ public class ScriptRunner implements DisposableBean
         return StringUtils.defaultIfEmpty(filename, "<unnamed script>");
     }
 
-    private Object getArgvs(List<String> argv)
+    private String[] getArgvs(List<String> argv)
     {
-        return argv == null ? Collections.<String>emptyList() : argv.toArray(new String[argv.size()]);
+        return argv == null ? new String[0] : argv.toArray(new String[argv.size()]);
     }
 
     @GET
@@ -444,7 +464,6 @@ public class ScriptRunner implements DisposableBean
         }
 
         @XmlElement
-
         private String script;
 
         @XmlElement
@@ -556,7 +575,13 @@ public class ScriptRunner implements DisposableBean
     public static class SessionIdWrapper
     {
         @XmlElement
-        String sessionId;
+        private String sessionId;
+
+        @XmlElement
+        private String languageName;
+
+        @XmlElement
+        private String languageVersion;
 
         public SessionIdWrapper(String sessionId, String languageName, String languageVersion)
         {
@@ -575,12 +600,6 @@ public class ScriptRunner implements DisposableBean
             this.languageName = languageName;
         }
 
-        @XmlElement
-        String languageName;
-
-        @XmlElement
-        String languageVersion;
-
         public String getSessionId()
         {
             return sessionId;
@@ -595,6 +614,9 @@ public class ScriptRunner implements DisposableBean
     @XmlRootElement
     public static class SessionIdCollectionWrapper
     {
+        @XmlElement
+        private List<SessionIdWrapper> sessions;
+
         public SessionIdCollectionWrapper(List<SessionIdWrapper> sessions)
         {
             this.sessions = sessions;
@@ -609,9 +631,6 @@ public class ScriptRunner implements DisposableBean
         {
             this.sessions = sessions;
         }
-
-        @XmlElement
-        List<SessionIdWrapper> sessions;
 
         public SessionIdCollectionWrapper addSession(SessionIdWrapper id)
         {
@@ -678,6 +697,23 @@ public class ScriptRunner implements DisposableBean
         public void setErr(String err)
         {
             this.err = err;
+        }
+    }
+
+    @XmlRootElement
+    public static class ScriptText
+    {
+        @XmlElement
+        private String script;
+
+        public String getScript()
+        {
+            return script;
+        }
+
+        public void setScript(String script)
+        {
+            this.script = script;
         }
     }
 }

@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
-
-/**
- * Marker interface
- */
-public interface Registrar
-{
-}
+[
+        execute : { ">> 0001 execute called" } ,
+        undo : { ">> 0001 undo called" }
+]
