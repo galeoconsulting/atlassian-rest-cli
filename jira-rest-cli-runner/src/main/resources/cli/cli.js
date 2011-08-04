@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 (function($){
   
   var tryIt = function(f, defValue) {
@@ -24,6 +40,7 @@
               errors = tryIt(function(){ return $.parseJSON(errors)}, null);
             }
             if(errors && errors.errorMessages) return errors;
+            if(errors && errors.message) return [errors.message];
             return [];
           };
 
@@ -60,6 +77,7 @@
               errors = tryIt(function(){ return $.parseJSON(errors)}, null);
             }
             if(errors && errors.errorMessages) return errors;
+            if(errors && errors.message) return [errors.message];
             return [];
           };
 
@@ -114,19 +132,25 @@
             
             if(e.ctrlKey)
             {
-              var payload = {script : scriptText, argv: []};
+              var payload = {script : scriptText};
               
               $.ajax({
                 url         : typeof options.ajaxUrl == 'function' ? options.ajaxUrl() : options.ajaxUrl,
                 data        : JSON.stringify(payload),
                 error       : function(XMLHttpRequest, textStatus, errorThrown)
                 {
-                  var getScriptError = function (xhr) {
+
+                  var getAsJson = function(xhr) {
                     if(!xhr || !xhr.response) return null;
                     var data = xhr.response;
                     if(typeof data == 'string'){
                       data = tryIt(function(){ return $.parseJSON(data)}, null);
                     }
+                    return data;
+                  };
+
+                  var getScriptError = function (xhr) {
+                    var data = getAsJson(xhr);
                     if(data && data.errors && data.errors.errorMessages) return data;
                     return null;
                   };
@@ -142,7 +166,7 @@
                   else alert(
                     AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
                     textStatus  || 'unknown',
-                    errorThrown || '',
+                    errorThrown || tryIt(function(){ return getAsJson(XMLHttpRequest).message }, null) || '',
                     tryIt(function(){ return  XMLHttpRequest.status; }, 'Unknown'))
                   );
                   

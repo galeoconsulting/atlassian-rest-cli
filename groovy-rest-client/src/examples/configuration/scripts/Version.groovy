@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
+package scripts
 
 /**
- * Marker interface
+ * User: leonidmaslov
+ * Date: 4/9/11
+ * Time: 12:23 AM
  */
-public interface Registrar
-{
-}
+
+//TODO: use Migration helper object to identify version
+
+1
