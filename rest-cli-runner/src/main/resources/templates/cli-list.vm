@@ -1,0 +1,108 @@
+#*
+    Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*#
+
+$webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
+
+<table class="jiraform  maxWidth">
+    <tr>
+        <td class="jiraformheader">
+            <h3 class="formtitle">Current REST Cli Sessions in JIRA</h3></td>
+    </tr>
+    <tr>
+        <td class="jiraformbody">
+            <div>
+                <b>Create new session:</b>
+                <select id="cli-language">
+                    #foreach($lng in $registeredLanguages)
+                        <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name)
+                            - $action.htmlEncode($lng.version)</option>
+                    #end
+                </select>
+                &nbsp;<a href="#" onclick="javascript: makeNewSession(this); return false;">create</a>
+                &nbsp;<u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>.
+                <br/>
+                <hr/>
+
+                <table class="grid centered maxWidth">
+                    <thead>
+                    <tr>
+                        <th>SessionId</th>
+                        <th>Creator user</th>
+                        <th>Language</th>
+                        <th>Version</th>
+                        <th>Created &darr;</th>
+                        <th>Operations</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        #foreach($session in $liveSessions)
+                        <tr class="rowNormal">
+                            <td>${action.htmlEncode($session.sessionId)}</td>
+                            <td>
+                                <a href="${requestContext.baseUrl}${action.htmlEncode($session.creator.profilePageUri.toString())}">
+                                    ${action.htmlEncode("${session.creator.username}")}:
+                                    <i>${action.htmlEncode("(${session.creator.fullName} <${session.creator.email}>)")}</i>
+                                </a></td>
+                            <td>${action.htmlEncode($session.language)}</td>
+                            <td>${action.htmlEncode($session.version)}</td>
+                            <td>${action.htmlEncode($session.createdAt)}</td>
+
+                            <td>
+                                <input type="hidden" value="${action.htmlEncode($session.sessionId)}"/>
+                                <a href="${requestContext.baseUrl}/secure/admin/restCli!cli.jspa?atl_token=${atl_token}&sessionId=${action.htmlEncode($session.sessionId)}">
+                                    Connect</a> |
+                                <a href="#" onclick="javascript: deleteSessionSession(this); return false;">Delete</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+                <hr/>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    function makeNewSession()
+    {
+        com.blogspot.leonardinius.restcli.newSession({
+            baseUrl : "${requestContext.baseUrl}",
+            data    : JSON.stringify({language : jQuery('#cli-language').val()}),
+            success : function(data)
+            {
+                window.location.reload(true);
+            }
+        });
+    }
+
+    function deleteSessionSession(link)
+    {
+        var sessionId = jQuery(link).siblings('input[type=hidden]').val();
+        if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId)))
+        {
+            com.blogspot.leonardinius.restcli.deleteSession({
+                baseUrl : "${requestContext.baseUrl}",
+                data    : {sessionId : sessionId},
+                success : function(noData)
+                {
+                    window.location.reload(true);
+                }
+            });
+        }
+    }
+</script>

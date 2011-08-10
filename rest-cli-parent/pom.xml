@@ -21,7 +21,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blogspot.leonardinius</groupId>
-    <artifactId>jira-rest-cli-parent</artifactId>
+    <artifactId>rest-cli-parent</artifactId>
     <version>1.1-SNAPSHOT</version>
 
     <organization>
@@ -155,7 +155,7 @@
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <configuration>
-                    <header>../jira-rest-cli-parent/etc/license-header.txt</header>
+                    <header>../rest-cli-parent/etc/license-header.txt</header>
                     <strictCheck>true</strictCheck>
                     <quiet>false</quiet>
                     <failIfMissing>true</failIfMissing>
@@ -202,9 +202,9 @@
     </properties>
 
     <modules>
-        <module>../jira-rest-cli-runner</module>
-        <module>../jira-rest-cli-groovy</module>
-        <module>../jira-rest-cli-jruby</module>
+        <module>../rest-cli-runner</module>
+        <module>../rest-cli-groovy</module>
+        <module>../rest-cli-jruby</module>
         <module>../ruby-rest-client</module>
         <module>../groovy-rest-client</module>
     </modules>

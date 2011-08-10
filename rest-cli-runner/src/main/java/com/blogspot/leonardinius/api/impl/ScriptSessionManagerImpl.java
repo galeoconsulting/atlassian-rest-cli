@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.script.ScriptEngine;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

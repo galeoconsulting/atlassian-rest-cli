@@ -55,9 +55,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
+import static com.atlassian.plugin.util.Assertions.notNull;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Path("/")
@@ -295,7 +295,7 @@ public class ScriptRunner implements DisposableBean
 
     private ScriptEngine createScriptEngine(String scriptLanguage, Script script)
     {
-        ScriptEngine engine = checkNotNull(engineByLanguage(scriptLanguage), "Could not locate script engine (null)!");
+        ScriptEngine engine = notNull("Could not locate script engine (null)!", engineByLanguage(scriptLanguage));
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
                 put("log", LOG);

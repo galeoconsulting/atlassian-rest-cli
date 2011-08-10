@@ -23,12 +23,12 @@
 
     <parent>
         <groupId>com.blogspot.leonardinius</groupId>
-        <artifactId>jira-rest-cli-parent</artifactId>
+        <artifactId>rest-cli-parent</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.blogspot.leonardinius</groupId>
-    <artifactId>jira-rest-cli-runner</artifactId>
+    <artifactId>rest-cli-runner</artifactId>
     <packaging>atlassian-plugin</packaging>
 
     <name>REST-CLI Jira Script Runner</name>

@@ -16,6 +16,7 @@
 
 package com.blogspot.leonardinius.api.impl;
 
+import com.atlassian.plugin.util.Assertions;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -27,8 +28,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.util.concurrent.ConcurrentMap;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: leonidmaslov
@@ -129,21 +128,21 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
     @Override
     public void registerEngineExtension(String extension, ScriptEngineFactory factory)
     {
-        scriptEngineManager.registerEngineExtension(checkNotNull(extension), checkNotNull(factory));
+        scriptEngineManager.registerEngineExtension(Assertions.notNull("extension", extension), Assertions.notNull("factory", factory));
         registeredEngines.put(factory, DUMMY);
     }
 
     @Override
     public void registerEngineLanguage(String language, ScriptEngineFactory factory)
     {
-        scriptEngineManager.registerEngineName(checkNotNull(language), checkNotNull(factory));
+        scriptEngineManager.registerEngineName(Assertions.notNull("language", language), Assertions.notNull("factory", factory));
         registeredEngines.put(factory, DUMMY);
     }
 
     @Override
     public void registerEngineMime(String extension, ScriptEngineFactory factory)
     {
-        scriptEngineManager.registerEngineMimeType(checkNotNull(extension), checkNotNull(factory));
+        scriptEngineManager.registerEngineMimeType(Assertions.notNull("extension", extension), Assertions.notNull("factory", factory));
         registeredEngines.put(factory, DUMMY);
     }
 
