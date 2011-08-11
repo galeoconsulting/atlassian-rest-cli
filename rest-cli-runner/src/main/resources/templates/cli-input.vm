@@ -19,7 +19,8 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
 <table class="jiraform  maxWidth">
     <tr>
         <td class="jiraformheader">
-            <h3 class="formtitle">CLI session $!sessionId</h3></td>
+            <h3 class="formtitle">CLI session $!sessionId</h3>
+        </td>
     </tr>
     <tr>
         <td class="jiraformbody">
