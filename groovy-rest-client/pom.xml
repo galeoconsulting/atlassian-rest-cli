@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>groovy-rest-client</artifactId>
-    <name>REST-CLI groovy client</name>
+    <name>REST-CLI Groovy client</name>
     <description>REST-CLI groovy command line client (run by gmaven-${gmaven.version})</description>
 
     <repositories>
@@ -65,7 +65,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.collections</groupId>
+            <groupId>com.atlassian.bundles</groupId>
             <artifactId>google-collections</artifactId>
         </dependency>
         <dependency>

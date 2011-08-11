@@ -16,7 +16,6 @@
 
 package com.blogspot.leonardinius.jruby;
 
-import com.atlassian.jira.ComponentManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
 import org.jruby.embed.PropertyName;
@@ -83,7 +82,7 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
                     chainedClassLoader = this.scriptService.getClassLoader(
                             getClass().getClassLoader(),
                             JRubyEngineFactory.class.getClassLoader(),
-                            ComponentManager.class.getClassLoader(),
+                            //ComponentManager.class.getClassLoader(),
                             ClassLoader.getSystemClassLoader());
                 }
             }

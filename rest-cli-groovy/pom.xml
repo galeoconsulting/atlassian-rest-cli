@@ -57,16 +57,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>atlassian-jira</artifactId>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-func-tests</artifactId>
         </dependency>
 
         <dependency>
@@ -74,12 +66,13 @@
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>2.5.6.SEC01</version>
-            <scope>provided</scope>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-core</artifactId>
         </dependency>
     </dependencies>
 

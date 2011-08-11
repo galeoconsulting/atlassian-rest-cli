@@ -16,13 +16,10 @@
 
 package com.blogspot.leonardinius.rest;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.rest.api.util.ErrorCollection;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.util.dbc.Assertions;
+
+import com.atlassian.plugin.util.Assertions;
+import com.atlassian.sal.api.component.ComponentLocator;
+import com.atlassian.sal.api.user.UserManager;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
 import com.blogspot.leonardinius.api.ScriptSessionManager;
@@ -33,6 +30,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.input.NullReader;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +50,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.atlassian.jira.rest.v1.util.CacheControl.NO_CACHE;
 import static com.atlassian.plugin.util.Assertions.notNull;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
 import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
@@ -76,29 +73,18 @@ public class ScriptRunner implements DisposableBean
     private final ScriptService scriptService;
     private final ScriptSessionManager sessionManager;
 
-    private final JiraAuthenticationContext context;
-    private final PermissionManager permissionManager;
+    private final UserManager userManager;
+
+    private final ComponentLocator componentLocator;
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public ScriptRunner(final ScriptService scriptService, final JiraAuthenticationContext context,
-                        final PermissionManager permissionManager, ScriptSessionManager sessionManager)
+    public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager, ComponentLocator componentLocator)
     {
         this.scriptService = scriptService;
-        this.context = context;
-        this.permissionManager = permissionManager;
+        this.userManager = userManager;
         this.sessionManager = sessionManager;
-    }
-
-// ------------------------ INTERFACE METHODS ------------------------
-
-
-// --------------------- Interface DisposableBean ---------------------
-
-    @Override
-    public void destroy() throws Exception
-    {
-        sessionManager.clear();
+        this.componentLocator = componentLocator;
     }
 
 // -------------------------- OTHER METHODS --------------------------
@@ -117,7 +103,7 @@ public class ScriptRunner implements DisposableBean
         ScriptSessionManager.ScriptSession scriptSession;
         try
         {
-            scriptSession = Assertions.notNull("Session instance", sessionManager.getSession(SessionId.valueOf(sessionId)));
+            scriptSession = com.atlassian.plugin.util.Assertions.notNull("Session instance", sessionManager.getSession(SessionId.valueOf(sessionId)));
         }
         catch (IllegalArgumentException e)
         {
@@ -140,14 +126,15 @@ public class ScriptRunner implements DisposableBean
 
     private boolean isAdministrator()
     {
-        return context.getLoggedInUser() != null && permissionManager.hasPermission(Permissions.SYSTEM_ADMIN, context.getLoggedInUser());
+        return userManager.getRemoteUsername() != null
+                && userManager.isSystemAdmin(userManager.getRemoteUsername());
     }
 
     private Response responseForbidden()
     {
         return Response.serverError()
                 .entity(createErrorCollection(ImmutableList.of(PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS)))
-                .cacheControl(NO_CACHE)
+                .cacheControl(CacheControl.NO_CACHE)
 
                 .build();
     }
@@ -161,7 +148,7 @@ public class ScriptRunner implements DisposableBean
     {
         return Response.serverError()
                 .entity(entity)
-                .cacheControl(NO_CACHE)
+                .cacheControl(CacheControl.NO_CACHE)
 
                 .build();
     }
@@ -183,7 +170,7 @@ public class ScriptRunner implements DisposableBean
 
     private <Entity> Response responseOk(Entity entity)
     {
-        return Response.ok(entity).cacheControl(NO_CACHE).build();
+        return Response.ok(entity).cacheControl(CacheControl.NO_CACHE).build();
     }
 
     private ConsoleOutputBean eval(ScriptEngine engine, String scriptText, final ConsoleOutputBean consoleOutputBean) throws ScriptException
@@ -252,10 +239,16 @@ public class ScriptRunner implements DisposableBean
 
         if (sessionManager.removeSession(SessionId.valueOf(sessionId)) == null)
         {
-            return Response.noContent().cacheControl(NO_CACHE).build();
+            return Response.noContent().cacheControl(CacheControl.NO_CACHE).build();
         }
 
-        return Response.ok().cacheControl(NO_CACHE).build();
+        return Response.ok().cacheControl(CacheControl.NO_CACHE).build();
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        sessionManager.clear();
     }
 
     @POST
@@ -299,7 +292,7 @@ public class ScriptRunner implements DisposableBean
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
                 put("log", LOG);
-                put("componentManager", ComponentManager.getInstance());
+                put("componentLocator", componentLocator);
                 put("selfScriptRunner", ScriptRunner.this);
             }});
 
@@ -374,19 +367,210 @@ public class ScriptRunner implements DisposableBean
             return responseInternalError(Arrays.asList((e.getMessage())));
         }
 
-        SessionId sessionId = sessionManager.putSession(ScriptSession.newInstance(getActorName(context.getLoggedInUser()), engine));
+        SessionId sessionId = sessionManager.putSession(ScriptSession.newInstance(getActorName(userManager.getRemoteUsername()), engine));
         return Response.ok(new SessionIdWrapper(sessionId.getSessionId(),
                 LanguageUtils.getLanguageName(engine.getFactory()),
                 LanguageUtils.getVersionString(engine.getFactory())))
-                .cacheControl(NO_CACHE).build();
+                .cacheControl(CacheControl.NO_CACHE).build();
     }
 
-    private String getActorName(User user)
+    private String getActorName(String username)
     {
-        return Preconditions.checkNotNull(user).getName();
+        return Preconditions.checkNotNull(username);
     }
 
 // -------------------------- INNER CLASSES --------------------------
+
+    private static class CacheControl
+    {
+        // HTTP spec limits the max-age directive to one year.
+        private static final int ONE_YEAR = 60 * 60 * 24 * 365;
+
+        /**
+         * Provides a cacheControl with noStore and noCache set to true
+         */
+        public static final javax.ws.rs.core.CacheControl NO_CACHE = new javax.ws.rs.core.CacheControl();
+
+        static
+        {
+            NO_CACHE.setNoStore(true);
+            NO_CACHE.setNoCache(true);
+        }
+
+        /**
+         * Provides a cacheControl with a 1 year limit.  Effectively forever.
+         */
+        public static final javax.ws.rs.core.CacheControl CACHE_FOREVER = new javax.ws.rs.core.CacheControl();
+
+        static
+        {
+            CACHE_FOREVER.setPrivate(false);
+            CACHE_FOREVER.setMaxAge(ONE_YEAR);
+        }
+    }
+
+    /**
+     * A JAXB representation of an {@link com.atlassian.jira.util.ErrorCollection} useful for returning via JSON or XML.
+     *
+     * @since v4.2
+     */
+    @XmlRootElement
+    public static class ErrorCollection
+    {
+        /**
+         * Returns a new builder. The generated builder is equivalent to the builder created by the {@link
+         * com.atlassian.jira.rest.api.util.ErrorCollection.Builder#newBuilder()} method.
+         *
+         * @return a new Builder
+         */
+        public static Builder builder()
+        {
+            return Builder.newBuilder();
+        }
+
+        /**
+         * Returns a new ErrorCollection containing a single error message.
+         *
+         * @param messages an array of Strings containing error messages
+         * @return a new ErrorCollection
+         */
+        public static ErrorCollection of(String... messages)
+        {
+            Builder b = builder();
+            for (int i = 0; messages != null && i < messages.length; i++)
+            {
+                b.addErrorMessage(messages[i]);
+            }
+
+            return b.build();
+        }
+
+        /**
+         * Returns a new ErrorCollection containing all the errors contained in the input error collection.
+         *
+         * @param errorCollection a com.atlassian.jira.util.ErrorCollection
+         * @return a new ErrorCollection
+         */
+        public static ErrorCollection of(ErrorCollection errorCollection)
+        {
+            return builder().addErrorCollection(errorCollection).build();
+        }
+
+        /**
+         * Generic error messages
+         */
+        @XmlElement
+        private Collection<String> errorMessages = new ArrayList<String>();
+
+        @XmlElement
+        private Map<String, String> errors = new HashMap<String, String>();
+
+        /**
+         * Builder used to create a new immutable error collection.
+         */
+        public static class Builder
+        {
+            private ErrorCollection errorCollection;
+
+            public static Builder newBuilder()
+            {
+                return new Builder(Collections.<String>emptyList());
+            }
+
+            public static Builder newBuilder(Set<String> errorMessages)
+            {
+                Assertions.notNull("errorMessages", errorMessages);
+
+                return new Builder(errorMessages);
+            }
+
+
+            public static Builder newBuilder(ErrorCollection errorCollection)
+            {
+                Assertions.notNull("errorCollection", errorCollection);
+
+                return new Builder(errorCollection.getErrorMessages());
+            }
+
+            Builder(Collection<String> errorMessages)
+            {
+                this.errorCollection = new ErrorCollection(errorMessages);
+            }
+
+            public Builder addErrorCollection(ErrorCollection errorCollection)
+            {
+                Assertions.notNull("errorCollection", errorCollection);
+
+                this.errorCollection.addErrorCollection(errorCollection);
+                return this;
+            }
+
+            public Builder addErrorMessage(String errorMessage)
+            {
+                Assertions.notNull("errorMessage", errorMessage);
+
+                this.errorCollection.addErrorMessage(errorMessage);
+                return this;
+            }
+
+            public ErrorCollection build()
+            {
+                return this.errorCollection;
+            }
+        }
+
+        @SuppressWarnings({"UnusedDeclaration", "unused"})
+        private ErrorCollection()
+        {}
+
+        private ErrorCollection(Collection<String> errorMessages)
+        {
+            this.errorMessages.addAll(notNull("errorMessages", errorMessages));
+        }
+
+        @SuppressWarnings("unchecked")
+        private void addErrorCollection(ErrorCollection errorCollection)
+        {
+            errorMessages.addAll(notNull("errorCollection", errorCollection).getErrorMessages());
+            if (errorCollection.errors != null)
+            {
+                errors.putAll(errorCollection.errors);
+            }
+        }
+
+        private void addErrorMessage(String errorMessage)
+        {
+            errorMessages.add(errorMessage);
+        }
+
+        public boolean hasAnyErrors()
+        {
+            return !errorMessages.isEmpty() && !errors.isEmpty();
+        }
+
+        public Collection<String> getErrorMessages()
+        {
+            return errorMessages;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public String toString()
+        {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+    }
 
     @XmlRootElement
     public static class Language

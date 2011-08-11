@@ -16,7 +16,6 @@
 
 package com.blogspot.leonardinius.groovy;
 
-import com.atlassian.jira.ComponentManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
 import groovy.lang.GroovyClassLoader;
@@ -72,7 +71,7 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
                     final ClassLoader chainedClassLoader = this.scriptService.getClassLoader(
                             getClass().getClassLoader(),
                             Script.class.getClassLoader(),
-                            ComponentManager.class.getClassLoader(),
+                            //ComponentManager.class.getClassLoader(),
                             ClassLoader.getSystemClassLoader());
 
 

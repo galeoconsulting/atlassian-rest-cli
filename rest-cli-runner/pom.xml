@@ -31,18 +31,10 @@
     <artifactId>rest-cli-runner</artifactId>
     <packaging>atlassian-plugin</packaging>
 
-    <name>REST-CLI Jira Script Runner</name>
+    <name>REST-CLI Script Runner</name>
     <description>Script executor, pluggable language support, cli-session support and management.</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>atlassian-jira</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-rest-plugin</artifactId>
-        </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
@@ -57,12 +49,11 @@
         </dependency>
         <!-- @Nullable and etc -->
         <dependency>
-            <groupId>net.sourceforge.findbugs</groupId>
+            <groupId>com.atlassian.bundles</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.google.collections</groupId>
+            <groupId>com.atlassian.bundles</groupId>
             <artifactId>google-collections</artifactId>
         </dependency>
         <dependency>
@@ -74,8 +65,20 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-func-tests</artifactId>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.sal</groupId>
+            <artifactId>sal-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins.rest</groupId>
+            <artifactId>atlassian-rest-common</artifactId>
         </dependency>
     </dependencies>
 
