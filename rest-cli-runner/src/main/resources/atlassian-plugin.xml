@@ -108,12 +108,12 @@
     <web-item key="confluence-exec-runner-web-item" name="Script executor" section="system.admin"
               weight="20" application="confluence">
         <label key="cli.web.section.runner_link"/>
-        <link linkId="rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
+        <link linkId="confluence_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
     </web-item>
 
     <web-item key="confluence-cli-runner-web-item" name="Script CLI" section="system.admin"
               weight="10" application="confluence">
         <label key="cli.web.section.cli_link"/>
-        <link linkId="rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
+        <link linkId="confluence_rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
     </web-item>
 </atlassian-plugin>
