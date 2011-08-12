@@ -218,8 +218,8 @@
         <jira.version>4.3</jira.version>
         <jira.data.version>4.3</jira.data.version>
 
-        <confluence.version>4.3</confluence.version>
-        <confluence.data.version>4.3</confluence.data.version>
+        <confluence.version>3.5</confluence.version>
+        <confluence.data.version>3.5</confluence.data.version>
     </properties>
 
     <modules>

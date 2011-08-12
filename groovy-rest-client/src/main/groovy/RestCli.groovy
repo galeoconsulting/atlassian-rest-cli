@@ -16,6 +16,7 @@
 
 import com.sun.jersey.api.client.Client
 import com.sun.jersey.api.client.ClientResponse
+import com.sun.jersey.api.client.WebResource
 import com.sun.jersey.api.client.config.DefaultClientConfig
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
@@ -40,7 +41,7 @@ public class RestCli
     {
         this.options.clear();
         this.options.putAll(options)
-        authCookie = null;
+        cleanAuthCredentialsState()
         client = Client.create(new DefaultClientConfig());
     }
 
@@ -68,52 +69,64 @@ public class RestCli
 
     RestCli login(def username, def password)
     {
-        def cookie = client.resource(loginUrl())     //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
-                .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
+//        def cookie = client.resource(loginUrl())     //
+        //                .type(MediaType.APPLICATION_JSON)    //
+        //                .accept(MediaType.APPLICATION_JSON)  //
+        //                .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
 
-        authCookie = new NewCookie((String) cookie['name'], (String) cookie['value']);
+        //        authCookie = new NewCookie((String) cookie['name'], (String) cookie['value']);
 
         return this;
     }
 
+    private applyAuthCredentials(WebResource resource)
+    {
+        //resource.cookie(authCookie)
+        resource.cookie(new NewCookie("JSESSIONID", "B7A0F5E4DE091C06E970285DD8087161"))
+    }
+
+    private cleanAuthCredentialsState()
+    {
+        authCookie = null
+    }
+
     def logout()
     {
-        ClientResponse cr = client.resource(loginUrl()) //
-                .cookie(authCookie)                     //
-                .type(MediaType.APPLICATION_JSON)       //
-                .accept(MediaType.APPLICATION_JSON)     //
-                .delete(ClientResponse.class);
-
-        assert cr.status == 204;
-        authCookie = null;
-        cr
+//        ClientResponse cr = applyAuthCredentials(client.resource(loginUrl()) //
+        //        .type(MediaType.APPLICATION_JSON)       //
+        //        .accept(MediaType.APPLICATION_JSON))    //
+        //        .delete(ClientResponse.class);
+        //
+        //        assert cr.status == 204;
+        //        cleanAuthCredentialsState()
+        //        cr
     }
 
     String attachSession()
     {
-        client.resource(cliBaseUrl()).path('/sessions')  //
-                .cookie(authCookie)                      //
-                .type(MediaType.APPLICATION_JSON)        //
-                .accept(MediaType.APPLICATION_JSON)      //
-                .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
+        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        .path('/sessions'))                         //
+        .type(MediaType.APPLICATION_JSON)           //
+        .accept(MediaType.APPLICATION_JSON)        //
+        .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
     }
 
     def deleteSession(String sessionId)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie) //
-                .delete(ClientResponse.class)
+        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        .path('/sessions') //
+        .path(sessionId))  //
+        .delete(ClientResponse.class)
     }
 
     List<String> listSessions()
     {
-        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )                 //
-                .queryParam('language', 'groovy')        //
-                .cookie(authCookie) //                   //
-                .type(MediaType.APPLICATION_JSON)        //
-                .accept(MediaType.APPLICATION_JSON)      //
-                .get(JSONObject.class);
+        JSONObject response = applyAuthCredentials(client.resource(cliBaseUrl()) //
+        .path('/sessions')                       //
+        .queryParam('language', 'groovy'))       //
+        .type(MediaType.APPLICATION_JSON)        //
+        .accept(MediaType.APPLICATION_JSON)     //
+        .get(JSONObject.class);
         JSONArray sessions = (JSONArray) response['sessions']
         def sessionIds = [];
         for (int i = 0; i < sessions.length(); i++)
@@ -125,10 +138,12 @@ public class RestCli
 
     JSONObject eval_input(String sessionId, String scriptText)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie)                  //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
-                .post(JSONObject.class, new JSONObject('script': scriptText))
+        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        .path('/sessions')                    //
+        .path(sessionId))                     //
+        .type(MediaType.APPLICATION_JSON)     //
+        .accept(MediaType.APPLICATION_JSON)   //
+        .post(JSONObject.class, new JSONObject('script': scriptText))
     }
 
     def doWithSession(sessionId = null, Closure closure)
@@ -245,7 +260,10 @@ public class RestCli
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
         if (jso.has('out') && jso['out'] != '') println jso['out']
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
-        System.err.println("----\nError: ${message}")
+        System.err.println("----\nError: ${message}\n"
+                + "Response: ${e.response.entityInputStream?.readLines().join("\n\t")}\n"
+                + "Status: ${e.response.clientResponseStatus}\n"
+                + "Headers: ${e.response.headers}")
     }
 
     public static void main(String[] args)
