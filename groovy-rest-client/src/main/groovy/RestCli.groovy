@@ -41,7 +41,7 @@ public class RestCli
     {
         this.options.clear();
         this.options.putAll(options)
-        cleanAuthCredentialsState()
+        cleanAuthCredentials()
         client = Client.create(new DefaultClientConfig());
     }
 
@@ -79,32 +79,32 @@ public class RestCli
         return this;
     }
 
-    private applyAuthCredentials(WebResource resource)
+    private auth(WebResource resource)
     {
         //resource.cookie(authCookie)
         resource.cookie(new NewCookie("JSESSIONID", "B7A0F5E4DE091C06E970285DD8087161"))
     }
 
-    private cleanAuthCredentialsState()
+    private cleanAuthCredentials()
     {
         authCookie = null
     }
 
     def logout()
     {
-//        ClientResponse cr = applyAuthCredentials(client.resource(loginUrl()) //
+//        ClientResponse cr = auth(client.resource(loginUrl()) //
         //        .type(MediaType.APPLICATION_JSON)       //
         //        .accept(MediaType.APPLICATION_JSON))    //
         //        .delete(ClientResponse.class);
         //
         //        assert cr.status == 204;
-        //        cleanAuthCredentialsState()
+        //        cleanAuthCredentials()
         //        cr
     }
 
     String attachSession()
     {
-        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        auth(client.resource(cliBaseUrl()) //
         .path('/sessions'))                         //
         .type(MediaType.APPLICATION_JSON)           //
         .accept(MediaType.APPLICATION_JSON)        //
@@ -113,7 +113,7 @@ public class RestCli
 
     def deleteSession(String sessionId)
     {
-        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        auth(client.resource(cliBaseUrl()) //
         .path('/sessions') //
         .path(sessionId))  //
         .delete(ClientResponse.class)
@@ -121,7 +121,7 @@ public class RestCli
 
     List<String> listSessions()
     {
-        JSONObject response = applyAuthCredentials(client.resource(cliBaseUrl()) //
+        JSONObject response = auth(client.resource(cliBaseUrl()) //
         .path('/sessions')                       //
         .queryParam('language', 'groovy'))       //
         .type(MediaType.APPLICATION_JSON)        //
@@ -138,7 +138,7 @@ public class RestCli
 
     JSONObject eval_input(String sessionId, String scriptText)
     {
-        applyAuthCredentials(client.resource(cliBaseUrl()) //
+        auth(client.resource(cliBaseUrl()) //
         .path('/sessions')                    //
         .path(sessionId))                     //
         .type(MediaType.APPLICATION_JSON)     //
