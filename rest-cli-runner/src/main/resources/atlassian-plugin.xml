@@ -28,7 +28,9 @@
         <package>com.blogspot.leonardinius.rest</package>
     </rest>
 
-    <component key="script-service" name="Script Service" public="true"
+    <component key="script-service"
+               name="Script Service"
+               public="true"
                interface="com.blogspot.leonardinius.api.ScriptService"
                class="com.blogspot.leonardinius.api.impl.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
