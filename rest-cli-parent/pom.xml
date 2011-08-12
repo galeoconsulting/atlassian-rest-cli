@@ -143,13 +143,13 @@
                             <id>jira</id>
                             <version>${jira.version}</version>
                             <productDataVersion>${jira.data.version}</productDataVersion>
-                            <output>${project.build.directory}</output>
+                            <output>${project.build.directory}/jira-${jira.version}.log</output>
                         </product>
                         <product>
                             <id>confluence</id>
                             <version>${confluence.version}</version>
                             <productDataVersion>${confluence.data.version}</productDataVersion>
-                            <output>${project.build.directory}</output>
+                            <output>${project.build.directory}/confluence-${confluence.version}.log</output>
                         </product>
                     </products>
                 </configuration>
