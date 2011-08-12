@@ -28,6 +28,8 @@
         <package>com.blogspot.leonardinius.rest</package>
     </rest>
 
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+
     <component key="script-service"
                name="Script Service"
                public="true"
@@ -74,29 +76,44 @@
         </actions>
     </webwork1>
 
-    <web-section key="cli-web-section" name="CLI Section" location="system.admin"
-                 system="true" weight="101">
+    <web-section key="jira-cli-web-section"
+                 name="CLI Section" location="system.admin"
+                 system="true" weight="101" application="jira">
         <label key="cli.web.section.title"/>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>
     </web-section>
 
-    <web-item key="exec-runner-web-item" name="Script executor" section="system.admin/cli-web-section"
-              weight="20">
+    <web-item key="jira-exec-runner-web-item"
+              name="Script executor" section="system.admin/jira-cli-web-section"
+              weight="20" application="jira">
         <label key="cli.web.section.runner_link"/>
-        <link linkId="rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
+        <link linkId="jira_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>
     </web-item>
 
-    <web-item key="cli-runner-web-item" name="Script CLI" section="system.admin/cli-web-section"
-              weight="10">
+    <web-item key="jira-cli-runner-web-item" name="Script CLI"
+              section="system.admin/jira-cli-web-section"
+              weight="10" application="jira">
         <label key="cli.web.section.cli_link"/>
-        <link linkId="rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
+        <link linkId="jira_rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>
+    </web-item>
+
+    <web-item key="confluence-exec-runner-web-item" name="Script executor" section="system.admin"
+              weight="20" application="confluence">
+        <label key="cli.web.section.runner_link"/>
+        <link linkId="rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
+    </web-item>
+
+    <web-item key="confluence-cli-runner-web-item" name="Script CLI" section="system.admin"
+              weight="10" application="confluence">
+        <label key="cli.web.section.cli_link"/>
+        <link linkId="rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
     </web-item>
 </atlassian-plugin>

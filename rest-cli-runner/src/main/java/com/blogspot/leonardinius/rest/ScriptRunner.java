@@ -17,8 +17,6 @@
 package com.blogspot.leonardinius.rest;
 
 
-import com.atlassian.plugin.util.Assertions;
-import com.atlassian.sal.api.component.ComponentLocator;
 import com.atlassian.sal.api.user.UserManager;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
@@ -74,17 +72,25 @@ public class ScriptRunner implements DisposableBean
 
     private final UserManager userManager;
 
-    private final ComponentLocator componentLocator;
-
 // --------------------------- CONSTRUCTORS ---------------------------
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager, ComponentLocator componentLocator)
+    public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager)
     {
         this.scriptService = scriptService;
         this.userManager = userManager;
         this.sessionManager = sessionManager;
-        this.componentLocator = componentLocator;
+    }
+
+// ------------------------ INTERFACE METHODS ------------------------
+
+
+// --------------------- Interface DisposableBean ---------------------
+
+    @Override
+    public void destroy() throws Exception
+    {
+        sessionManager.clear();
     }
 
 // -------------------------- OTHER METHODS --------------------------
@@ -103,7 +109,7 @@ public class ScriptRunner implements DisposableBean
         ScriptSessionManager.ScriptSession scriptSession;
         try
         {
-            scriptSession = com.atlassian.plugin.util.Assertions.notNull("Session instance", sessionManager.getSession(SessionId.valueOf(sessionId)));
+            scriptSession = notNull("Session instance", sessionManager.getSession(SessionId.valueOf(sessionId)));
         }
         catch (IllegalArgumentException e)
         {
@@ -246,12 +252,6 @@ public class ScriptRunner implements DisposableBean
         return Response.ok().cacheControl(CacheControl.NO_CACHE).build();
     }
 
-    @Override
-    public void destroy() throws Exception
-    {
-        sessionManager.clear();
-    }
-
     @POST
     @Path("/execute/{" + LANGUAGE + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
@@ -289,11 +289,15 @@ public class ScriptRunner implements DisposableBean
 
     private ScriptEngine createScriptEngine(String scriptLanguage, Script script)
     {
-        ScriptEngine engine = notNull("Could not locate script engine (null)!", engineByLanguage(scriptLanguage));
+        ScriptEngine engine = engineByLanguage(scriptLanguage);
+        if (engine == null)
+        {
+            throw new IllegalStateException(
+                    String.format("Language '%s' script engine could not be found", scriptLanguage));
+        }
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>()
         {{
                 put("log", LOG);
-                put("componentLocator", componentLocator);
                 put("selfScriptRunner", ScriptRunner.this);
             }});
 
@@ -421,8 +425,7 @@ public class ScriptRunner implements DisposableBean
     public static class ErrorCollection
     {
         /**
-         * Returns a new builder. The generated builder is equivalent to the builder created by the {@link
-         * com.atlassian.jira.rest.api.util.ErrorCollection.Builder#newBuilder()} method.
+         * Returns a new builder. The generated builder is equivalent to the builder created by the {@link ErrorCollection.Builder#newBuilder()} method.
          *
          * @return a new Builder
          */
@@ -482,15 +485,14 @@ public class ScriptRunner implements DisposableBean
 
             public static Builder newBuilder(Set<String> errorMessages)
             {
-                Assertions.notNull("errorMessages", errorMessages);
+                notNull("errorMessages", errorMessages);
 
                 return new Builder(errorMessages);
             }
 
-
             public static Builder newBuilder(ErrorCollection errorCollection)
             {
-                Assertions.notNull("errorCollection", errorCollection);
+                notNull("errorCollection", errorCollection);
 
                 return new Builder(errorCollection.getErrorMessages());
             }
@@ -502,7 +504,7 @@ public class ScriptRunner implements DisposableBean
 
             public Builder addErrorCollection(ErrorCollection errorCollection)
             {
-                Assertions.notNull("errorCollection", errorCollection);
+                notNull("errorCollection", errorCollection);
 
                 this.errorCollection.addErrorCollection(errorCollection);
                 return this;
@@ -510,7 +512,7 @@ public class ScriptRunner implements DisposableBean
 
             public Builder addErrorMessage(String errorMessage)
             {
-                Assertions.notNull("errorMessage", errorMessage);
+                notNull("errorMessage", errorMessage);
 
                 this.errorCollection.addErrorMessage(errorMessage);
                 return this;
@@ -722,7 +724,7 @@ public class ScriptRunner implements DisposableBean
 
         private String asString(StringWriter sw)
         {
-            return Assertions.notNull("StringWriter sw", sw)
+            return notNull("StringWriter sw", sw)
                     .getBuffer()
                     .toString();
         }

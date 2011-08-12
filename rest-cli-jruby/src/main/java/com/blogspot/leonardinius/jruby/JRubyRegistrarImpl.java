@@ -16,10 +16,10 @@
 
 package com.blogspot.leonardinius.jruby;
 
+import com.atlassian.sal.api.user.UserManager;
 import com.blogspot.leonardinius.api.Registrar;
 import com.blogspot.leonardinius.api.ScriptService;
 import org.jruby.embed.PropertyName;
-import org.jruby.embed.jsr223.JRubyEngine;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -61,7 +61,7 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
                 Thread.currentThread().setContextClassLoader(getClassLoader());
                 try
                 {
-                    return (ScriptEngine) (JRubyEngine) super.getScriptEngine();
+                    return super.getScriptEngine();
                 }
                 finally
                 {
@@ -82,7 +82,7 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
                     chainedClassLoader = this.scriptService.getClassLoader(
                             getClass().getClassLoader(),
                             JRubyEngineFactory.class.getClassLoader(),
-                            //ComponentManager.class.getClassLoader(),
+                            UserManager.class.getClassLoader(),
                             ClassLoader.getSystemClassLoader());
                 }
             }

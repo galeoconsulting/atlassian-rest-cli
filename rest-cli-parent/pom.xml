@@ -64,13 +64,13 @@
             <dependency>
                 <groupId>com.atlassian.sal</groupId>
                 <artifactId>sal-api</artifactId>
-                <version>${sal.version}</version>
+                <version>${sal.library.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.plugins.rest</groupId>
                 <artifactId>atlassian-rest-common</artifactId>
-                <version>${sal.version}</version>
+                <version>${sal.library.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -182,6 +182,9 @@
                         <exclude>**/*.xml</exclude>
                         <exclude>**/*.vm</exclude>
                         <exclude>**/*.sh</exclude>
+                        <exclude>**/TEST_TESTS_README</exclude>
+                        <exclude>**/TEST_RESOURCES_README</exclude>
+                        <exclude>**/TEST_XML_RESOURCES_README</exclude>
                     </excludes>
                     <mapping>
                         <js>SLASHSTAR_STYLE</js>
@@ -208,9 +211,9 @@
     </build>
 
     <properties>
-        <plugins.version>2.5.5</plugins.version>
+        <plugins.version>2.5.4</plugins.version>
 
-        <sal.version>2.1.0</sal.version>
+        <sal.library.version>2.1.0</sal.library.version>
 
         <jira.version>4.3</jira.version>
         <jira.data.version>4.3</jira.data.version>
