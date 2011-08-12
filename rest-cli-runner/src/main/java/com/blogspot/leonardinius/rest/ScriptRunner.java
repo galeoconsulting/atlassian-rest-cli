@@ -66,7 +66,6 @@ public class ScriptRunner implements DisposableBean
 
     private static final String LANGUAGE = "language";
     private static final String SESSION_ID = "sessionId";
-    private static final String SCRIPT = "script";
 
     private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
 
@@ -79,6 +78,7 @@ public class ScriptRunner implements DisposableBean
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager, ComponentLocator componentLocator)
     {
         this.scriptService = scriptService;
@@ -189,6 +189,7 @@ public class ScriptRunner implements DisposableBean
         return consoleOutputBean;
     }
 
+    @SuppressWarnings({"SameParameterValue"})
     private void updateBindings(ScriptEngine engine, int scope, Map<String, ?> mergeValues)
     {
         Bindings bindings = engine.getContext().getBindings(scope);
@@ -381,6 +382,7 @@ public class ScriptRunner implements DisposableBean
 
 // -------------------------- INNER CLASSES --------------------------
 
+    @SuppressWarnings({"UnusedDeclaration"})
     private static class CacheControl
     {
         // HTTP spec limits the max-age directive to one year.
@@ -410,10 +412,11 @@ public class ScriptRunner implements DisposableBean
     }
 
     /**
-     * A JAXB representation of an {@link com.atlassian.jira.util.ErrorCollection} useful for returning via JSON or XML.
+     * A JAXB representation of an {@link ErrorCollection} useful for returning via JSON or XML.
      *
      * @since v4.2
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class ErrorCollection
     {
@@ -448,7 +451,7 @@ public class ScriptRunner implements DisposableBean
         /**
          * Returns a new ErrorCollection containing all the errors contained in the input error collection.
          *
-         * @param errorCollection a com.atlassian.jira.util.ErrorCollection
+         * @param errorCollection a ErrorCollection
          * @return a new ErrorCollection
          */
         public static ErrorCollection of(ErrorCollection errorCollection)
@@ -572,6 +575,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class Language
     {
@@ -579,6 +583,7 @@ public class ScriptRunner implements DisposableBean
         private String language;
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class ScriptErrors
     {
@@ -633,6 +638,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class Script
     {
@@ -695,16 +701,18 @@ public class ScriptRunner implements DisposableBean
 
         private Object evalResult;
 
-        public ConsoleOutputBean(Object evalResult, StringWriter out, StringWriter err)
+        @SuppressWarnings({"UnusedDeclaration"})
+        public ConsoleOutputBean(StringWriter out, StringWriter err)
         {
             this.out = out;
             this.err = err;
-            this.evalResult = evalResult;
+            this.evalResult = null;
         }
 
+        @SuppressWarnings({"UnusedDeclaration"})
         public ConsoleOutputBean()
         {
-            this(null, new StringWriter(), new StringWriter());
+            this(new StringWriter(), new StringWriter());
         }
 
         public Object getEvalResult()
@@ -755,6 +763,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class SessionIdWrapper
     {
@@ -795,6 +804,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class SessionIdCollectionWrapper
     {
@@ -829,6 +839,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class ConsoleOutputBeanWrapper
     {
@@ -884,6 +895,7 @@ public class ScriptRunner implements DisposableBean
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class ScriptText
     {

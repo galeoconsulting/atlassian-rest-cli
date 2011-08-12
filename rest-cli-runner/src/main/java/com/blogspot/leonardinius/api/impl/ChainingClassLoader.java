@@ -24,8 +24,6 @@ package com.blogspot.leonardinius.api.impl;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +36,11 @@ import java.util.*;
  * A class loader that delegates to a list of class loaders. The order is important as classes and resources will be
  * loaded from the first classloader that can load them.
  */
-public class ChainingClassLoader extends ClassLoader
+class ChainingClassLoader extends ClassLoader
 {
 // ------------------------------ FIELDS ------------------------------
 
-    private static final Logger log = LoggerFactory.getLogger(ChainingClassLoader.class);
+    //private static final Logger log = LoggerFactory.getLogger(ChainingClassLoader.class);
 
     /**
      * The list of classloader to delegate to.

@@ -211,7 +211,7 @@
 
     <properties>
         <gmaven.version>1.3</gmaven.version>
-        <groovy.version>1.7.9</groovy.version>
+        <groovy.version>1.8.0</groovy.version>
     </properties>
 
 

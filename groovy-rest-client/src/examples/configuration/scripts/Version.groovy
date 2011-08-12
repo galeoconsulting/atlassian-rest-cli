@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package scripts
-
 /**
  * User: leonidmaslov
  * Date: 4/9/11

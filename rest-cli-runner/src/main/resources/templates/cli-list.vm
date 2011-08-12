@@ -16,6 +16,7 @@
 
 $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
 
+<!--suppress HtmlDeprecatedTag -->
 <table class="jiraform  maxWidth">
     <tr>
         <td class="jiraformheader">
@@ -78,7 +79,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
 </table>
 
 <script type="text/javascript">
-    function makeNewSession()
+    function makeNewSession(self)
     {
         com.blogspot.leonardinius.restcli.newSession({
             baseUrl : "${requestContext.baseUrl}",

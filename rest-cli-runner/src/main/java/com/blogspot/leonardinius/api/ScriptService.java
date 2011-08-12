@@ -24,6 +24,7 @@ import javax.script.ScriptEngineFactory;
  * Date: 3/12/11
  * Time: 11:01 PM
  */
+@SuppressWarnings({"UnusedDeclaration"})
 public interface ScriptService
 {
 // -------------------------- OTHER METHODS --------------------------
@@ -53,5 +54,6 @@ public interface ScriptService
 
     void registerEngineMime(String mime, ScriptEngineFactory factory);
 
+    @SuppressWarnings({"UnusedReturnValue"})
     boolean removeEngine(ScriptEngineFactory factory);
 }

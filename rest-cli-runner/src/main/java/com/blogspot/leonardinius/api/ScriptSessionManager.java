@@ -52,6 +52,7 @@ public interface ScriptSessionManager
             return sessionId;
         }
 
+        @SuppressWarnings({"UnusedDeclaration"})
         private SessionId(String sessionId)
         {
             this.sessionId = Preconditions.checkNotNull(sessionId, "SessionId");
@@ -80,6 +81,7 @@ public interface ScriptSessionManager
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public static final class ScriptSession
     {
         private final ScriptEngine scriptEngine;
@@ -121,6 +123,7 @@ public interface ScriptSessionManager
             return scriptEngine;
         }
 
+        @SuppressWarnings({"UnusedDeclaration"})
         private ScriptSession(ScriptEngine scriptEngine, long createdAt, String userId)
         {
             this.createdAt = createdAt;

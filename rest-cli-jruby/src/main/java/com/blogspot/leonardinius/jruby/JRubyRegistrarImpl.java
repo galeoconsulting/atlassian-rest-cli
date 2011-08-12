@@ -37,7 +37,7 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 
     private final ScriptService scriptService;
     private final JRubyEngineFactory engineFactory;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     private ClassLoader chainedClassLoader;
 

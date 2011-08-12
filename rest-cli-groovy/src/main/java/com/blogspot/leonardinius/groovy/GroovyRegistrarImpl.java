@@ -40,7 +40,7 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
     private final GroovyScriptEngineFactory scriptEngineFactory;
 
     private GroovyClassLoader gcl;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
 // --------------------------- CONSTRUCTORS ---------------------------
 

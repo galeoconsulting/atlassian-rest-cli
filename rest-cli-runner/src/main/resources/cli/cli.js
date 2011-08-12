@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+//noinspection UnnecessaryReturnStatementJS
 (function($)
 {
 
@@ -30,7 +31,7 @@
     };
 
     $.namespace('com.blogspot.leonardinius.restcli');
-    $restcli = com.blogspot.leonardinius.restcli;
+    var $restcli = com.blogspot.leonardinius.restcli;
 
     $restcli.newSession = function(ajaxOptions)
     {
@@ -124,7 +125,7 @@
                 $.extend({}, defaults, options,
                         {
 
-                            commandValidate         : function(line)
+                            commandValidate         : function(/*line*/)
                             {
                                 return true;
                             },
@@ -214,7 +215,7 @@
                                 }
 
                                 continuePrompt(true);
-                                return;
+
                             }
 
                         }));
