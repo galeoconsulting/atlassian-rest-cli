@@ -393,8 +393,7 @@ public class RestCli
 
             Object logout(RestCli cli) { cli }
 
-            Object authenticate(RestCli cli, WebResource resource)
-            {
+            Object authenticate(RestCli cli, WebResource resource) {
                 String authString = "${cli.options.user}:${cli.options.password}".getBytes().encodeBase64().toString()
                 return resource.header('Authorization', "Basic ${authString}")
             }
