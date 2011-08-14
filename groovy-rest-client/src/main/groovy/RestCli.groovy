@@ -396,9 +396,8 @@ public class RestCli
             Object authenticate(RestCli cli, WebResource resource)
             {
                 String authString = "${cli.options.user}:${cli.options.password}".getBytes().encodeBase64().toString()
-                resource.header('Authorization', "Basic ${authString}")
+                return resource.header('Authorization', "Basic ${authString}")
             }
-
         }, BAMBOO;
 
         Object login(RestCli cli) { throw new NotImplementedException()}
