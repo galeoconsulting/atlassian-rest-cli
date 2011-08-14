@@ -398,6 +398,7 @@ public class RestCli
                 String authString = "${cli.options.user}:${cli.options.password}".getBytes().encodeBase64().toString()
                 return resource.header('Authorization', "Basic ${authString}")
             }
+
         }, BAMBOO;
 
         Object login(RestCli cli) { throw new NotImplementedException()}
@@ -432,6 +433,5 @@ public class RestCli
         {
             resource.cookie(cli.authCookie)
         }
-
     }
 }
