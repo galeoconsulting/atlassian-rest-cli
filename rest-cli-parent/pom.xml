@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>com.atlassian.plugins.rest</groupId>
                 <artifactId>atlassian-rest-common</artifactId>
-                <version>${sal.library.version}</version>
+                <version>${rest.library.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -213,7 +213,8 @@
     <properties>
         <plugins.version>2.5.4</plugins.version>
 
-        <sal.library.version>2.4.0</sal.library.version>
+        <sal.library.version>2.4.1</sal.library.version>
+        <rest.library.version>2.4.0</rest.library.version>
 
         <jira.version>4.3</jira.version>
         <jira.data.version>4.3</jira.data.version>
