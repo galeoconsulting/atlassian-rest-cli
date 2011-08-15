@@ -25,7 +25,7 @@
 
     <rest key="runner-output" name="REST Cli API" path="/rest-scripting" version="1.0"
           description="Provides REST CLI endpoints for ${project.name}.">
-        <package>com.blogspot.leonardinius.rest</package>
+        <package>com.blogspot.leonardinius.rest.service</package>
     </rest>
 
     <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
