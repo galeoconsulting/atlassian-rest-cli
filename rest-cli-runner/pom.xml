@@ -80,6 +80,10 @@
             <groupId>com.atlassian.plugins.rest</groupId>
             <artifactId>atlassian-rest-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.templaterenderer</groupId>
+            <artifactId>atlassian-template-renderer-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

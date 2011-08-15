@@ -29,6 +29,9 @@
     </rest>
 
     <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+    <component-import key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager"/>
+    <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
+    <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
 
     <component key="script-service"
                name="Script Service"
@@ -64,17 +67,6 @@
             <property key="charset" value="utf-8"/>
         </resource>
     </web-resource>
-
-    <webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">
-        <actions>
-            <action name="com.blogspot.leonardinius.actions.ScriptRunnerAction"
-                    alias="restCli">
-                <view name="exec">/templates/exec-input.vm</view>
-                <view name="list">/templates/cli-list.vm</view>
-                <view name="cli">/templates/cli-input.vm</view>
-            </action>
-        </actions>
-    </webwork1>
 
     <web-section key="jira-cli-web-section"
                  name="CLI Section" location="system.admin"
@@ -116,4 +108,27 @@
         <label key="cli.web.section.cli_link"/>
         <link linkId="confluence_rest_cli_runner">/secure/admin/restCli!list.jspa?atl_token=${atl_token}</link>
     </web-item>
+
+    <!--<webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">-->
+    <!--<actions>-->
+    <!--<action name="com.blogspot.leonardinius.actions.ScriptRunnerAction"-->
+    <!--alias="restCli">-->
+    <!--<view name="exec">/templates/exec-input.vm</view>-->
+    <!--<view name="list">/templates/cli-list.vm</view>-->
+    <!--<view name="cli">/templates/cli-input.vm</view>-->
+    <!--</action>-->
+    <!--</actions>-->
+    <!--</webwork1>-->
+    <servlet name="Script Runner Web-interface" key="script-runner-servlet"
+             class="com.blogspot.leonardinius.servlet.ScriptRunnerSessionServlet">
+        <description>Script Runner Web-interface.</description>
+        <url-pattern>/rest-script-runner/action/</url-pattern>
+        <init-param>
+            <param-name>velocity-templates</param-name>
+            <param-value>execute-statement.html|/templates/exec-input.vm;
+                list-sessions.html|/templates/cli-list.vm;
+                cli-live-session.html|/templates/cli-input.vm
+            </param-value>
+        </init-param>
+    </servlet>
 </atlassian-plugin>
