@@ -20,9 +20,7 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.websudo.WebSudoManager;
 import com.atlassian.sal.api.websudo.WebSudoSessionException;
-import com.google.common.base.Function;
 
-import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +42,7 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 // --------------------------- CONSTRUCTORS ---------------------------
 
     public ScriptRunnerSessionServlet(final UserManager userManager,
-                                      final WebSudoManager webSudoManager,
-                                      final LoginUriProvider loginUriProvider)
+                                      final WebSudoManager webSudoManager, LoginUriProvider loginUriProvider)
     {
         this.loginUriProvider = checkNotNull(loginUriProvider, "loginUriProvider");
         this.userManager = checkNotNull(userManager, "userManager");
@@ -57,81 +54,74 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        execute(new Function<RequestHolder, RequestHolder>()
+        // WebSudo
+        try
         {
-            @Override
-            public RequestHolder apply(@Nullable RequestHolder requestHolder)
+            webSudoManager.willExecuteWebSudoRequest(request);
+
+            if (loginIfNot(request, response)) return; //just in case websudo was disabled
+
+            if (!IsSystemAdminRequest(request))
             {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                throw new ServletException("The action could only be executed by system administrators");
             }
-        }, new RequestHolder(request, response));
+
+            //my code here
+        }
+        catch (WebSudoSessionException wes)
+        {
+            webSudoManager.enforceWebSudoProtection(request, response);
+        }
     }
 
-    private void execute(Function<RequestHolder, RequestHolder> function, RequestHolder holder) throws IOException, ServletException
+    private boolean loginIfNot(HttpServletRequest request, HttpServletResponse response) throws ServletException
     {
-        if (userManager.getRemoteUsername(holder.getRequest()) == null)
+        if (userManager.getRemoteUsername(request) == null)
         {
             try
             {
-                URI requestUri = new URI(holder.getRequest().getRequestURI());
-                URI loginUrl = loginUriProvider.getLoginUri(requestUri);
-                holder.getResponse().sendRedirect(loginUrl.toASCIIString());
+                URI currentUri = new URI(request.getRequestURI());
+                URI loginUri = loginUriProvider.getLoginUri(currentUri);
+                response.sendRedirect(loginUri.toASCIIString());
             }
             catch (URISyntaxException e)
             {
                 throw new ServletException(e);
             }
-        } else
-        {
-            // WebSudo
-            try
+            catch (IOException e)
             {
-                webSudoManager.willExecuteWebSudoRequest(holder.getRequest());
-
-
-                function.apply(holder);
+                throw new ServletException(e);
             }
-            catch (WebSudoSessionException wes)
-            {
-                webSudoManager.enforceWebSudoProtection(holder.getRequest(), holder.getResponse());
-            }
+            return true;
         }
+        return false;
+    }
+
+    private boolean IsSystemAdminRequest(HttpServletRequest request)
+    {
+        return userManager.isSystemAdmin(userManager.getRemoteUsername(request));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        execute(new Function<RequestHolder, RequestHolder>()
+        // WebSudo
+        try
         {
-            @Override
-            public RequestHolder apply(@Nullable RequestHolder requestHolder)
+            webSudoManager.willExecuteWebSudoRequest(request);
+
+            if (loginIfNot(request, response)) return; //just in case websudo was disabled
+
+            if (!IsSystemAdminRequest(request))
             {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                throw new ServletException("The action could only be executed by system administrators");
             }
-        }, new RequestHolder(request, response));
-    }
 
-// -------------------------- INNER CLASSES --------------------------
-
-    private static class RequestHolder
-    {
-        public HttpServletRequest getRequest()
-        {
-            return request;
+            //my code here
         }
-
-        public HttpServletResponse getResponse()
+        catch (WebSudoSessionException wes)
         {
-            return response;
-        }
-
-        private final HttpServletRequest request;
-        private final HttpServletResponse response;
-
-        public RequestHolder(HttpServletRequest request, HttpServletResponse response)
-        {
-            this.request = request;
-            this.response = response;
+            webSudoManager.enforceWebSudoProtection(request, response);
         }
     }
 }
