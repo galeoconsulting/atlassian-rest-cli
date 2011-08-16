@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 import com.sun.jersey.api.client.Client
 import com.sun.jersey.api.client.ClientResponse
 import com.sun.jersey.api.client.WebResource
@@ -381,56 +383,60 @@ public class RestCli
         repl.repl(asSessionId(sessionId))
     }
 
-    enum Application {
-        JIRA {
-            Object login(RestCli cli) { restLogin(cli)}
+    def __restLogin()
+    {
+        Object cookie = client.resource(loginUrl())     //
+        .type(MediaType.APPLICATION_JSON)    //
+        .accept(MediaType.APPLICATION_JSON)  //
+        .post(JSONObject.class, new JSONObject('username': options.user, 'password': options.password))['session'];
 
-            Object logout(RestCli cli) { restLogout(cli)}
-
-            Object authenticate(RestCli cli, WebResource resource) { resource }
-        }, CONFLUENCE {
-            Object login(RestCli cli) { cli }
-
-            Object logout(RestCli cli) { cli }
-
-            Object authenticate(RestCli cli, WebResource resource) {
-                String authString = "${cli.options.user}:${cli.options.password}".getBytes().encodeBase64().toString()
-                return resource.header('Authorization', "Basic ${authString}")
-            }
-
-        }, BAMBOO;
-
-        Object login(RestCli cli) { throw new NotImplementedException()}
-
-        Object logout(RestCli cli) { throw new NotImplementedException()}
-
-        Object authenticate(RestCli cli, WebResource resource) {throw new NotImplementedException()}
-
-        private Object restLogin(RestCli cli)
-        {
-            Object cookie = cli.client.resource(cli.loginUrl())     //
-            .type(MediaType.APPLICATION_JSON)    //
-            .accept(MediaType.APPLICATION_JSON)  //
-            .post(JSONObject.class, new JSONObject('username': cli.options.username, 'password': cli.options.password))['session'];
-
-            cli.authCookie = new NewCookie((String) cookie['name'],
-                    (String) cookie['value']);
-        }
-
-        private Object restLogout(RestCli cli)
-        {
-            ClientResponse cr = cookieAuth(cli, cli.client.resource(cli.loginUrl())) //
-            .type(MediaType.APPLICATION_JSON)       //
-            .accept(MediaType.APPLICATION_JSON)    //
-            .delete(ClientResponse.class);
-
-            assert cr.status == 204;
-            cr
-        }
-
-        private Object cookieAuth(RestCli cli, WebResource resource)
-        {
-            resource.cookie(cli.authCookie)
-        }
+        authCookie = new NewCookie((String) cookie['name'],
+                (String) cookie['value']);
     }
+
+    def __restLogout()
+    {
+        ClientResponse cr = __cookieAuth(client.resource(loginUrl())) //
+        .type(MediaType.APPLICATION_JSON)      //
+        .accept(MediaType.APPLICATION_JSON)    //
+        .delete(ClientResponse.class);
+
+        assert cr.status == 204;
+        cr
+    }
+
+    def __base64Auth(WebResource resource)
+    {
+        String authString = "${options.user}:${options.password}".getBytes().encodeBase64().toString()
+        return resource.header('Authorization', "Basic ${authString}")
+    }
+
+    def __cookieAuth(WebResource resource)
+    {
+        resource.cookie(authCookie)
+    }
+
+}
+
+enum Application {
+    JIRA {
+        Object login(RestCli cli) { cli.__restLogin() }
+
+        Object logout(RestCli cli) { cli.__restLogout() }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__cookieAuth(resource) }
+    }, CONFLUENCE {
+        Object login(RestCli cli) { cli }
+
+        Object logout(RestCli cli) { cli }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__base64Auth(resource) }
+
+    }, BAMBOO;
+
+    Object login(RestCli cli) { throw new NotImplementedException()}
+
+    Object logout(RestCli cli) { throw new NotImplementedException()}
+
+    Object authenticate(RestCli cli, WebResource resource) {throw new NotImplementedException()}
 }
