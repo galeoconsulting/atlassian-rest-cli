@@ -28,10 +28,12 @@
         <package>com.blogspot.leonardinius.rest.service</package>
     </rest>
 
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
     <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
     <component-import key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager"/>
     <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+
 
     <component key="script-service"
                name="Script Service"
@@ -131,4 +133,11 @@
             </param-value>
         </init-param>
     </servlet>
+
+    <template-context-item
+            key="script-runner-resource-context-item"
+            class="com.blogspot.leonardinius.rest.service.ScriptRunner"
+            context-key="scriptRunnerResource"/>
+    <template-context-item key="applicationPropertiesContextItem" component-ref="applicationProperties"
+                           context-key="applicationProperties" name="Application Properties Context Item"/>
 </atlassian-plugin>

@@ -14,8 +14,12 @@
     limitations under the License.
 *#
 
-$webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
-
+<html>
+<head>
+    <meta name="decorator" content="atl.admin"/>
+</head>
+<body>
+    $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
 <!--suppress HtmlDeprecatedTag -->
 <table class="jiraform  maxWidth">
     <tr>
@@ -31,6 +35,8 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
                         <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name)
                             - $action.htmlEncode($lng.version)</option>
                     #end
+                    <option value="groovy">Groovy</option>
+                    <option value="javascript">Javascript</option>
                 </select>
                 &nbsp;<a href="#" onclick="javascript: makeNewSession(this); return false;">create</a>
                 &nbsp;<u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>.
@@ -77,12 +83,11 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
         </td>
     </tr>
 </table>
-
 <script type="text/javascript">
     function makeNewSession(self)
     {
         com.blogspot.leonardinius.restcli.newSession({
-            baseUrl : "${requestContext.baseUrl}",
+            baseUrl :   "${applicationProperties.baseUrl}",
             data    : JSON.stringify({language : jQuery('#cli-language').val()}),
             success : function(data)
             {
@@ -97,7 +102,7 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
         if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId)))
         {
             com.blogspot.leonardinius.restcli.deleteSession({
-                baseUrl : "${requestContext.baseUrl}",
+                baseUrl : "${applicationProperties.baseUrl}",
                 data    : {sessionId : sessionId},
                 success : function(noData)
                 {
@@ -107,3 +112,5 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
         }
     }
 </script>
+</body>
+</html>

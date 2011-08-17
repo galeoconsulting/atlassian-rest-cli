@@ -17,6 +17,7 @@
 package com.blogspot.leonardinius.rest.service;
 
 
+import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.user.UserManager;
 import com.blogspot.leonardinius.api.LanguageUtils;
 import com.blogspot.leonardinius.api.ScriptService;
@@ -27,6 +28,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.sun.jersey.api.uri.UriBuilderImpl;
 import org.apache.commons.io.input.NullReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -45,6 +47,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -71,15 +74,17 @@ public class ScriptRunner implements DisposableBean
     private final ScriptSessionManager sessionManager;
 
     private final UserManager userManager;
+    private final ApplicationProperties applicationProperties;
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager)
+    public ScriptRunner(final ScriptService scriptService, final UserManager userManager, ScriptSessionManager sessionManager, ApplicationProperties applicationProperties)
     {
-        this.scriptService = scriptService;
-        this.userManager = userManager;
-        this.sessionManager = sessionManager;
+        this.scriptService = checkNotNull(scriptService, "scriptService");
+        this.userManager = checkNotNull(userManager, "userManager");
+        this.sessionManager = checkNotNull(sessionManager, "sessionManager");
+        this.applicationProperties = checkNotNull(applicationProperties, "applicationProperties");
     }
 
 // ------------------------ INTERFACE METHODS ------------------------
@@ -94,6 +99,16 @@ public class ScriptRunner implements DisposableBean
     }
 
 // -------------------------- OTHER METHODS --------------------------
+
+    public URI buildSelfLink(String query)
+    {
+        URI base = URI.create(applicationProperties.getBaseUrl()).normalize();
+        return new UriBuilderImpl()
+                .path(base.getPath())
+                .path("/rest/rest-scripting/1.0")
+                .path(ScriptRunner.class)
+                .build(query);
+    }
 
     @POST
     @Path("/sessions/{" + SESSION_ID + "}")
