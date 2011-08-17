@@ -47,8 +47,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ScriptRunnerSessionServlet extends HttpServlet
-{
+public final class ScriptRunnerSessionServlet extends HttpServlet {
 // ------------------------------ FIELDS ------------------------------
 
     private static final String VELOCITY_TEMPLATES_CONFIG_PARAMETER = "velocity-templates";
@@ -65,8 +64,7 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 // --------------------------- CONSTRUCTORS ---------------------------
 
     public ScriptRunnerSessionServlet(final UserManager userManager,
-                                      final WebSudoManager webSudoManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer)
-    {
+                                      final WebSudoManager webSudoManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer) {
         this.templateRenderer = checkNotNull(templateRenderer, "templateRenderer");
         this.loginUriProvider = checkNotNull(loginUriProvider, "loginUriProvider");
         this.userManager = checkNotNull(userManager, "userManager");
@@ -75,10 +73,8 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 
 // --------------------- GETTER / SETTER METHODS ---------------------
 
-    private Map<String, String> getConfiguredTemplates()
-    {
-        if (configuredTemplates == null)
-        {
+    private Map<String, String> getConfiguredTemplates() {
+        if (configuredTemplates == null) {
             String parameterValue = checkNotNull(
                     getInitParameter(VELOCITY_TEMPLATES_CONFIG_PARAMETER),
                     VELOCITY_TEMPLATES_CONFIG_PARAMETER + " servlet configuration parameter");
@@ -86,18 +82,15 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
             Collection<String> entries = new LinkedHashSet<String>(
                     Arrays.asList(StringUtils.split(parameterValue, ';')));
 
-            entries = Collections2.filter(entries, new Predicate<String>()
-            {
+            entries = Collections2.filter(entries, new Predicate<String>() {
                 @Override
-                public boolean apply(@Nullable String s)
-                {
+                public boolean apply(@Nullable String s) {
                     return StringUtils.isNotBlank(s);
                 }
             });
 
             Map<String, String> result = Maps.newHashMap();
-            for (String entry : entries)
-            {
+            for (String entry : entries) {
                 String data[] = StringUtils.split(entry, '|');
                 result.put(StringUtils.trimToNull(data[0]), StringUtils.trimToNull(data[1]));
             }
@@ -111,22 +104,18 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 // -------------------------- OTHER METHODS --------------------------
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doExecuteHttpMethod(request, response);
     }
 
-    private void doExecuteHttpMethod(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
+    private void doExecuteHttpMethod(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // WebSudo
-        try
-        {
+        try {
             webSudoManager.willExecuteWebSudoRequest(request);
 
             if (loginIfNot(request, response)) return; //just in case websudo was disabled
 
-            if (!IsSystemAdminRequest(request))
-            {
+            if (!IsSystemAdminRequest(request)) {
                 throw new ServletException("The action could only be executed by system administrators");
             }
 
@@ -135,29 +124,20 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
                     checkNotNull(getVelocityTemplate(request), "templateName"),
                     makeContext(),
                     response.getWriter());
-        }
-        catch (WebSudoSessionException wes)
-        {
+        } catch (WebSudoSessionException wes) {
             webSudoManager.enforceWebSudoProtection(request, response);
         }
     }
 
-    private boolean loginIfNot(HttpServletRequest request, HttpServletResponse response) throws ServletException
-    {
-        if (userManager.getRemoteUsername(request) == null)
-        {
-            try
-            {
+    private boolean loginIfNot(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        if (userManager.getRemoteUsername(request) == null) {
+            try {
                 URI currentUri = new URI(request.getRequestURI());
                 URI loginUri = loginUriProvider.getLoginUri(currentUri);
                 response.sendRedirect(loginUri.toASCIIString());
-            }
-            catch (URISyntaxException e)
-            {
+            } catch (URISyntaxException e) {
                 throw new ServletException(e);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 throw new ServletException(e);
             }
             return true;
@@ -165,19 +145,15 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
         return false;
     }
 
-    private boolean IsSystemAdminRequest(HttpServletRequest request)
-    {
+    private boolean IsSystemAdminRequest(HttpServletRequest request) {
         return userManager.isSystemAdmin(userManager.getRemoteUsername(request));
     }
 
-    private String getVelocityTemplate(HttpServletRequest request) throws ServletException
-    {
-        try
-        {
+    private String getVelocityTemplate(HttpServletRequest request) throws ServletException {
+        try {
             String templateNamePathKey = getTemplateKey(request);
             Map<String, String> templates = getConfiguredTemplates();
-            if (templates.containsKey(templateNamePathKey))
-            {
+            if (templates.containsKey(templateNamePathKey)) {
                 String template = templates.get(templateNamePathKey);
                 log.trace("Velocity template to be parsed: {}", template);
                 return template;
@@ -187,36 +163,29 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
                     templateNamePathKey,
                     MapUtils.toProperties(templates));
             return null;
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw new ServletException(e);
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             throw new ServletException(e);
         }
     }
 
-    private String getTemplateKey(HttpServletRequest request) throws URISyntaxException
-    {
+    private String getTemplateKey(HttpServletRequest request) throws URISyntaxException {
         String leadingTrimPath = new StringBuilder()
                 .append(request.getContextPath())
                 .append(request.getServletPath())
                 .toString();
         return new URI(leadingTrimPath)
-                .relativize(new URI(request.getRequestURI()))
+                .relativize(URI.create(new URI(request.getRequestURI()).getPath()))
                 .toASCIIString();
     }
 
-    private Map<String, Object> makeContext()
-    {
+    private Map<String, Object> makeContext() {
         return new MapMaker().makeMap();
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doExecuteHttpMethod(request, response);
     }
 }
