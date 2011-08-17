@@ -26,7 +26,10 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletException;
@@ -35,10 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -51,10 +52,13 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 // ------------------------------ FIELDS ------------------------------
 
     private static final String VELOCITY_TEMPLATES_CONFIG_PARAMETER = "velocity-templates";
+    private static final String SERVLET_PATH = "servlet-path";
     private final UserManager userManager;
     private final WebSudoManager webSudoManager;
     private final LoginUriProvider loginUriProvider;
     private final TemplateRenderer templateRenderer;
+
+    private Logger log = LoggerFactory.getLogger(ScriptRunnerSessionServlet.class);
 
     private Map<String, String> configuredTemplates;
 
@@ -75,11 +79,9 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
     {
         if (configuredTemplates == null)
         {
-            String parameterValue = getServletContext().getInitParameter(VELOCITY_TEMPLATES_CONFIG_PARAMETER);
-            if (StringUtils.isBlank(parameterValue))
-            {
-                parameterValue = getServletConfig().getInitParameter(VELOCITY_TEMPLATES_CONFIG_PARAMETER);
-            }
+            String parameterValue = checkNotNull(
+                    getInitParameter(VELOCITY_TEMPLATES_CONFIG_PARAMETER),
+                    VELOCITY_TEMPLATES_CONFIG_PARAMETER + " servlet configuration parameter");
 
             Collection<String> entries = new LinkedHashSet<String>(
                     Arrays.asList(StringUtils.split(parameterValue, ';')));
@@ -130,7 +132,7 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
 
             response.setContentType(MediaType.TEXT_HTML);
             templateRenderer.render(
-                    checkNotNull(getTemplateName(request), "templateName"),
+                    checkNotNull(getVelocityTemplate(request), "templateName"),
                     makeContext(),
                     response.getWriter());
         }
@@ -168,19 +170,25 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
         return userManager.isSystemAdmin(userManager.getRemoteUsername(request));
     }
 
-    private String getTemplateName(HttpServletRequest request) throws ServletException
+    private String getVelocityTemplate(HttpServletRequest request) throws ServletException
     {
         try
         {
-            URL requestURL = new URI(request.getRequestURI()).toURL();
+            String templateNamePathKey = getTemplateKey(request);
             Map<String, String> templates = getConfiguredTemplates();
-            if (templates.containsKey(requestURL.getFile()))
+            if (templates.containsKey(templateNamePathKey))
             {
-                return templates.get(requestURL.getFile());
+                String template = templates.get(templateNamePathKey);
+                log.trace("Velocity template to be parsed: {}", template);
+                return template;
             }
+
+            log.warn("No templates mapped for: {} (mapping: {})",
+                    templateNamePathKey,
+                    MapUtils.toProperties(templates));
             return null;
         }
-        catch (MalformedURLException e)
+        catch (IllegalArgumentException e)
         {
             throw new ServletException(e);
         }
@@ -188,6 +196,17 @@ public final class ScriptRunnerSessionServlet extends HttpServlet
         {
             throw new ServletException(e);
         }
+    }
+
+    private String getTemplateKey(HttpServletRequest request) throws URISyntaxException
+    {
+        String leadingTrimPath = new StringBuilder()
+                .append(request.getContextPath())
+                .append(request.getServletPath())
+                .toString();
+        return new URI(leadingTrimPath)
+                .relativize(new URI(request.getRequestURI()))
+                .toASCIIString();
     }
 
     private Map<String, Object> makeContext()
