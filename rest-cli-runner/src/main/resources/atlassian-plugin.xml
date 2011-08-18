@@ -21,28 +21,56 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
-    <resource type="i18n" name="i18n" location="i18n/messages"/>
+    <resource type="i18n" name="I18N Localization"
+              location="i18n/messages">
+        <description>Provides localized UI messages</description>
+    </resource>
 
-    <rest key="runner-output" name="REST Cli API" path="/rest-scripting" version="1.0"
-          description="Provides REST CLI endpoints for ${project.name}.">
+    <rest key="runner-output"
+          name="REST Cli API"
+          path="/rest-scripting" version="1.0">
         <package>com.blogspot.leonardinius.rest.service</package>
+        <description>Provides REST CLI endpoints for ${project.name}.</description>
     </rest>
 
-    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
-    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
-    <component-import key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager"/>
-    <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
-    <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+    <component-import
+            name="ApplicationProperties"
+            key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties">
+        <description>OSGi imported Atlassian SAL ApplicationProperties component</description>
+    </component-import>
+    <component-import
+            name="UserManager"
+            key="userManager" interface="com.atlassian.sal.api.user.UserManager">
+        <description>OSGi imported Atlassian SAL UserManager component</description>
+    </component-import>
+    <component-import
+            name="WebSudoManager"
+            key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager">
+        <description>OSGi imported Atlassian SAL WebSudoManager component</description>
+    </component-import>
+    <component-import
+            name="LoginUriProvider"
+            key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider">
+        <description>OSGi imported Atlassian SAL LoginUriProvider component</description>
+    </component-import>
+    <component-import
+            name="VelocityTemplateRenderer"
+            key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer">
+        <description>OSGi imported Atlassian SAL VelocityTemplateRenderer component</description>
+    </component-import>
 
 
-    <component key="script-service"
-               name="Script Service"
-               public="true"
-               interface="com.blogspot.leonardinius.api.ScriptService"
-               class="com.blogspot.leonardinius.api.impl.ScriptServiceImpl">
+    <component
+            name="${project.name} REST API"
+            key="script-service"
+            public="true"
+            interface="com.blogspot.leonardinius.api.ScriptService"
+            class="com.blogspot.leonardinius.api.impl.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component>
-    <component key="cli-session-manager" name="Script Service" public="false"
+    <component key="cli-session-manager"
+               name="Script Service"
+               public="false"
                interface="com.blogspot.leonardinius.api.ScriptSessionManager"
                class="com.blogspot.leonardinius.api.impl.ScriptSessionManagerImpl">
         <description>Implements CLI session management</description>
@@ -53,7 +81,7 @@
         <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
     </component>
 
-    <web-resource key="cli-js-css" name="jquery-console javascript and css resources">
+    <web-resource key="cli-js-css" name="Js and Css resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="cli.css" location="cli/cli.css">
             <property key="content-type" value="text/css"/>
@@ -71,7 +99,8 @@
     </web-resource>
 
     <web-section key="jira-cli-web-section"
-                 name="CLI Section" location="system.admin"
+                 name="JIRA Administration Web-Section"
+                 location="system.admin"
                  system="true" weight="101" application="jira">
         <label key="cli.web.section.title"/>
         <conditions type="OR">
@@ -80,7 +109,9 @@
     </web-section>
 
     <web-item key="jira-exec-runner-web-item"
-              name="Script executor" section="system.admin/jira-cli-web-section"
+              name="JIRA script executor link"
+              description="JIRA Admin panel script executor link"
+              section="system.admin/jira-cli-web-section"
               weight="20" application="jira">
         <label key="cli.web.section.runner_link"/>
         <link linkId="jira_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
@@ -89,7 +120,8 @@
         </conditions>
     </web-item>
 
-    <web-item key="jira-cli-runner-web-item" name="Script CLI"
+    <web-item key="jira-cli-runner-web-item"
+              name="JIRA script list session link"
               section="system.admin/jira-cli-web-section"
               weight="10" application="jira">
         <label key="cli.web.section.cli_link"/>
@@ -99,13 +131,18 @@
         </conditions>
     </web-item>
 
-    <web-item key="confluence-exec-runner-web-item" name="Script executor" section="system.admin"
+    <web-item key="confluence-exec-runner-web-item"
+              name="Confluence script executor Web-Section"
+              section="system.admin"
               weight="20" application="confluence">
         <label key="cli.web.section.runner_link"/>
         <link linkId="confluence_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
     </web-item>
 
-    <web-item key="confluence-cli-runner-web-item" name="Script CLI" section="system.admin"
+    <web-item key="confluence-cli-runner-web-item"
+              name="Cofluence script executor link"
+              description="Confluence Admin panel script executor link"
+              section="system.admin"
               weight="10" application="confluence">
         <label key="cli.web.section.cli_link"/>
         <link linkId="confluence_rest_cli_runner">/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
@@ -138,7 +175,14 @@
     <template-context-item
             key="script-runner-resource-context-item"
             class="com.blogspot.leonardinius.rest.service.ScriptRunner"
-            context-key="scriptRunnerResource"/>
-    <template-context-item key="applicationPropertiesContextItem" component-ref="applicationProperties"
-                           context-key="applicationProperties" name="Application Properties Context Item"/>
+            context-key="scriptRunnerResource"
+            name="Script Runner Context Item">
+        <description>Script Runner REST service as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="applicationPropertiesContextItem"
+            component-ref="applicationProperties"
+            context-key="applicationProperties">
+        <description>SAL ApplicationProperties as velocity template context item</description>
+    </template-context-item>
 </atlassian-plugin>
