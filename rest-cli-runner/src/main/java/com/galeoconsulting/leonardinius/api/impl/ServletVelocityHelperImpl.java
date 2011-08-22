@@ -20,7 +20,9 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.user.UserProfile;
 import com.galeoconsulting.leonardinius.api.ScriptService;
 import com.galeoconsulting.leonardinius.api.ScriptSessionManager;
+import com.galeoconsulting.leonardinius.api.ServletRequestHolder;
 import com.galeoconsulting.leonardinius.api.ServletVelocityHelper;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -28,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.script.ScriptEngineFactory;
+import javax.servlet.ServletRequest;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,10 +55,13 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper
     private final UserManager userManager;
     private final ScriptService scriptService;
 
+    private final ServletRequestHolder requestHolder;
+
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public ServletVelocityHelperImpl(UserManager userManager, ScriptSessionManager sessionManager, ScriptService scriptService)
+    public ServletVelocityHelperImpl(UserManager userManager, ScriptSessionManager sessionManager, ScriptService scriptService, ServletRequestHolder requestHolder)
     {
+        this.requestHolder = checkNotNull(requestHolder, "requestHolder");
         this.scriptService = checkNotNull(scriptService, "scriptService");
         this.userManager = checkNotNull(userManager, "userManager");
         this.sessionManager = checkNotNull(sessionManager, "sessionManager");
@@ -66,24 +72,11 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper
 
 // --------------------- Interface ServletVelocityHelper ---------------------
 
+
     @Override
-    public SessionBean getSessionBean(final String sessionId)
+    public Map<String, String[]> getAllRequestParameters()
     {
-        if (StringUtils.isBlank(sessionId))
-        {
-            return null;
-        }
-
-        Iterable<SessionBean> iterable = Iterables.filter(getAllSessionBeans(), new Predicate<SessionBean>()
-        {
-            @Override
-            public boolean apply(@Nullable SessionBean input)
-            {
-                return StringUtils.equals(sessionId, input.getSessionId());
-            }
-        });
-
-        return iterable.iterator().hasNext() ? iterable.iterator().next() : null;
+        return getRequestInstance().getParameterMap();
     }
 
     @Override
@@ -137,7 +130,46 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper
         return list;
     }
 
+    @Override
+    public String[] getRequestParameterValues(String parameter)
+    {
+        return getRequestInstance().getParameterValues(parameter);
+    }
+
+    @Override
+    public SessionBean getSessionBean(final String sessionId)
+    {
+        if (StringUtils.isBlank(sessionId))
+        {
+            return null;
+        }
+
+        Iterable<SessionBean> iterable = Iterables.filter(getAllSessionBeans(), new Predicate<SessionBean>()
+        {
+            @Override
+            public boolean apply(@Nullable SessionBean input)
+            {
+                return StringUtils.equals(sessionId, input.getSessionId());
+            }
+        });
+
+        return iterable.iterator().hasNext() ? iterable.iterator().next() : null;
+    }
+
+    @Override
+    public String getRequestParameter(String parameter)
+    {
+        return getRequestInstance().getParameter(parameter);
+    }
+
 // -------------------------- OTHER METHODS --------------------------
+
+    private ServletRequest getRequestInstance()
+    {
+        ServletRequest request = requestHolder.getRequest();
+        Preconditions.checkArgument(request != null, "Request should be set previously");
+        return request;
+    }
 
     private UserProfile getUserProfile(String userId)
     {

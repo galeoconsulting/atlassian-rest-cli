@@ -108,7 +108,7 @@
 
                             <td>
                                 <input type="hidden" value="${stringEscapeUtils.escapeHtml($session.sessionId)}"/>
-                                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/cli-session.html?atl_token=${atl_token}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
+                                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/cli-session.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
                                     Connect</a> |
                                 <a href="#" onclick="deleteSessionSession(this); return false;">Delete</a>
                             </td>

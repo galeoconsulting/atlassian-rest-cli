@@ -24,22 +24,24 @@
 
     $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 
+    #set($liveSession = $servletVelocityHelper.getSessionBean($servletVelocityHelper.getRequestParameter("sessionId")))
+
 <table class="jiraform  maxWidth">
     <tr>
         <td class="jiraformheader">
-            <h3 class="formtitle">CLI session $!sessionId</h3>
+            <h3 class="formtitle">CLI session $!{servletVelocityHelper.getRequestParameter("sessionId")}</h3>
         </td>
     </tr>
     <tr>
         <td class="jiraformbody">
             <div>
-                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}">back
+                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}">back
                     to
                     session list</a>
                 &nbsp;
                 <cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>
 
-                #if($liveCliSession)
+                #if($liveSession)
                     <table class="grid centered maxWidth">
                         <tr>
                             <td>
@@ -56,7 +58,6 @@
     </tr>
 </table>
 
-    #set($liveSession = $servletVelocityHelper.getSessionBean($!sessionId))
     #if($liveSession)
     <script type="text/javascript">
         (function(j$)

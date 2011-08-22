@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -37,11 +38,17 @@ public interface ServletVelocityHelper
 {
 // -------------------------- OTHER METHODS --------------------------
 
+    Map<String, String[]> getAllRequestParameters();
+
     List<SessionBean> getAllSessionBeans();
 
     List<LanguageBean> getRegisteredLanguages();
 
+    String[] getRequestParameterValues(String parameter);
+
     SessionBean getSessionBean(String sessionId);
+
+    String getRequestParameter(String parameter);
 
 // -------------------------- INNER CLASSES --------------------------
 

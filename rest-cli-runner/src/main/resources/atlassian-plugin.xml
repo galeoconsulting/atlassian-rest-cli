@@ -85,6 +85,14 @@
         <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
     </component>
     <component
+            name="Servlet Request ThreadLocal Persister"
+            key="servletRequestPersister"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ServletRequestHolder"
+            class="com.galeoconsulting.leonardinius.api.impl.ServletRequestHolderImpl">
+        <description>Servlet Request ThreadLocal Data holder</description>
+    </component>
+    <component
             name="Servlet Velocity Context Helper"
             key="servletVelocityHelper"
             public="false"
@@ -165,6 +173,18 @@
             /plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
         </link>
     </web-item>
+
+    <servlet-filter name="Servlet Request ThreadLocal Persister"
+                    key="servlet-state-persister-filter"
+                    class="com.galeoconsulting.leonardinius.servlet.ThreadLocalServletRequestPersisterFilter"
+                    location="before-dispatch"
+                    weight="200">
+        <description>Will store http servlet request (Thread Local) which will be available to Velocity Templates.</description>
+        <url-pattern>/plugins/servlet/rest-script-runner/action/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </servlet-filter>
 
     <servlet name="Script Runner Web-interface" key="script-runner-servlet"
              class="com.galeoconsulting.leonardinius.servlet.ScriptRunnerSessionServlet">
