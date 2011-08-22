@@ -48,21 +48,21 @@ I would really appreciate if you will think out other use-cases and will report 
         cd jira-rest-cli/
         git submodule init
         git submodule update
-        cd jira-rest-cli-parent/
+        cd rest-cli-parent/
         atlas-mvn clean install
 
-* To start play with the REST Cli - you need to install jira-rest-cli-runner plugin, which is a main entry point and Rhino language
+* To start play with the REST Cli - you need to install rest-cli-runner plugin, which is a main entry point and Rhino language
 provider.
-* To try out JRuby or Groovy language support - install jira-rest-cli-jruby or jira-rest-cli-groovy accordingly. <br/>
+* To try out JRuby or Groovy language support - install rest-cli-jruby or rest-cli-groovy accordingly. <br/>
 
 **OR** you could get all this artifacts here
 
-* [jira-rest-cli-runner-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-runner-1.1-SNAPSHOT.jar) - Script runner, web-console,
+* [rest-cli-runner-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/rest-cli-runner-1.1-SNAPSHOT.jar) - Script runner, web-console,
 session mgmt admin interface, Rhino language support.
-* [jira-rest-cli-jruby-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-jruby-1.1-SNAPSHOT.jar) - JRuby support
-* [jira-rest-cli-groovy-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/jira-rest-cli/jira-rest-cli-groovy-1.1-SNAPSHOT.jar) - Groovy support
-* [groovy-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/jira-rest-cli/groovy-rest-client-1.1-SNAPSHOT.jar) - Groovy rest-cli-groovy.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
-* [jruby-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/jira-rest-cli/jruby-rest-client-1.1-SNAPSHOT.jar) - JRuby rest-cli-jruby.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
+* [rest-cli-jruby-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/rest-cli-jruby-1.1-SNAPSHOT.jar) - JRuby support
+* [rest-cli-groovy-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/rest-cli-groovy-1.1-SNAPSHOT.jar) - Groovy support
+* [groovy-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/groovy-rest-client-1.1-SNAPSHOT.jar) - Groovy rest-cli-groovy.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
+* [jruby-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/jruby-rest-client-1.1-SNAPSHOT.jar) - JRuby rest-cli-jruby.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
  
 NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
 
