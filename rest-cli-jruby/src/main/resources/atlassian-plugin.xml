@@ -21,13 +21,13 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
-    <component-import key="script-service" name="Script Service" interface="com.blogspot.leonardinius.api.ScriptService">
+    <component-import key="script-service" name="Script Service" interface="com.galeoconsulting.leonardinius.api.ScriptService">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component-import>
 
     <component key="jruby-registrar" name="Groovy Registrar" public="false"
-               interface="com.blogspot.leonardinius.api.Registrar"
-               class="com.blogspot.leonardinius.jruby.JRubyRegistrarImpl">
+               interface="com.galeoconsulting.leonardinius.api.Registrar"
+               class="com.galeoconsulting.leonardinius.jruby.JRubyRegistrarImpl">
         <description>Provides jRuby on top of javax.script.ScriptEngineManager</description>
     </component>
 

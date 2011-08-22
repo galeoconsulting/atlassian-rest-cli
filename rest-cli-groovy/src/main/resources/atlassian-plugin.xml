@@ -21,13 +21,13 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
-    <component-import key="script-service" name="Script Service" interface="com.blogspot.leonardinius.api.ScriptService">
+    <component-import key="script-service" name="Script Service" interface="com.galeoconsulting.leonardinius.api.ScriptService">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component-import>
 
     <component key="groovy-registrar" name="Groovy Registrar" public="false"
-               interface="com.blogspot.leonardinius.api.Registrar"
-               class="com.blogspot.leonardinius.groovy.GroovyRegistrarImpl">
+               interface="com.galeoconsulting.leonardinius.api.Registrar"
+               class="com.galeoconsulting.leonardinius.groovy.GroovyRegistrarImpl">
         <description>Provides Groovy on top of javax.script.ScriptEngineManager</description>
     </component>
 </atlassian-plugin>

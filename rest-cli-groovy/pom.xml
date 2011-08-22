@@ -22,12 +22,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.blogspot.leonardinius</groupId>
+        <groupId>com.galeoconsulting.leonardinius</groupId>
         <artifactId>rest-cli-parent</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.blogspot.leonardinius</groupId>
+    <groupId>com.galeoconsulting.leonardinius</groupId>
     <artifactId>rest-cli-groovy</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
@@ -51,7 +51,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.blogspot.leonardinius</groupId>
+            <groupId>com.galeoconsulting.leonardinius</groupId>
             <artifactId>rest-cli-runner</artifactId>
             <version>1.1-SNAPSHOT</version>
             <scope>provided</scope>

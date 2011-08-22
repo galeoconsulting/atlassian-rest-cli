@@ -29,7 +29,7 @@
     <rest key="runner-output"
           name="REST Cli API"
           path="/rest-scripting" version="1.0">
-        <package>com.blogspot.leonardinius.rest.service</package>
+        <package>com.galeoconsulting.leonardinius.rest.service</package>
         <description>Provides REST CLI endpoints for ${project.name}.</description>
     </rest>
 
@@ -64,20 +64,20 @@
             name="${project.name} REST API"
             key="script-service"
             public="true"
-            interface="com.blogspot.leonardinius.api.ScriptService"
-            class="com.blogspot.leonardinius.api.impl.ScriptServiceImpl">
+            interface="com.galeoconsulting.leonardinius.api.ScriptService"
+            class="com.galeoconsulting.leonardinius.api.impl.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component>
     <component key="cli-session-manager"
                name="Script Service"
                public="false"
-               interface="com.blogspot.leonardinius.api.ScriptSessionManager"
-               class="com.blogspot.leonardinius.api.impl.ScriptSessionManagerImpl">
+               interface="com.galeoconsulting.leonardinius.api.ScriptSessionManager"
+               class="com.galeoconsulting.leonardinius.api.impl.ScriptSessionManagerImpl">
         <description>Implements CLI session management</description>
     </component>
     <component key="rhino-registrar" name="Rhino Registrar" public="false"
-               interface="com.blogspot.leonardinius.api.Registrar"
-               class="com.blogspot.leonardinius.api.impl.RhinoRegistrarImpl">
+               interface="com.galeoconsulting.leonardinius.api.Registrar"
+               class="com.galeoconsulting.leonardinius.api.impl.RhinoRegistrarImpl">
         <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
     </component>
 
@@ -151,7 +151,7 @@
 
     <!--<webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">-->
     <!--<actions>-->
-    <!--<action name="com.blogspot.leonardinius.actions.ScriptRunnerAction"-->
+    <!--<action name="com.galeoconsulting.leonardinius.actions.ScriptRunnerAction"-->
     <!--alias="restCli">-->
     <!--<view name="exec">/templates/exec-input.vm</view>-->
     <!--<view name="list">/templates/cli-list.vm</view>-->
@@ -160,7 +160,7 @@
     <!--</actions>-->
     <!--</webwork1>-->
     <servlet name="Script Runner Web-interface" key="script-runner-servlet"
-             class="com.blogspot.leonardinius.servlet.ScriptRunnerSessionServlet">
+             class="com.galeoconsulting.leonardinius.servlet.ScriptRunnerSessionServlet">
         <description>Script Runner Web-interface.</description>
         <url-pattern>/rest-script-runner/action/*</url-pattern>
         <init-param>
@@ -174,7 +174,7 @@
 
     <template-context-item
             key="script-runner-resource-context-item"
-            class="com.blogspot.leonardinius.rest.service.ScriptRunner"
+            class="com.galeoconsulting.leonardinius.rest.service.ScriptRunner"
             context-key="scriptRunnerResource"
             name="Script Runner Context Item">
         <description>Script Runner REST service as velocity template context item</description>
