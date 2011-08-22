@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+  ~ Copyright 2011 Leonid M.<leonids.maslovs@galeoconsulting.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -83,6 +83,14 @@
             interface="com.galeoconsulting.leonardinius.api.Registrar"
             class="com.galeoconsulting.leonardinius.api.impl.RhinoRegistrarImpl">
         <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
+    </component>
+    <component
+            name="Servlet Velocity Context Helper"
+            key="servletVelocityHelper"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ServletVelocityHelper"
+            class="com.galeoconsulting.leonardinius.api.impl.ServletVelocityHelperImpl">
+        <description>Provides ServletVelocityHelper helper to be user in velocity templates</description>
     </component>
 
     <web-resource key="cli-js-css" name="Js and Css resources">
@@ -211,6 +219,13 @@
             class="org.apache.commons.lang.StringEscapeUtils"
             context-key="stringEscapeUtils"
             name="Apache StringEscapeUtils Context Item">
+        <description>Apache StringEscapeUtils as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="servletVelocityHelperContextItem"
+            context-key="servletVelocityHelper"
+            component-ref="servletVelocityHelper"
+            name="servletVelocityHelper Context Item">
         <description>Apache StringEscapeUtils as velocity template context item</description>
     </template-context-item>
 </atlassian-plugin>

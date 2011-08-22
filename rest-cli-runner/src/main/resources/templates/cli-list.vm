@@ -1,3 +1,4 @@
+#* @vtlvariable name="servletVelocityHelper" type="com.galeoconsulting.leonardinius.api.ServletVelocityHelper" *#
 #* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
 #* @vtlvariable name="webResourceManager" type="com.atlassian.plugin.webresource.WebResourceManager" *#
 #* @vtlvariable name="stringEscapeUtils" type="org.apache.commons.lang.StringEscapeUtils" *#
@@ -23,6 +24,34 @@
 </head>
 <body>
     $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
+
+<script type="text/javascript">
+    (function(j$) {
+        window.makeNewSession = function makeNewSession(self) {
+            com.galeoconsulting.leonardinius.restcli.newSession({
+                baseUrl :   "${applicationProperties.baseUrl}",
+                data    : JSON.stringify({language : j$('#cli-language').val()}),
+                success : function(data) {
+                    window.location.reload(true);
+                }
+            });
+        };
+
+        window.deleteSessionSession = function deleteSessionSession(link) {
+            var sessionId = j$(link).siblings('input[type=hidden]').val();
+            if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId))) {
+                com.galeoconsulting.leonardinius.restcli.deleteSession({
+                    baseUrl : "${applicationProperties.baseUrl}",
+                    data    : {sessionId : sessionId},
+                    success : function(noData) {
+                        window.location.reload(true);
+                    }
+                });
+            }
+        };
+    })(jQuery);
+</script>
+
 <!--suppress HtmlDeprecatedTag -->
 <table class="jiraform  maxWidth">
     <tr>
@@ -32,17 +61,15 @@
     <tr>
         <td class="jiraformbody">
             <div>
-                <b>Create new session:</b>
+                <label for="cli-language"><strong>Create new session:</strong></label>
                 <select id="cli-language">
-                    #foreach($lng in $registeredLanguages)
+                    #foreach($lng in $servletVelocityHelper.registeredLanguages)
                         <option value="$stringEscapeUtils.escapeHtml($lng.name.toLowerCase())">$stringEscapeUtils.escapeHtml($lng.name)
                             - $stringEscapeUtils.escapeHtml($lng.version)</option>
                     #end
-                    <option value="groovy">Groovy</option>
-                    <option value="javascript">Javascript</option>
                 </select>
-                &nbsp;<a href="#" onclick="javascript: makeNewSession(this); return false;">create</a>
-                &nbsp;<u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>.
+                &nbsp;<a href="#" onclick="makeNewSession(this); return false;">create</a>
+                &nbsp;<cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>.
                 <br/>
                 <hr/>
 
@@ -59,15 +86,15 @@
                     </thead>
 
                     <tbody>
-                        #foreach($session in $liveSessions)
+                        #foreach($session in $servletVelocityHelper.allSessionBeans)
                         <tr class="rowNormal">
                             <td>${stringEscapeUtils.escapeHtml($session.sessionId)}</td>
                             <td>
                                 <a href="${applicationProperties.baseUrl}${stringEscapeUtils.escapeHtml($session.creator.profilePageUri.toString())}">
                                     ${stringEscapeUtils.escapeHtml("${session.creator.username}")}:
-                                    <i>${stringEscapeUtils.escapeHtml("(${session.creator.fullName}
+                                    <em>${stringEscapeUtils.escapeHtml("(${session.creator.fullName}
                                         <${session.creator.email}
-                                        >)")}</i>
+                                        >)")}</em>
                                 </a></td>
                             <td>${stringEscapeUtils.escapeHtml($session.language)}</td>
                             <td>${stringEscapeUtils.escapeHtml($session.version)}</td>
@@ -77,7 +104,7 @@
                                 <input type="hidden" value="${stringEscapeUtils.escapeHtml($session.sessionId)}"/>
                                 <a href="${applicationProperties.baseUrl}/secure/admin/restCli!cli.jspa?atl_token=${atl_token}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
                                     Connect</a> |
-                                <a href="#" onclick="javascript: deleteSessionSession(this); return false;">Delete</a>
+                                <a href="#" onclick="deleteSessionSession(this); return false;">Delete</a>
                             </td>
                         </tr>
                         #end
@@ -88,31 +115,5 @@
         </td>
     </tr>
 </table>
-<script type="text/javascript">
-    (function(j$) {
-        function makeNewSession(self) {
-            com.galeoconsulting.leonardinius.restcli.newSession({
-                baseUrl :   "${applicationProperties.baseUrl}",
-                data    : JSON.stringify({language : j$('#cli-language').val()}),
-                success : function(data) {
-                    window.location.reload(true);
-                }
-            });
-        }
-
-        function deleteSessionSession(link) {
-            var sessionId = j$(link).siblings('input[type=hidden]').val();
-            if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId))) {
-                com.galeoconsulting.leonardinius.restcli.deleteSession({
-                    baseUrl : "${applicationProperties.baseUrl}",
-                    data    : {sessionId : sessionId},
-                    success : function(noData) {
-                        window.location.reload(true);
-                    }
-                });
-            }
-        }
-    })(jQuery);
-</script>
 </body>
 </html>

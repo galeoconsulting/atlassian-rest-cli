@@ -1,3 +1,4 @@
+#* @vtlvariable name="servletVelocityHelper" type="com.galeoconsulting.leonardinius.api.ServletVelocityHelper" *#
 #* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
 #*
     Copyright 2011 Leonid Maslov<leonidms@gmail.com>
@@ -15,7 +16,13 @@
     limitations under the License.
 *#
 
-$webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
+<html>
+<head>
+    <meta name="decorator" content="atl.admin"/>
+</head>
+<body>
+
+    $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 
 <table class="jiraform  maxWidth">
     <tr>
@@ -29,7 +36,7 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
                 <a href="${applicationProperties.baseUrl}/secure/admin/restCli!list.jspa?atl_token=${atl_token}">back to
                     session list</a>
                 &nbsp;
-                <u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>
+                <cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>
 
                 #if($liveCliSession)
                     <table class="grid centered maxWidth">
@@ -40,7 +47,7 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
                         </tr>
                     </table>
                 #else
-                    <h3 syle="color:red">Could not locate session</h3>
+                    <h3 style="color:red">Could not locate session</h3>
                 #end
 
             </div>
@@ -48,20 +55,26 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
     </tr>
 </table>
 
-#if($liveCliSession)
-<script type="text/javascript">
-    (function(jq) {
-        jq(document).ready(function() {
-            com.galeoconsulting.leonardinius.restcli.executor({
-                ajaxUrl    : function() {
-                    return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}", "${applicationProperties.baseUrl}", "$sessionId");
-                },
-                container  : jq('#cli-holder'),
-                welcomeMessage
-                        : '${liveCliSession.language}:${liveCliSession.version}.'
-                        + ' --/-- Press Ctrl-Enter/^-Enter to evaluate.'
+    #set($liveSession = $servletVelocityHelper.getSessionBean($!sessionId))
+    #if($liveSession)
+    <script type="text/javascript">
+        (function(j$) {
+            j$(document).ready(function() {
+                com.galeoconsulting.leonardinius.restcli.executor({
+                    ajaxUrl    : function() {
+                        return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}",
+                                "${applicationProperties.baseUrl}",
+                                "$liveSession.sessionId");
+                    },
+                    container  : j$('#cli-holder'),
+                    welcomeMessage
+                            : '${liveSession.language}:${liveSession.version}.'
+                            + ' --/-- Press Ctrl-Enter/^-Enter to evaluate.'
+                });
             });
-        });
-    })(jQuery);
-</script>
-#end
+        })(jQuery);
+    </script>
+    #end
+
+</body>
+</html>

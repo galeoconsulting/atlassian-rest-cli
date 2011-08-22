@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+ * Copyright 2011 Leonid M.<leonids.maslovs@galeoconsulting.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,14 +91,14 @@ package com.galeoconsulting.leonardinius.actions;
 //        return "list";
 //    }
 //
-//    public SessionBean getLiveCliSession()
+//    public SessionBean getSessionBean()
 //    {
 //        if (StringUtils.isBlank(getSessionId()))
 //        {
 //            return null;
 //        }
 //
-//        Iterable<SessionBean> iterable = Iterables.filter(getLiveSessions(), new Predicate<SessionBean>()
+//        Iterable<SessionBean> iterable = Iterables.filter(getAllSessionBeans(), new Predicate<SessionBean>()
 //        {
 //            @Override
 //            public boolean apply(@Nullable SessionBean input)
@@ -110,7 +110,7 @@ package com.galeoconsulting.leonardinius.actions;
 //        return iterable.iterator().hasNext() ? iterable.iterator().next() : null;
 //    }
 //
-//    public List<SessionBean> getLiveSessions()
+//    public List<SessionBean> getAllSessionBeans()
 //    {
 //        List<SessionBean> list = Lists.newArrayList();
 //
@@ -159,102 +159,5 @@ package com.galeoconsulting.leonardinius.actions;
 //        return list;
 //    }
 //
-//// -------------------------- INNER CLASSES --------------------------
-//
-//    public static final class LanguageBean
-//    {
-//        private final String name;
-//
-//        private final String version;
-//
-//        private LanguageBean(String name, String version)
-//        {
-//            this.name = name;
-//            this.version = version;
-//        }
-//
-//        public String getName()
-//        {
-//            return name;
-//        }
-//
-//        public String getVersion()
-//        {
-//            return version;
-//        }
-//
-//        public static LanguageBean valueOf(ScriptEngineFactory factory)
-//        {
-//            ScriptEngineFactory arg = Preconditions.checkNotNull(factory, "factory");
-//            return new LanguageBean(LanguageUtils.getLanguageName(arg), LanguageUtils.getVersionString(arg));
-//        }
-//    }
-//
-//    public static final class SessionBean
-//    {
-//        private static final DateFormat SIMPLE_DATE_FORMAT = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MEDIUM,
-//                SimpleDateFormat.LONG);
-//
-//        private final String language;
-//        private final String version;
-//        private final String sessionId;
-//        private final UserProfile creator;
-//        private final long createdAt;
-//
-//        private SessionBean(String sessionId, String language, String version, UserProfile creator, long createdAt)
-//        {
-//            this.language = language;
-//            this.version = version;
-//            this.sessionId = sessionId;
-//            this.creator = creator;
-//            this.createdAt = createdAt;
-//        }
-//
-//        public static SessionBean newInstance(SessionId sessionId, ScriptSession session)
-//        {
-//            Preconditions.checkNotNull(sessionId, "sessionId");
-//            Preconditions.checkNotNull(session, "session");
-//
-//            return new SessionBean(sessionId.getSessionId(),
-//                    LanguageUtils.getLanguageName(session.getScriptEngine().getFactory()),
-//                    LanguageUtils.getVersionString(session.getScriptEngine().getFactory()),
-//                    getUserProfile(session.getCreator()),
-//                    session.getCreatedAt());
-//        }
-//
-//        private static UserProfile getUserProfile(String username)
-//        {
-//            return ComponentManager.getOSGiComponentInstanceOfType(UserManager.class).getUserProfile(username);
-//        }
-//
-//        public String getLanguage()
-//        {
-//            return language;
-//        }
-//
-//        public String getVersion()
-//        {
-//            return version;
-//        }
-//
-//        public String getSessionId()
-//        {
-//            return sessionId;
-//        }
-//
-//        public UserProfile getCreator()
-//        {
-//            return creator;
-//        }
-//
-//        public long getCreatedAtTimestamp()
-//        {
-//            return createdAt;
-//        }
-//
-//        public String getCreatedAt()
-//        {
-//            return SIMPLE_DATE_FORMAT.format(new Date(createdAt));
-//        }
-//    }
+
 //}

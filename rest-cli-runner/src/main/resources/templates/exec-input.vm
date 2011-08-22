@@ -55,11 +55,11 @@
 <script type="text/javascript">
     (function(j$) {
         j$(document).ready(function() {
-            var baseUrl = "${applicationProperties.baseUrl}";
-
             com.galeoconsulting.leonardinius.restcli.executor({
                 ajaxUrl         : function() {
-                    return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, j$("#cli-language").val());
+                    return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}",
+                            "${applicationProperties.baseUrl}",
+                            j$("#cli-language").val());
                 },
                 container       :        j$('#cli-holder'),
                 welcomeMessage  :       'State is not preserved between different evaluation.'
