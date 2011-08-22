@@ -25,24 +25,29 @@ import javax.script.ScriptEngineFactory;
  * Date: 3/15/11
  * Time: 10:02 PM
  */
-public class LanguageUtils {
+public class LanguageUtils
+{
 // -------------------------- STATIC METHODS --------------------------
 
-    public static String getVersionString(ScriptEngineFactory factory) {
+    public static String getVersionString(ScriptEngineFactory factory)
+    {
         return factory.getLanguageVersion();
     }
 
-    public static String getLanguageName(ScriptEngineFactory factory) {
+    public static String getLanguageName(ScriptEngineFactory factory)
+    {
         String languageName = factory.getLanguageName();
         if ("ECMAScript".equals(languageName)
-                && factory.getNames().contains("JavaScript")) {
-            languageName = "JavaScript (Rhino)";
+                && factory.getNames().contains("JavaScript"))
+        {
+            languageName = "JavaScript";
         }
         return StringUtils.capitalize(languageName);
     }
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    private LanguageUtils() {
+    private LanguageUtils()
+    {
     }
 }

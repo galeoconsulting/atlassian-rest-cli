@@ -33,7 +33,8 @@
     <tr>
         <td class="jiraformbody">
             <div>
-                <a href="${applicationProperties.baseUrl}/secure/admin/restCli!list.jspa?atl_token=${atl_token}">back to
+                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}">back
+                    to
                     session list</a>
                 &nbsp;
                 <cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>
@@ -58,10 +59,13 @@
     #set($liveSession = $servletVelocityHelper.getSessionBean($!sessionId))
     #if($liveSession)
     <script type="text/javascript">
-        (function(j$) {
-            j$(document).ready(function() {
+        (function(j$)
+        {
+            j$(document).ready(function()
+            {
                 com.galeoconsulting.leonardinius.restcli.executor({
-                    ajaxUrl    : function() {
+                    ajaxUrl    : function()
+                    {
                         return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}",
                                 "${applicationProperties.baseUrl}",
                                 "$liveSession.sessionId");

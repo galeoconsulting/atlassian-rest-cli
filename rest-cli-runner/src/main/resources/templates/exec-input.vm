@@ -1,3 +1,4 @@
+#* @vtlvariable name="servletVelocityHelper" type="com.galeoconsulting.leonardinius.api.ServletVelocityHelper" *#
 #* @vtlvariable name="stringEscapeUtils" type="org.apache.commons.lang.StringEscapeUtils" *#
 #* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
 #*
@@ -33,7 +34,7 @@
             <div>
                 <b>Please specify scripting language:</b>
                 <select id="cli-language">
-                    #foreach($lng in $registeredLanguages)
+                    #foreach($lng in $servletVelocityHelper.registeredLanguages)
                         <option value="$stringEscapeUtils.escapeHtml($lng.name.toLowerCase())">$stringEscapeUtils.escapeHtml($lng.name)
                             - $stringEscapeUtils.escapeHtml($lng.version)</option>
                     #end
@@ -53,10 +54,13 @@
 </table>
 
 <script type="text/javascript">
-    (function(j$) {
-        j$(document).ready(function() {
+    (function(j$)
+    {
+        j$(document).ready(function()
+        {
             com.galeoconsulting.leonardinius.restcli.executor({
-                ajaxUrl         : function() {
+                ajaxUrl         : function()
+                {
                     return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}",
                             "${applicationProperties.baseUrl}",
                             j$("#cli-language").val());

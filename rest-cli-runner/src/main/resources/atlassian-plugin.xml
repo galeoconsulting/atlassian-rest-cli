@@ -126,7 +126,7 @@
               section="system.admin/jira-cli-web-section"
               weight="20" application="jira">
         <label key="cli.web.section.runner_link"/>
-        <link linkId="jira_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
+        <link linkId="jira_rest_exec_runner">/plugins/servlet/rest-script-runner/action/execute-statement.html?atl_token=${atl_token}</link>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>
@@ -150,7 +150,9 @@
               section="system.admin"
               weight="20" application="confluence">
         <label key="cli.web.section.runner_link"/>
-        <link linkId="confluence_rest_exec_runner">/secure/admin/restCli!exec.jspa?atl_token=${atl_token}</link>
+        <link linkId="confluence_rest_exec_runner">
+            /plugins/servlet/rest-script-runner/action/execute-statement.html?atl_token=${atl_token}
+        </link>
     </web-item>
 
     <web-item key="confluence-cli-runner-web-item"
@@ -164,16 +166,6 @@
         </link>
     </web-item>
 
-    <!--<webwork1 key="cli-actions" name="CLI Webwork Action" class="java.lang.Object">-->
-    <!--<actions>-->
-    <!--<action name="com.galeoconsulting.leonardinius.actions.ScriptRunnerAction"-->
-    <!--alias="restCli">-->
-    <!--<view name="exec">/templates/exec-input.vm</view>-->
-    <!--<view name="list">/templates/cli-list.vm</view>-->
-    <!--<view name="cli">/templates/cli-input.vm</view>-->
-    <!--</action>-->
-    <!--</actions>-->
-    <!--</webwork1>-->
     <servlet name="Script Runner Web-interface" key="script-runner-servlet"
              class="com.galeoconsulting.leonardinius.servlet.ScriptRunnerSessionServlet">
         <description>Script Runner Web-interface.</description>
@@ -182,7 +174,7 @@
             <param-name>velocity-templates</param-name>
             <param-value>execute-statement.html|/templates/exec-input.vm;
                 list-sessions.html|/templates/cli-list.vm;
-                cli-live-session.html|/templates/cli-input.vm
+                cli-session.html|/templates/cli-input.vm
             </param-value>
         </init-param>
     </servlet>
