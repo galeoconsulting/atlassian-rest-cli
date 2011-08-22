@@ -206,4 +206,11 @@
             name="Script Runner Context Item">
         <description>Script Runner REST service as velocity template context item</description>
     </template-context-item>
+    <template-context-item
+            key="stringEscapeUtilsContextItem"
+            class="org.apache.commons.lang.StringEscapeUtils"
+            context-key="stringEscapeUtils"
+            name="Apache StringEscapeUtils Context Item">
+        <description>Apache StringEscapeUtils as velocity template context item</description>
+    </template-context-item>
 </atlassian-plugin>

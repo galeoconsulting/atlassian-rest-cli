@@ -1,3 +1,6 @@
+#* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
+#* @vtlvariable name="webResourceManager" type="com.atlassian.plugin.webresource.WebResourceManager" *#
+#* @vtlvariable name="stringEscapeUtils" type="org.apache.commons.lang.StringEscapeUtils" *#
 #*
     Copyright 2011 Leonid Maslov<leonidms@gmail.com>
 
@@ -32,8 +35,8 @@
                 <b>Create new session:</b>
                 <select id="cli-language">
                     #foreach($lng in $registeredLanguages)
-                        <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name)
-                            - $action.htmlEncode($lng.version)</option>
+                        <option value="$stringEscapeUtils.escapeHtml($lng.name.toLowerCase())">$stringEscapeUtils.escapeHtml($lng.name)
+                            - $stringEscapeUtils.escapeHtml($lng.version)</option>
                     #end
                     <option value="groovy">Groovy</option>
                     <option value="javascript">Javascript</option>
@@ -58,20 +61,21 @@
                     <tbody>
                         #foreach($session in $liveSessions)
                         <tr class="rowNormal">
-                            <td>${action.htmlEncode($session.sessionId)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.sessionId)}</td>
                             <td>
-                                <a href="${requestContext.baseUrl}${action.htmlEncode($session.creator.profilePageUri.toString())}">
-                                    ${action.htmlEncode("${session.creator.username}")}:
-                                    <i>${action.htmlEncode("(${session.creator.fullName} <${session.creator.email}
+                                <a href="${applicationProperties.baseUrl}${stringEscapeUtils.escapeHtml($session.creator.profilePageUri.toString())}">
+                                    ${stringEscapeUtils.escapeHtml("${session.creator.username}")}:
+                                    <i>${stringEscapeUtils.escapeHtml("(${session.creator.fullName}
+                                        <${session.creator.email}
                                         >)")}</i>
                                 </a></td>
-                            <td>${action.htmlEncode($session.language)}</td>
-                            <td>${action.htmlEncode($session.version)}</td>
-                            <td>${action.htmlEncode($session.createdAt)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.language)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.version)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.createdAt)}</td>
 
                             <td>
-                                <input type="hidden" value="${action.htmlEncode($session.sessionId)}"/>
-                                <a href="${requestContext.baseUrl}/secure/admin/restCli!cli.jspa?atl_token=${atl_token}&sessionId=${action.htmlEncode($session.sessionId)}">
+                                <input type="hidden" value="${stringEscapeUtils.escapeHtml($session.sessionId)}"/>
+                                <a href="${applicationProperties.baseUrl}/secure/admin/restCli!cli.jspa?atl_token=${atl_token}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
                                     Connect</a> |
                                 <a href="#" onclick="javascript: deleteSessionSession(this); return false;">Delete</a>
                             </td>
@@ -85,28 +89,30 @@
     </tr>
 </table>
 <script type="text/javascript">
-    function makeNewSession(self) {
-        com.galeoconsulting.leonardinius.restcli.newSession({
-            baseUrl :   "${applicationProperties.baseUrl}",
-            data    : JSON.stringify({language : jQuery('#cli-language').val()}),
-            success : function(data) {
-                window.location.reload(true);
-            }
-        });
-    }
-
-    function deleteSessionSession(link) {
-        var sessionId = jQuery(link).siblings('input[type=hidden]').val();
-        if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId))) {
-            com.galeoconsulting.leonardinius.restcli.deleteSession({
-                baseUrl : "${applicationProperties.baseUrl}",
-                data    : {sessionId : sessionId},
-                success : function(noData) {
+    (function(j$) {
+        function makeNewSession(self) {
+            com.galeoconsulting.leonardinius.restcli.newSession({
+                baseUrl :   "${applicationProperties.baseUrl}",
+                data    : JSON.stringify({language : j$('#cli-language').val()}),
+                success : function(data) {
                     window.location.reload(true);
                 }
             });
         }
-    }
+
+        function deleteSessionSession(link) {
+            var sessionId = j$(link).siblings('input[type=hidden]').val();
+            if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId))) {
+                com.galeoconsulting.leonardinius.restcli.deleteSession({
+                    baseUrl : "${applicationProperties.baseUrl}",
+                    data    : {sessionId : sessionId},
+                    success : function(noData) {
+                        window.location.reload(true);
+                    }
+                });
+            }
+        }
+    })(jQuery);
 </script>
 </body>
 </html>

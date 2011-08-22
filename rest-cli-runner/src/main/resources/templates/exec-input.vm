@@ -1,3 +1,5 @@
+#* @vtlvariable name="stringEscapeUtils" type="org.apache.commons.lang.StringEscapeUtils" *#
+#* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
 #*
     Copyright 2011 Leonid Maslov<leonidms@gmail.com>
 
@@ -14,7 +16,12 @@
     limitations under the License.
 *#
 
-$webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
+<html>
+<head>
+    <meta name="decorator" content="atl.admin"/>
+</head>
+<body>
+    $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 
 <table class="jiraform  maxWidth">
     <tr>
@@ -27,8 +34,8 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
                 <b>Please specify scripting language:</b>
                 <select id="cli-language">
                     #foreach($lng in $registeredLanguages)
-                        <option value="$action.htmlEncode($lng.name.toLowerCase())">$action.htmlEncode($lng.name)
-                            - $action.htmlEncode($lng.version)</option>
+                        <option value="$stringEscapeUtils.escapeHtml($lng.name.toLowerCase())">$stringEscapeUtils.escapeHtml($lng.name)
+                            - $stringEscapeUtils.escapeHtml($lng.version)</option>
                     #end
                 </select>
                 <br/>
@@ -46,17 +53,21 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
 </table>
 
 <script type="text/javascript">
-    (function(jq) {
-        jq(document).ready(function() {
-            var baseUrl = "${requestContext.baseUrl}";
+    (function(j$) {
+        j$(document).ready(function() {
+            var baseUrl = "${applicationProperties.baseUrl}";
+
             com.galeoconsulting.leonardinius.restcli.executor({
-                ajaxUrl    : function() {
-                    return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, jq("#cli-language").val());
+                ajaxUrl         : function() {
+                    return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, j$("#cli-language").val());
                 },
-                container  : jq('#cli-holder'),
-                welcomeMessage
-                        : 'State is not preserved between different evaluation. -/- Press Ctrl-Enter/^-Enter to evaluate.'
+                container       :        j$('#cli-holder'),
+                welcomeMessage  :       'State is not preserved between different evaluation.'
+                        + ' -/- Press Ctrl-Enter/^-Enter to evaluate.'
             });
         });
     })(jQuery);
 </script>
+</body>
+</html>
+

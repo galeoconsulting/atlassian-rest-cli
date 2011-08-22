@@ -1,3 +1,4 @@
+#* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
 #*
     Copyright 2011 Leonid Maslov<leonidms@gmail.com>
 
@@ -25,7 +26,7 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
     <tr>
         <td class="jiraformbody">
             <div>
-                <a href="${requestContext.baseUrl}/secure/admin/restCli!list.jspa?atl_token=${atl_token}">back to
+                <a href="${applicationProperties.baseUrl}/secure/admin/restCli!list.jspa?atl_token=${atl_token}">back to
                     session list</a>
                 &nbsp;
                 <u><a href="#" onclick="javascript: window.location.reload(true); return false;">refresh</a></u>
@@ -53,7 +54,7 @@ $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-r
         jq(document).ready(function() {
             com.galeoconsulting.leonardinius.restcli.executor({
                 ajaxUrl    : function() {
-                    return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}", "${requestContext.baseUrl}", "$sessionId");
+                    return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}", "${applicationProperties.baseUrl}", "$sessionId");
                 },
                 container  : jq('#cli-holder'),
                 welcomeMessage
