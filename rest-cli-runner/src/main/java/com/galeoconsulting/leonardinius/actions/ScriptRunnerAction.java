@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.actions;
+package com.galeoconsulting.leonardinius.actions;
 //
 //import com.atlassian.jira.ComponentManager;
 //import com.atlassian.jira.web.action.JiraWebActionSupport;
 //import com.atlassian.sal.api.user.UserManager;
 //import com.atlassian.sal.api.user.UserProfile;
 //import com.atlassian.sal.api.websudo.WebSudoRequired;
-//import com.blogspot.leonardinius.api.LanguageUtils;
-//import com.blogspot.leonardinius.api.ScriptService;
-//import com.blogspot.leonardinius.api.ScriptSessionManager;
+//import com.galeoconsulting.leonardinius.api.LanguageUtils;
+//import com.galeoconsulting.leonardinius.api.ScriptService;
+//import com.galeoconsulting.leonardinius.api.ScriptSessionManager;
 //import com.google.common.base.Preconditions;
 //import com.google.common.base.Predicate;
 //import com.google.common.collect.Iterables;
@@ -36,8 +36,8 @@ package com.blogspot.leonardinius.actions;
 //import java.text.SimpleDateFormat;
 //import java.util.*;
 //
-//import static com.blogspot.leonardinius.api.ScriptSessionManager.ScriptSession;
-//import static com.blogspot.leonardinius.api.ScriptSessionManager.SessionId;
+//import static com.galeoconsulting.leonardinius.api.ScriptSessionManager.ScriptSession;
+//import static com.galeoconsulting.leonardinius.api.ScriptSessionManager.SessionId;
 //
 ///**
 // * User: leonidmaslov

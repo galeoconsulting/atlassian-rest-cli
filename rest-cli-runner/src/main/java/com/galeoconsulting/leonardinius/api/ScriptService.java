@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
+package com.galeoconsulting.leonardinius.api;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -25,8 +25,7 @@ import javax.script.ScriptEngineFactory;
  * Time: 11:01 PM
  */
 @SuppressWarnings({"UnusedDeclaration"})
-public interface ScriptService
-{
+public interface ScriptService {
 // -------------------------- OTHER METHODS --------------------------
 
     void defaultRegistration(ScriptEngineFactory factory);

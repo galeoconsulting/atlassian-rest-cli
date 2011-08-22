@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.servlet;
+package com.galeoconsulting.leonardinius.servlet;
 
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserManager;

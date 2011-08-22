@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.rest;
+package com.galeoconsulting.leonardinius.rest;
 
 @SuppressWarnings({"UnusedDeclaration"})
-public class CacheControl
-{
+public class CacheControl {
 // ------------------------------ FIELDS ------------------------------
 
     /**
@@ -35,14 +34,12 @@ public class CacheControl
 
 // -------------------------- STATIC METHODS --------------------------
 
-    static
-    {
+    static {
         NO_CACHE.setNoStore(true);
         NO_CACHE.setNoCache(true);
     }
 
-    static
-    {
+    static {
         CACHE_FOREVER.setPrivate(false);
         CACHE_FOREVER.setMaxAge(ONE_YEAR);
     }

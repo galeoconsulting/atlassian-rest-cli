@@ -19,7 +19,7 @@
     <meta name="decorator" content="atl.admin"/>
 </head>
 <body>
-    $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
+    $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 <!--suppress HtmlDeprecatedTag -->
 <table class="jiraform  maxWidth">
     <tr>
@@ -62,7 +62,8 @@
                             <td>
                                 <a href="${requestContext.baseUrl}${action.htmlEncode($session.creator.profilePageUri.toString())}">
                                     ${action.htmlEncode("${session.creator.username}")}:
-                                    <i>${action.htmlEncode("(${session.creator.fullName} <${session.creator.email}>)")}</i>
+                                    <i>${action.htmlEncode("(${session.creator.fullName} <${session.creator.email}
+                                        >)")}</i>
                                 </a></td>
                             <td>${action.htmlEncode($session.language)}</td>
                             <td>${action.htmlEncode($session.version)}</td>
@@ -84,28 +85,23 @@
     </tr>
 </table>
 <script type="text/javascript">
-    function makeNewSession(self)
-    {
-        com.blogspot.leonardinius.restcli.newSession({
+    function makeNewSession(self) {
+        com.galeoconsulting.leonardinius.restcli.newSession({
             baseUrl :   "${applicationProperties.baseUrl}",
             data    : JSON.stringify({language : jQuery('#cli-language').val()}),
-            success : function(data)
-            {
+            success : function(data) {
                 window.location.reload(true);
             }
         });
     }
 
-    function deleteSessionSession(link)
-    {
+    function deleteSessionSession(link) {
         var sessionId = jQuery(link).siblings('input[type=hidden]').val();
-        if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId)))
-        {
-            com.blogspot.leonardinius.restcli.deleteSession({
+        if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId))) {
+            com.galeoconsulting.leonardinius.restcli.deleteSession({
                 baseUrl : "${applicationProperties.baseUrl}",
                 data    : {sessionId : sessionId},
-                success : function(noData)
-                {
+                success : function(noData) {
                     window.location.reload(true);
                 }
             });

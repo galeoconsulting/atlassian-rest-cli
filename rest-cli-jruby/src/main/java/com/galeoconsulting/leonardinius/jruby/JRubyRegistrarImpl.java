@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.jruby;
+package com.galeoconsulting.leonardinius.jruby;
 
 import com.atlassian.sal.api.user.UserManager;
-import com.blogspot.leonardinius.api.Registrar;
-import com.blogspot.leonardinius.api.ScriptService;
+import com.galeoconsulting.leonardinius.api.Registrar;
+import com.galeoconsulting.leonardinius.api.ScriptService;
 import org.jruby.embed.PropertyName;
 import org.jruby.embed.jsr223.JRubyEngineFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,8 +31,7 @@ import javax.script.ScriptEngine;
  * Date: 3/13/11
  * Time: 12:37 AM
  */
-public class JRubyRegistrarImpl implements Registrar, InitializingBean, DisposableBean
-{
+public class JRubyRegistrarImpl implements Registrar, InitializingBean, DisposableBean {
 // ------------------------------ FIELDS ------------------------------
 
     private final ScriptService scriptService;
@@ -43,42 +42,32 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public JRubyRegistrarImpl(ScriptService scriptService)
-    {
+    public JRubyRegistrarImpl(ScriptService scriptService) {
         /* the following property is necessary for ruby, otherwise we can't retrieve the variables set in ruby
-               http://yokolet.blogspot.com/2009/08/redbridge-and-jruby-embed-api-update.html
+               http://yokolet.galeoconsulting.com/2009/08/redbridge-and-jruby-embed-api-update.html
         */
         System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
         this.scriptService = scriptService;
-        engineFactory = new JRubyEngineFactory()
-        {
+        engineFactory = new JRubyEngineFactory() {
             @Override
-            public ScriptEngine getScriptEngine()
-            {
+            public ScriptEngine getScriptEngine() {
                 System.setProperty(PropertyName.CLASSLOADER.toString(), "context");
 
                 ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
                 Thread.currentThread().setContextClassLoader(getClassLoader());
-                try
-                {
+                try {
                     return super.getScriptEngine();
-                }
-                finally
-                {
+                } finally {
                     Thread.currentThread().setContextClassLoader(originalContextClassLoader);
                 }
             }
         };
     }
 
-    private ClassLoader getClassLoader()
-    {
-        if (chainedClassLoader == null)
-        {
-            synchronized (lock)
-            {
-                if (chainedClassLoader == null)
-                {
+    private ClassLoader getClassLoader() {
+        if (chainedClassLoader == null) {
+            synchronized (lock) {
+                if (chainedClassLoader == null) {
                     chainedClassLoader = this.scriptService.getClassLoader(
                             getClass().getClassLoader(),
                             JRubyEngineFactory.class.getClassLoader(),
@@ -96,16 +85,14 @@ public class JRubyRegistrarImpl implements Registrar, InitializingBean, Disposab
 // --------------------- Interface DisposableBean ---------------------
 
     @Override
-    public void destroy() throws Exception
-    {
+    public void destroy() throws Exception {
         scriptService.removeEngine(engineFactory);
     }
 
 // --------------------- Interface InitializingBean ---------------------
 
     @Override
-    public void afterPropertiesSet() throws Exception
-    {
+    public void afterPropertiesSet() throws Exception {
         scriptService.defaultRegistration(engineFactory);
     }
 }

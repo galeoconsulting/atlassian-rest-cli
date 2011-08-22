@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
+package com.galeoconsulting.leonardinius.api;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -25,21 +25,17 @@ import javax.script.ScriptEngineFactory;
  * Date: 3/15/11
  * Time: 10:02 PM
  */
-public class LanguageUtils
-{
+public class LanguageUtils {
 // -------------------------- STATIC METHODS --------------------------
 
-    public static String getVersionString(ScriptEngineFactory factory)
-    {
+    public static String getVersionString(ScriptEngineFactory factory) {
         return factory.getLanguageVersion();
     }
 
-    public static String getLanguageName(ScriptEngineFactory factory)
-    {
+    public static String getLanguageName(ScriptEngineFactory factory) {
         String languageName = factory.getLanguageName();
         if ("ECMAScript".equals(languageName)
-                && factory.getNames().contains("JavaScript"))
-        {
+                && factory.getNames().contains("JavaScript")) {
             languageName = "JavaScript (Rhino)";
         }
         return StringUtils.capitalize(languageName);
@@ -47,7 +43,6 @@ public class LanguageUtils
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    private LanguageUtils()
-    {
+    private LanguageUtils() {
     }
 }

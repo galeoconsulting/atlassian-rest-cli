@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
+package com.galeoconsulting.leonardinius.api;
 
 /**
  * Marker interface
  */
-public interface Registrar
-{
+public interface Registrar {
 }

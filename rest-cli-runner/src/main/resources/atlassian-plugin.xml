@@ -62,22 +62,26 @@
 
     <component
             name="${project.name} REST API"
-            key="script-service"
+            key="scriptService"
             public="true"
             interface="com.galeoconsulting.leonardinius.api.ScriptService"
             class="com.galeoconsulting.leonardinius.api.impl.ScriptServiceImpl">
         <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
     </component>
-    <component key="cli-session-manager"
-               name="Script Service"
-               public="false"
-               interface="com.galeoconsulting.leonardinius.api.ScriptSessionManager"
-               class="com.galeoconsulting.leonardinius.api.impl.ScriptSessionManagerImpl">
+    <component
+            name="Script Service"
+            key="scriptSessionManager"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ScriptSessionManager"
+            class="com.galeoconsulting.leonardinius.api.impl.ScriptSessionManagerImpl">
         <description>Implements CLI session management</description>
     </component>
-    <component key="rhino-registrar" name="Rhino Registrar" public="false"
-               interface="com.galeoconsulting.leonardinius.api.Registrar"
-               class="com.galeoconsulting.leonardinius.api.impl.RhinoRegistrarImpl">
+    <component
+            name="Rhino Registrar"
+            key="rhinoRegistrar"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.Registrar"
+            class="com.galeoconsulting.leonardinius.api.impl.RhinoRegistrarImpl">
         <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
     </component>
 
@@ -125,7 +129,9 @@
               section="system.admin/jira-cli-web-section"
               weight="10" application="jira">
         <label key="cli.web.section.cli_link"/>
-        <link linkId="jira_rest_cli_runner">/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}</link>
+        <link linkId="jira_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
+        </link>
         <conditions type="OR">
             <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
         </conditions>
@@ -145,7 +151,8 @@
               section="system.admin"
               weight="10" application="confluence">
         <label key="cli.web.section.cli_link"/>
-        <link linkId="confluence_rest_cli_runner">/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
+        <link linkId="confluence_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
         </link>
     </web-item>
 
@@ -172,17 +179,31 @@
         </init-param>
     </servlet>
 
-    <template-context-item
-            key="script-runner-resource-context-item"
-            class="com.galeoconsulting.leonardinius.rest.service.ScriptRunner"
-            context-key="scriptRunnerResource"
-            name="Script Runner Context Item">
-        <description>Script Runner REST service as velocity template context item</description>
-    </template-context-item>
+
     <template-context-item
             key="applicationPropertiesContextItem"
             component-ref="applicationProperties"
             context-key="applicationProperties">
         <description>SAL ApplicationProperties as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="scriptServiceContextItem"
+            component-ref="scriptService"
+            context-key="scriptService">
+        <description>com.galeoconsulting.leonardinius.api.ScriptService as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="scriptSessionManagerContextItem"
+            component-ref="scriptSessionManager"
+            context-key="scriptSessionManager">
+        <description>com.galeoconsulting.leonardinius.api.ScriptSessionManager as velocity template context item
+        </description>
+    </template-context-item>
+    <template-context-item
+            key="scriptRunnerResourceContextItem"
+            class="com.galeoconsulting.leonardinius.rest.service.ScriptRunner"
+            context-key="scriptRunnerResource"
+            name="Script Runner Context Item">
+        <description>Script Runner REST service as velocity template context item</description>
     </template-context-item>
 </atlassian-plugin>

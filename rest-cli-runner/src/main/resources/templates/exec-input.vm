@@ -14,7 +14,7 @@
     limitations under the License.
 *#
 
-$webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:cli-js-css")
+$webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 
 <table class="jiraform  maxWidth">
     <tr>
@@ -46,13 +46,13 @@ $webResourceManager.requireResource("com.blogspot.leonardinius.rest-cli-runner:c
 </table>
 
 <script type="text/javascript">
-    (function(jq)
-    {
-        jq(document).ready(function()
-        {
+    (function(jq) {
+        jq(document).ready(function() {
             var baseUrl = "${requestContext.baseUrl}";
-            com.blogspot.leonardinius.restcli.executor({
-                ajaxUrl    : function() { return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, jq("#cli-language").val());},
+            com.galeoconsulting.leonardinius.restcli.executor({
+                ajaxUrl    : function() {
+                    return AJS.format("{0}/rest/rest-scripting/1.0/execute/{1}", baseUrl, jq("#cli-language").val());
+                },
                 container  : jq('#cli-holder'),
                 welcomeMessage
                         : 'State is not preserved between different evaluation. -/- Press Ctrl-Enter/^-Enter to evaluate.'

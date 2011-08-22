@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api.impl;
+package com.galeoconsulting.leonardinius.api.impl;
 
 import com.atlassian.plugin.util.ClassLoaderUtils;
-import com.blogspot.leonardinius.api.Registrar;
-import com.blogspot.leonardinius.api.ScriptService;
+import com.galeoconsulting.leonardinius.api.Registrar;
+import com.galeoconsulting.leonardinius.api.ScriptService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,8 +31,7 @@ import javax.script.ScriptEngineFactory;
  * Date: 3/15/11
  * Time: 3:31 PM
  */
-public class RhinoRegistrarImpl implements Registrar, InitializingBean, DisposableBean
-{
+public class RhinoRegistrarImpl implements Registrar, InitializingBean, DisposableBean {
 // ------------------------------ FIELDS ------------------------------
 
     private static final String RHINO_ENGINE_CLASS = "com.sun.script.javascript.RhinoScriptEngineFactory";
@@ -45,21 +44,16 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public RhinoRegistrarImpl(ScriptService scriptService)
-    {
+    public RhinoRegistrarImpl(ScriptService scriptService) {
         this.scriptService = scriptService;
     }
 
 // --------------------- GETTER / SETTER METHODS ---------------------
 
-    private ScriptEngineFactory getEngineFactory() throws ClassNotFoundException, IllegalAccessException, InstantiationException
-    {
-        if (engineFactory == null)
-        {
-            synchronized (lock)
-            {
-                if (engineFactory == null)
-                {
+    private ScriptEngineFactory getEngineFactory() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        if (engineFactory == null) {
+            synchronized (lock) {
+                if (engineFactory == null) {
                     Class<? extends ScriptEngineFactory> klazz = ClassLoaderUtils.loadClass(RHINO_ENGINE_CLASS, getClass());
                     engineFactory = klazz.newInstance();
                 }
@@ -75,12 +69,9 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
 // --------------------- Interface DisposableBean ---------------------
 
     @Override
-    public void destroy() throws Exception
-    {
-        synchronized (lock)
-        {
-            if (engineFactory != null)
-            {
+    public void destroy() throws Exception {
+        synchronized (lock) {
+            if (engineFactory != null) {
                 scriptService.removeEngine(engineFactory);
             }
             engineFactory = null;
@@ -90,25 +81,17 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
 // --------------------- Interface InitializingBean ---------------------
 
     @Override
-    public void afterPropertiesSet() throws Exception
-    {
+    public void afterPropertiesSet() throws Exception {
         ScriptEngineFactory factory;
-        try
-        {
+        try {
             factory = getEngineFactory();
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             reportInstantiateEngineError(e);
             return;
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             reportInstantiateEngineError(e);
             return;
-        }
-        catch (InstantiationException e)
-        {
+        } catch (InstantiationException e) {
             reportInstantiateEngineError(e);
             return;
         }
@@ -117,8 +100,7 @@ public class RhinoRegistrarImpl implements Registrar, InitializingBean, Disposab
 
 // -------------------------- OTHER METHODS --------------------------
 
-    private void reportInstantiateEngineError(Throwable e)
-    {
+    private void reportInstantiateEngineError(Throwable e) {
         LOG.error(String.format("" +
                 "Could not instantiate shipped with Sun/Oracle JRE " +
                 "javascript jsr223 engine factory." +

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.groovy;
+package com.galeoconsulting.leonardinius.groovy;
 
 import com.atlassian.sal.api.user.UserManager;
-import com.blogspot.leonardinius.api.Registrar;
-import com.blogspot.leonardinius.api.ScriptService;
+import com.galeoconsulting.leonardinius.api.Registrar;
+import com.galeoconsulting.leonardinius.api.ScriptService;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.Script;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
@@ -33,8 +33,7 @@ import javax.script.ScriptEngine;
  * Date: 3/13/11
  * Time: 12:37 AM
  */
-public class GroovyRegistrarImpl implements Registrar, InitializingBean, DisposableBean
-{
+public class GroovyRegistrarImpl implements Registrar, InitializingBean, DisposableBean {
 // ------------------------------ FIELDS ------------------------------
 
     private final ScriptService scriptService;
@@ -45,15 +44,12 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public GroovyRegistrarImpl(ScriptService scriptService)
-    {
+    public GroovyRegistrarImpl(ScriptService scriptService) {
         this.scriptService = scriptService;
 
-        this.scriptEngineFactory = new GroovyScriptEngineFactory()
-        {
+        this.scriptEngineFactory = new GroovyScriptEngineFactory() {
             @Override
-            public ScriptEngine getScriptEngine()
-            {
+            public ScriptEngine getScriptEngine() {
                 GroovyScriptEngineImpl engine = new GroovyScriptEngineImpl();
                 engine.setClassLoader(getClassLoader());
                 return engine;
@@ -61,14 +57,10 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
         };
     }
 
-    private GroovyClassLoader getClassLoader()
-    {
-        if (gcl == null)
-        {
-            synchronized (lock)
-            {
-                if (gcl == null)
-                {
+    private GroovyClassLoader getClassLoader() {
+        if (gcl == null) {
+            synchronized (lock) {
+                if (gcl == null) {
                     final ClassLoader chainedClassLoader = this.scriptService.getClassLoader(
                             getClass().getClassLoader(),
                             Script.class.getClassLoader(),
@@ -89,16 +81,14 @@ public class GroovyRegistrarImpl implements Registrar, InitializingBean, Disposa
 // --------------------- Interface DisposableBean ---------------------
 
     @Override
-    public void destroy() throws Exception
-    {
+    public void destroy() throws Exception {
         scriptService.removeEngine(scriptEngineFactory);
     }
 
 // --------------------- Interface InitializingBean ---------------------
 
     @Override
-    public void afterPropertiesSet() throws Exception
-    {
+    public void afterPropertiesSet() throws Exception {
         scriptService.defaultRegistration(scriptEngineFactory);
     }
 }

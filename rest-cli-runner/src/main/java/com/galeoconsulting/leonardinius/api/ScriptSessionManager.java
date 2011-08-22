@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api;
+package com.galeoconsulting.leonardinius.api;
 
 import com.google.common.base.Preconditions;
 
@@ -27,8 +27,7 @@ import java.util.Map;
  * Date: 3/15/11
  * Time: 10:11 PM
  */
-public interface ScriptSessionManager
-{
+public interface ScriptSessionManager {
 // -------------------------- OTHER METHODS --------------------------
 
     void clear();
@@ -43,29 +42,24 @@ public interface ScriptSessionManager
 
 // -------------------------- INNER CLASSES --------------------------
 
-    public static final class SessionId
-    {
+    public static final class SessionId {
         private final String sessionId;
 
-        public String getSessionId()
-        {
+        public String getSessionId() {
             return sessionId;
         }
 
         @SuppressWarnings({"UnusedDeclaration"})
-        private SessionId(String sessionId)
-        {
+        private SessionId(String sessionId) {
             this.sessionId = Preconditions.checkNotNull(sessionId, "SessionId");
         }
 
-        public static SessionId valueOf(String sessionId)
-        {
+        public static SessionId valueOf(String sessionId) {
             return new SessionId(sessionId);
         }
 
         @Override
-        public boolean equals(Object o)
-        {
+        public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
@@ -75,21 +69,18 @@ public interface ScriptSessionManager
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return sessionId.hashCode();
         }
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public static final class ScriptSession
-    {
+    public static final class ScriptSession {
         private final ScriptEngine scriptEngine;
         private final long createdAt;
 
         @Override
-        public boolean equals(Object o)
-        {
+        public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof ScriptSession)) return false;
 
@@ -97,47 +88,42 @@ public interface ScriptSessionManager
 
             if (createdAt != that.createdAt) return false;
             if (creator != null ? !creator.equals(that.creator) : that.creator != null) return false;
-            if (scriptEngine != null ? !scriptEngine.equals(that.scriptEngine) : that.scriptEngine != null) return false;
+            if (scriptEngine != null ? !scriptEngine.equals(that.scriptEngine) : that.scriptEngine != null)
+                return false;
 
             return true;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             int result = scriptEngine != null ? scriptEngine.hashCode() : 0;
             result = 31 * result + (int) (createdAt ^ (createdAt >>> 32));
             result = 31 * result + (creator != null ? creator.hashCode() : 0);
             return result;
         }
 
-        public String getCreator()
-        {
+        public String getCreator() {
             return creator;
         }
 
         private final String creator;
 
-        public ScriptEngine getScriptEngine()
-        {
+        public ScriptEngine getScriptEngine() {
             return scriptEngine;
         }
 
         @SuppressWarnings({"UnusedDeclaration"})
-        private ScriptSession(ScriptEngine scriptEngine, long createdAt, String userId)
-        {
+        private ScriptSession(ScriptEngine scriptEngine, long createdAt, String userId) {
             this.createdAt = createdAt;
             this.creator = userId;
             this.scriptEngine = Preconditions.checkNotNull(scriptEngine, "ScriptEngine");
         }
 
-        public long getCreatedAt()
-        {
+        public long getCreatedAt() {
             return createdAt;
         }
 
-        public static ScriptSession newInstance(String creator, ScriptEngine engine)
-        {
+        public static ScriptSession newInstance(String creator, ScriptEngine engine) {
             return new ScriptSession(engine, new Date().getTime(), creator);
         }
     }

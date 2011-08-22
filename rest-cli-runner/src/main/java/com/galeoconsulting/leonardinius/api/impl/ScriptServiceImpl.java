@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.blogspot.leonardinius.api.impl;
+package com.galeoconsulting.leonardinius.api.impl;
 
-import com.blogspot.leonardinius.api.ScriptService;
+import com.galeoconsulting.leonardinius.api.ScriptService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MapMaker;
@@ -35,8 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 3/12/11
  * Time: 11:19 PM
  */
-public class ScriptServiceImpl implements ScriptService, DisposableBean
-{
+public class ScriptServiceImpl implements ScriptService, DisposableBean {
 // ------------------------------ FIELDS ------------------------------
 
     private static final Object DUMMY = new Object();
@@ -49,13 +48,11 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public ScriptServiceImpl()
-    {
+    public ScriptServiceImpl() {
         init();
     }
 
-    private synchronized void init()
-    {
+    private synchronized void init() {
         this.scriptEngineManager = new ScriptEngineManager();
         registeredEngines.clear();
     }
@@ -66,23 +63,19 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
 // --------------------- Interface DisposableBean ---------------------
 
     @Override
-    public void destroy() throws Exception
-    {
+    public void destroy() throws Exception {
         init();
     }
 
 // --------------------- Interface ScriptService ---------------------
 
     @Override
-    public void defaultRegistration(ScriptEngineFactory engineFactory)
-    {
-        for (String extension : engineFactory.getExtensions())
-        {
+    public void defaultRegistration(ScriptEngineFactory engineFactory) {
+        for (String extension : engineFactory.getExtensions()) {
             registerEngineExtension(extension, engineFactory);
         }
 
-        for (String mime : engineFactory.getMimeTypes())
-        {
+        for (String mime : engineFactory.getMimeTypes()) {
             registerEngineMime(mime, engineFactory);
         }
 
@@ -94,65 +87,56 @@ public class ScriptServiceImpl implements ScriptService, DisposableBean
     }
 
     @Override
-    public ClassLoader getClassLoader(ClassLoader... chainingClassLoaders)
-    {
+    public ClassLoader getClassLoader(ClassLoader... chainingClassLoaders) {
         return new ChainingClassLoader(chainingClassLoaders);
     }
 
     @Override
-    public ScriptEngine getEngineByExtension(String extension)
-    {
+    public ScriptEngine getEngineByExtension(String extension) {
         Preconditions.checkArgument(StringUtils.isNotBlank(extension), "Script extension should be specified!");
         return scriptEngineManager.getEngineByExtension(extension);
     }
 
     @Override
-    public ScriptEngine getEngineByLanguage(String language)
-    {
+    public ScriptEngine getEngineByLanguage(String language) {
         Preconditions.checkArgument(StringUtils.isNotBlank(language), "Scripting language short name should be specified!");
         return scriptEngineManager.getEngineByName(language);
     }
 
     @Override
-    public ScriptEngine getEngineByMime(String mime)
-    {
+    public ScriptEngine getEngineByMime(String mime) {
         Preconditions.checkArgument(StringUtils.isNotBlank(mime), "Script mime should be specified!");
         return scriptEngineManager.getEngineByMimeType(mime);
     }
 
     @Override
-    public Iterable<ScriptEngineFactory> getRegisteredScriptEngines()
-    {
+    public Iterable<ScriptEngineFactory> getRegisteredScriptEngines() {
         return ImmutableList.copyOf(registeredEngines.keySet());
     }
 
     @Override
-    public void registerEngineExtension(String extension, ScriptEngineFactory factory)
-    {
+    public void registerEngineExtension(String extension, ScriptEngineFactory factory) {
         scriptEngineManager.registerEngineExtension(checkNotNull(extension, "extension"),
                 checkNotNull(factory, "factory"));
         registeredEngines.put(factory, DUMMY);
     }
 
     @Override
-    public void registerEngineLanguage(String language, ScriptEngineFactory factory)
-    {
+    public void registerEngineLanguage(String language, ScriptEngineFactory factory) {
         scriptEngineManager.registerEngineName(checkNotNull(language, "language"),
                 checkNotNull(factory, "factory"));
         registeredEngines.put(factory, DUMMY);
     }
 
     @Override
-    public void registerEngineMime(String extension, ScriptEngineFactory factory)
-    {
+    public void registerEngineMime(String extension, ScriptEngineFactory factory) {
         scriptEngineManager.registerEngineMimeType(checkNotNull(extension, "extension"),
                 checkNotNull(factory, "factory"));
         registeredEngines.put(factory, DUMMY);
     }
 
     @Override
-    public boolean removeEngine(ScriptEngineFactory factory)
-    {
+    public boolean removeEngine(ScriptEngineFactory factory) {
         return registeredEngines.remove(factory, DUMMY);
     }
 }
