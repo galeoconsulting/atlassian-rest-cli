@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Leonid M.<leonids.maslovs@galeoconsulting.com>
+ * Copyright 2011 Leonid Maslov<leonidms@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 9:57 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ServletVelocityHelperImpl implements ServletVelocityHelper {
+public class ServletVelocityHelperImpl implements ServletVelocityHelper
+{
 // ------------------------------ FIELDS ------------------------------
 
     private final ScriptSessionManager sessionManager;
@@ -53,7 +54,8 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper {
 
 // --------------------------- CONSTRUCTORS ---------------------------
 
-    public ServletVelocityHelperImpl(UserManager userManager, ScriptSessionManager sessionManager, ScriptService scriptService) {
+    public ServletVelocityHelperImpl(UserManager userManager, ScriptSessionManager sessionManager, ScriptService scriptService)
+    {
         this.scriptService = checkNotNull(scriptService, "scriptService");
         this.userManager = checkNotNull(userManager, "userManager");
         this.sessionManager = checkNotNull(sessionManager, "sessionManager");
@@ -65,14 +67,18 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper {
 // --------------------- Interface ServletVelocityHelper ---------------------
 
     @Override
-    public SessionBean getSessionBean(final String sessionId) {
-        if (StringUtils.isBlank(sessionId)) {
+    public SessionBean getSessionBean(final String sessionId)
+    {
+        if (StringUtils.isBlank(sessionId))
+        {
             return null;
         }
 
-        Iterable<SessionBean> iterable = Iterables.filter(getAllSessionBeans(), new Predicate<SessionBean>() {
+        Iterable<SessionBean> iterable = Iterables.filter(getAllSessionBeans(), new Predicate<SessionBean>()
+        {
             @Override
-            public boolean apply(@Nullable SessionBean input) {
+            public boolean apply(@Nullable SessionBean input)
+            {
                 return StringUtils.equals(sessionId, input.getSessionId());
             }
         });
@@ -81,20 +87,26 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper {
     }
 
     @Override
-    public List<SessionBean> getAllSessionBeans() {
+    public List<SessionBean> getAllSessionBeans()
+    {
         List<SessionBean> list = Lists.newArrayList();
 
-        for (Map.Entry<SessionId, ScriptSession> entry : sessionManager.listAllSessions().entrySet()) {
+        for (Map.Entry<SessionId, ScriptSession> entry : sessionManager.listAllSessions().entrySet())
+        {
             list.add(SessionBean.newInstance(entry.getKey(), entry.getValue(), getUserProfile(entry.getValue().getCreator())));
         }
 
-        Collections.sort(list, new Comparator<SessionBean>() {
+        Collections.sort(list, new Comparator<SessionBean>()
+        {
             @Override
-            public int compare(SessionBean o1, SessionBean o2) {
+            public int compare(SessionBean o1, SessionBean o2)
+            {
                 long cmp;
-                if (o2.getCreatedAtTimestamp() < 0) {
+                if (o2.getCreatedAtTimestamp() < 0)
+                {
                     cmp = -(o2.getCreatedAtTimestamp() - o1.getCreatedAtTimestamp());
-                } else {
+                } else
+                {
                     cmp = o1.getCreatedAtTimestamp() - o2.getCreatedAtTimestamp();
                 }
 
@@ -106,15 +118,19 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper {
     }
 
     @Override
-    public List<LanguageBean> getRegisteredLanguages() {
+    public List<LanguageBean> getRegisteredLanguages()
+    {
         List<LanguageBean> list = Lists.newArrayList();
-        for (ScriptEngineFactory factory : scriptService.getRegisteredScriptEngines()) {
+        for (ScriptEngineFactory factory : scriptService.getRegisteredScriptEngines())
+        {
             list.add(LanguageBean.valueOf(factory));
         }
 
-        Collections.sort(list, new Comparator<LanguageBean>() {
+        Collections.sort(list, new Comparator<LanguageBean>()
+        {
             @Override
-            public int compare(LanguageBean o1, LanguageBean o2) {
+            public int compare(LanguageBean o1, LanguageBean o2)
+            {
                 return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
             }
         });
@@ -123,7 +139,8 @@ public class ServletVelocityHelperImpl implements ServletVelocityHelper {
 
 // -------------------------- OTHER METHODS --------------------------
 
-    private UserProfile getUserProfile(String userId) {
+    private UserProfile getUserProfile(String userId)
+    {
         return userManager.getUserProfile(userId);
     }
 }
