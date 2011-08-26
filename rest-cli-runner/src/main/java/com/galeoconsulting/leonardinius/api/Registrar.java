@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
+package com.galeoconsulting.leonardinius.api;
+
 /**
- * User: leonidmaslov
- * Date: 4/9/11
- * Time: 12:23 AM
+ * Marker interface
  */
-
-//TODO: use Migration helper object to identify version
-
-1
+public interface Registrar {
+}

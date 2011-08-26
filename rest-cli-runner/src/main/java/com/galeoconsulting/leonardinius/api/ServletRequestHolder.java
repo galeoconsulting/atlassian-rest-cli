@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
+package com.galeoconsulting.leonardinius.api;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 /**
  * User: leonidmaslov
- * Date: 4/9/11
- * Time: 12:23 AM
+ * Date: 8/22/11
+ * Time: 11:58 PM
  */
+public interface ServletRequestHolder
+{
+    void set(ServletRequest request, ServletResponse response);
 
-//TODO: use Migration helper object to identify version
+    ServletRequest getRequest();
 
-1
+    ServletResponse getResponse();
+
+    void remove();
+}

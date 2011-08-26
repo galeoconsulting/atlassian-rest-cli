@@ -35,6 +35,7 @@ class Deployer
                 '-w', quote(properties.password), //
         ];
 
+        //noinspection GroovyAssignabilityCheck
         allarguments.addAll(arguments.collect { it.startsWith('-') ? it : quote(it) })
         allarguments
     }
@@ -61,7 +62,7 @@ class Deployer
         if (outputOut) println outs[0]
         if (outs[1] && outs[1] != '')
         {
-            throw new IllegalStateException(outs[1])
+            throw new IllegalStateException(outs[1] as String)
         }
         outs
     }
@@ -91,8 +92,8 @@ class Deployer
         if (!dir.isDirectory()) throw new IllegalArgumentException("Path `${path}` is not a directory.")
 
         dir.listFiles({File d, String name -> return name.endsWith(".groovy")} as FilenameFilter)  //
-                .findAll { it.name.matches("\\d{1,}_.*\\.groovy") && scriptVersion(it.name) > version}  //
-                .sort({File f1, File f2 -> f1.name.compareTo(f2.name)} as Comparator)  //
+        .findAll { it.name.matches("\\d{1,}_.*\\.groovy") && scriptVersion(it.name) > version}  //
+        .sort({File f1, File f2 -> f1.name.compareTo(f2.name)} as Comparator)  //
     }
 
 
@@ -128,7 +129,10 @@ class Deployer
 
     def run_script(File script, long version, String sessionId)
     {
-        def parts = { it.split('\\.') }
+        def parts = {
+            //noinspection GroovyAssignabilityCheck
+            it.split('\\.')
+        }
         File tmp = File.createTempFile(parts(script.name)[0..-2].join('.'), '.groovy')
         try
         {

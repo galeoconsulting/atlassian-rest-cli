@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.galeoconsulting.leonardinius</groupId>
+    <artifactId>rest-cli-parent</artifactId>
+    <version>1.1-SNAPSHOT</version>
+
+    <organization>
+        <name>Coding paradigm: line by line</name>
+        <url>http://leonardinius.blogspot.com/</url>
+    </organization>
+
+    <name>Rest Cli Parent</name>
+    <description>Rest Cli Parent POM</description>
+    <packaging>pom</packaging>
+    <inceptionYear>2011</inceptionYear>
+
+    <contributors>
+        <contributor>
+            <name>Leonid Maslov</name>
+            <roles>
+                <role>author</role>
+            </roles>
+            <timezone>GMT+2</timezone>
+            <email>leonidms@gmail.com</email>
+        </contributor>
+    </contributors>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com:leonardinius/jira-rest-cli.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/leonardinius/jira-rest-cli.git</developerConnection>
+        <url>https://github.com/leonardinius/jira-rest-cli</url>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.atlassian.sal</groupId>
+                <artifactId>sal-api</artifactId>
+                <version>${sal.library.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins.rest</groupId>
+                <artifactId>atlassian-rest-common</artifactId>
+                <version>${rest.library.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins</groupId>
+                <artifactId>atlassian-plugins-core</artifactId>
+                <version>${plugins.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins</groupId>
+                <artifactId>atlassian-plugins-spring</artifactId>
+                <version>${plugins.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.templaterenderer</groupId>
+                <artifactId>atlassian-template-renderer-api</artifactId>
+                <version>${template.renderer.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>jsr311-api</artifactId>
+                <version>1.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.3</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- @Nullable and etc -->
+            <dependency>
+                <groupId>com.atlassian.bundles</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>1.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.bundles</groupId>
+                <artifactId>google-collections</artifactId>
+                <version>1.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.6</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <version>3.2.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <version>${jira.version}</version>
+                            <productDataVersion>${jira.data.version}</productDataVersion>
+                            <output>${project.build.directory}/jira-${jira.version}.log</output>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <version>${confluence.version}</version>
+                            <productDataVersion>${confluence.data.version}</productDataVersion>
+                            <output>${project.build.directory}/confluence-${confluence.version}.log</output>
+                        </product>
+                        <product>
+                            <id>bamboo</id>
+                            <version>${bamboo.version}</version>
+                            <productDataVersion>${bamboo.data.version}</productDataVersion>
+                            <output>${project.build.directory}/bamboo-${bamboo.version}.log</output>
+                        </product>
+                    </products>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <configuration>
+                    <header>../rest-cli-parent/etc/license-header.txt</header>
+                    <strictCheck>true</strictCheck>
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <includes>
+                        <include>src/**</include>
+                        <include>**/test/**</include>
+                    </includes>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <excludes>
+                        <exclude>**/src/main/resources/jquery-console/*</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.vm</exclude>
+                        <exclude>**/*.sh</exclude>
+                        <exclude>**/TEST_TESTS_README</exclude>
+                        <exclude>**/TEST_RESOURCES_README</exclude>
+                        <exclude>**/TEST_XML_RESOURCES_README</exclude>
+                    </excludes>
+                    <mapping>
+                        <js>SLASHSTAR_STYLE</js>
+                        <java>SLASHSTAR_STYLE</java>
+                        <groovy>SLASHSTAR_STYLE</groovy>
+                        <sh>SCRIPT_STYLE</sh>
+                    </mapping>
+                    <properties>
+                        <year>${project.inceptionYear}</year>
+                        <email>leonidms@gmail.com</email>
+                        <author>Leonid Maslov</author>
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <plugins.version>2.5.4</plugins.version>
+
+        <sal.library.version>2.4.1</sal.library.version>
+        <rest.library.version>2.4.0</rest.library.version>
+
+        <template.renderer.version>1.1.1</template.renderer.version>
+
+        <jira.version>4.3</jira.version>
+        <jira.data.version>4.3</jira.data.version>
+
+        <confluence.version>3.5</confluence.version>
+        <confluence.data.version>3.5</confluence.data.version>
+
+        <bamboo.version>3.2.2</bamboo.version>
+        <bamboo.data.version></bamboo.data.version>
+    </properties>
+
+    <modules>
+        <module>../rest-cli-runner</module>
+        <module>../rest-cli-groovy</module>
+        <module>../rest-cli-jruby</module>
+        <module>../ruby-rest-client</module>
+        <module>../groovy-rest-client</module>
+    </modules>
+
+</project>
