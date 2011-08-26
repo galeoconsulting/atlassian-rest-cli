@@ -15,7 +15,7 @@
  */
 
 //noinspection UnnecessaryReturnStatementJS
-(function($)
+(function($, undefined)
 {
 
     var tryIt = function(f, defValue)
@@ -29,22 +29,51 @@
             return defValue;
         }
     };
-    
+
     var namespace = $.namespace;
-    if(!$.isFunction(namespace)){
-       namespace = function() {
-          var a = arguments, o = null, i, j, d;
-          for (i = 0; i < a.length; i = i + 1) {
-              d = a[i].split(".");
-              o = window;
-              for (j = 0; j < d.length; j = j + 1) {
-                  o[d[j]] = o[d[j]] || { };
-                  o = o[d[j]];
-              }
-          }
-          return o;
-      };
+    if (!$.isFunction(namespace))
+    {
+        namespace = function()
+        {
+            var a = arguments, o = null, i, j, d;
+            for (i = 0; i < a.length; i = i + 1)
+            {
+                d = a[i].split(".");
+                o = window;
+                for (j = 0; j < d.length; j = j + 1)
+                {
+                    o[d[j]] = o[d[j]] || { };
+                    o = o[d[j]];
+                }
+            }
+            return o;
+        };
     }
+
+    var getAsJson = function(xhr)
+    {
+
+        var data = tryIt(function()
+        {
+            return xhr.response;
+        }, null);
+        if (data == null)
+        {
+            data = tryIt(function()
+            {
+                return xhr.responseText;
+            }, null);
+        }
+
+        if (typeof data == 'string')
+        {
+            data = tryIt(function()
+            {
+                return $.parseJSON(data)
+            }, null);
+        }
+        return data;
+    };
 
     namespace('com.galeoconsulting.leonardinius.restcli');
     var $restcli = com.galeoconsulting.leonardinius.restcli;
@@ -58,29 +87,20 @@
                     {
                         var getScriptErrors = function (xhr)
                         {
-                            if (!xhr || !xhr.response) return [];
-                            var errors = xhr.response;
-                            if (typeof errors == 'string')
-                            {
-                                errors = tryIt(function()
-                                {
-                                    return $.parseJSON(errors)
-                                }, null);
-                            }
+                            var errors = getAsJson(xhr);
                             if (errors && errors.errorMessages) return errors;
                             if (errors && errors.message) return [errors.message];
                             return [];
                         };
 
-                        alert(
-                                AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
-                                        textStatus || 'unknown',
-                                        [errorThrown || ''].concat(getScriptErrors(XMLHttpRequest)).join('\n'),
-                                        tryIt(function()
+                        alert(AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
+                                textStatus || 'unknown',
+                                [errorThrown || ''].concat(getScriptErrors(XMLHttpRequest)).join('\n'),
+                                tryIt(function()
                                         {
                                             return  XMLHttpRequest.status;
-                                        }, 'Unknown'))
-                        );
+                                        },
+                                        'Unknown')));
 
                     },
                     success     : function(data)
@@ -104,29 +124,20 @@
                     {
                         var getScriptErrors = function (xhr)
                         {
-                            if (!xhr || !xhr.response) return [];
-                            var errors = xhr.response;
-                            if (typeof errors == 'string')
-                            {
-                                errors = tryIt(function()
-                                {
-                                    return $.parseJSON(errors)
-                                }, null);
-                            }
+                            var errors = getAsJson(xhr);
                             if (errors && errors.errorMessages) return errors;
                             if (errors && errors.message) return [errors.message];
                             return [];
                         };
 
-                        alert(
-                                AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
-                                        textStatus || 'unknown',
-                                        [errorThrown || ''].concat(getScriptErrors(XMLHttpRequest)).join('\n'),
-                                        tryIt(function()
+                        alert(AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
+                                textStatus || 'unknown',
+                                [errorThrown || ''].concat(getScriptErrors(XMLHttpRequest)).join('\n'),
+                                tryIt(function()
                                         {
                                             return  XMLHttpRequest.status;
-                                        }, 'Unknown'))
-                        );
+                                        },
+                                        'Unknown')));
 
                     },
 
@@ -187,21 +198,6 @@
                                         data        : JSON.stringify(payload),
                                         error       : function(XMLHttpRequest, textStatus, errorThrown)
                                         {
-
-                                            var getAsJson = function(xhr)
-                                            {
-                                                if (!xhr || !xhr.response) return null;
-                                                var data = xhr.response;
-                                                if (typeof data == 'string')
-                                                {
-                                                    data = tryIt(function()
-                                                    {
-                                                        return $.parseJSON(data)
-                                                    }, null);
-                                                }
-                                                return data;
-                                            };
-
                                             var getScriptError = function (xhr)
                                             {
                                                 var data = getAsJson(xhr);
@@ -219,17 +215,17 @@
                                                 result = appendOutErr(result, scriptError);
                                                 reporter(result);
                                             }
-                                            else alert(
-                                                    AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
-                                                            textStatus || 'unknown',
-                                                            errorThrown || tryIt(function()
-                                                            {
-                                                                return getAsJson(XMLHttpRequest).message
-                                                            }, null) || '',
-                                                            tryIt(function()
+                                            else alert(AJS.format("{0}: (HTTP Status: {2})\n\n{1}",
+                                                    textStatus || 'unknown',
+                                                    errorThrown || tryIt(function()
+                                                    {
+                                                        return getAsJson(XMLHttpRequest).message
+                                                    }, null) || '',
+                                                    tryIt(function()
                                                             {
                                                                 return  XMLHttpRequest.status;
-                                                            }, 'Unknown'))
+                                                            },
+                                                            'Unknown'))
                                             );
 
                                             continuePrompt(false);
