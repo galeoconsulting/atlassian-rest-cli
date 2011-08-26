@@ -19,6 +19,7 @@
 <html>
 <head>
     <meta name="decorator" content="atl.admin"/>
+    <title>CLI live session access</title>
 </head>
 <body>
 
@@ -26,14 +27,14 @@
 
     #set($liveSession = $servletVelocityHelper.getSessionBean($servletVelocityHelper.getRequestParameter("sessionId")))
 
-<table class="jiraform  maxWidth">
+<table class="grid" width="99%">
     <tr>
-        <td class="jiraformheader">
+        <td class="grid">
             <h3 class="formtitle">CLI session $!{servletVelocityHelper.getRequestParameter("sessionId")}</h3>
         </td>
     </tr>
     <tr>
-        <td class="jiraformbody">
+        <td class="grid">
             <div>
                 <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}">back
                     to
@@ -42,7 +43,7 @@
                 <cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>
 
                 #if($liveSession)
-                    <table class="grid centered maxWidth">
+                    <table class="grid centered" width="99%">
                         <tr>
                             <td>
                                 <div id="cli-holder"></div>

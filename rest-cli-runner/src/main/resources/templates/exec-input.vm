@@ -20,17 +20,18 @@
 <html>
 <head>
     <meta name="decorator" content="atl.admin"/>
+    <title>Stateless script executor</title>
 </head>
 <body>
     $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
 
-<table class="jiraform  maxWidth">
+<table class="grid" width="99%">
     <tr>
-        <td class="jiraformheader">
+        <td class="grid">
             <h3 class="formtitle">Non-interactive session</h3></td>
     </tr>
     <tr>
-        <td class="jiraformbody">
+        <td class="grid">
             <div>
                 <b>Please specify scripting language:</b>
                 <select id="cli-language">
@@ -41,7 +42,7 @@
                 </select>
                 <br/>
 
-                <table class="grid centered maxWidth">
+                <table class="grid centered" width="99%">
                     <tr>
                         <td>
                             <div id="cli-holder"></div>

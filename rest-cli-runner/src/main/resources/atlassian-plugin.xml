@@ -153,24 +153,34 @@
         </conditions>
     </web-item>
 
+    <web-section key="confluence-cli-web-section"
+                 name="JIRA Administration Web-Section"
+                 location="system.admin"
+                 system="true" weight="101" application="confluence">
+        <label key="cli.web.section.title"/>
+        <conditions type="OR">
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SystemAdministratorOrSuperUserCondition"/>
+        </conditions>
+    </web-section>
+
     <web-item key="confluence-exec-runner-web-item"
               name="Confluence script executor Web-Section"
-              section="system.admin"
+              section="system.admin/confluence-cli-web-section"
               weight="20" application="confluence">
         <label key="cli.web.section.runner_link"/>
         <link linkId="confluence_rest_exec_runner">
-            /plugins/servlet/rest-script-runner/action/execute-statement.html?atl_token=${atl_token}
+            /plugins/servlet/rest-script-runner/action/execute-statement.html?#url_xsrfToken()
         </link>
     </web-item>
 
     <web-item key="confluence-cli-runner-web-item"
-              name="Cofluence script executor link"
+              name="Confluence script executor link"
               description="Confluence Admin panel script executor link"
-              section="system.admin"
+              section="system.admin/confluence-cli-web-section"
               weight="10" application="confluence">
         <label key="cli.web.section.cli_link"/>
         <link linkId="confluence_rest_cli_runner">
-            /plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
+            /plugins/servlet/rest-script-runner/action/list-sessions.html?#url_xsrfToken()
         </link>
     </web-item>
 

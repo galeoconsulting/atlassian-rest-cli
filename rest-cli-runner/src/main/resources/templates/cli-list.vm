@@ -21,6 +21,7 @@
 <html>
 <head>
     <meta name="decorator" content="atl.admin"/>
+    <title>Cli session list</title>
 </head>
 <body>
     $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
@@ -28,7 +29,7 @@
 <script type="text/javascript">
     (function(j$)
     {
-        window.makeNewSession = function makeNewSession(self)
+        com.galeoconsulting.leonardinius.restcli._makeNewSession = function makeNewSession(self)
         {
             com.galeoconsulting.leonardinius.restcli.newSession({
                 baseUrl :   "${applicationProperties.baseUrl}",
@@ -40,7 +41,7 @@
             });
         };
 
-        window.deleteSessionSession = function deleteSessionSession(link)
+        com.galeoconsulting.leonardinius.restcli._deleteSessionSession = function deleteSessionSession(link)
         {
             var sessionId = j$(link).siblings('input[type=hidden]').val();
             if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId)))
@@ -59,13 +60,13 @@
 </script>
 
 <!--suppress HtmlDeprecatedTag -->
-<table class="jiraform  maxWidth">
+<table class="grid" width="99%">
     <tr>
-        <td class="jiraformheader">
-            <h3 class="formtitle">Current REST Cli Sessions in JIRA</h3></td>
+        <td class="grid">
+            <h3 class="formtitle">REST Cli sessions</h3></td>
     </tr>
     <tr>
-        <td class="jiraformbody">
+        <td class="grid">
             <div>
                 <label for="cli-language"><strong>Create new session:</strong></label>
                 <select id="cli-language">
@@ -74,19 +75,19 @@
                             - $stringEscapeUtils.escapeHtml($lng.version)</option>
                     #end
                 </select>
-                &nbsp;<a href="#" onclick="makeNewSession(this); return false;">create</a>
+                &nbsp;<a href="#" onclick="com.galeoconsulting.leonardinius.restcli._makeNewSession(this); return false;">create</a>
                 &nbsp;<cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>.
                 <br/>
                 <hr/>
 
-                <table class="grid centered maxWidth">
+                <table class="grid centered" width="100%">
                     <thead>
                     <tr>
                         <th>SessionId</th>
                         <th>Creator user</th>
                         <th>Language</th>
                         <th>Version</th>
-                        <th>Created &darr;</th>
+                        <th style="min-width: 100px;">Created &darr;</th>
                         <th>Operations</th>
                     </tr>
                     </thead>
@@ -110,7 +111,7 @@
                                 <input type="hidden" value="${stringEscapeUtils.escapeHtml($session.sessionId)}"/>
                                 <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/cli-session.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
                                     Connect</a> |
-                                <a href="#" onclick="deleteSessionSession(this); return false;">Delete</a>
+                                <a href="#" onclick="com.galeoconsulting.leonardinius.restcli._deleteSessionSession(this); return false;">Delete</a>
                             </td>
                         </tr>
                         #end
