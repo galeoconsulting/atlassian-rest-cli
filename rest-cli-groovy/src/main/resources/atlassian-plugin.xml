@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    </plugin-info>
+
+    <component-import key="script-service" name="Script Service" interface="com.galeoconsulting.leonardinius.api.ScriptService">
+        <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
+    </component-import>
+
+    <component key="groovy-registrar" name="Groovy Registrar" public="false"
+               interface="com.galeoconsulting.leonardinius.api.Registrar"
+               class="com.galeoconsulting.leonardinius.groovy.GroovyRegistrarImpl">
+        <description>Provides Groovy on top of javax.script.ScriptEngineManager</description>
+    </component>
+</atlassian-plugin>

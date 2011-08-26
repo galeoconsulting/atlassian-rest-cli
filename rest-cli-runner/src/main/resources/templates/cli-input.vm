@@ -1,0 +1,86 @@
+#* @vtlvariable name="servletVelocityHelper" type="com.galeoconsulting.leonardinius.api.ServletVelocityHelper" *#
+#* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
+#*
+    Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*#
+
+<html>
+<head>
+    <meta name="decorator" content="atl.admin"/>
+    <title>CLI live session access</title>
+</head>
+<body>
+
+    $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
+
+    #set($liveSession = $servletVelocityHelper.getSessionBean($servletVelocityHelper.getRequestParameter("sessionId")))
+
+<table class="grid" width="99%">
+    <tr>
+        <td class="grid">
+            <h3 class="formtitle">CLI session $!{servletVelocityHelper.getRequestParameter("sessionId")}</h3>
+        </td>
+    </tr>
+    <tr>
+        <td class="grid">
+            <div>
+                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}">back
+                    to
+                    session list</a>
+                &nbsp;
+                <cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>
+
+                #if($liveSession)
+                    <table class="grid centered" width="99%">
+                        <tr>
+                            <td>
+                                <div id="cli-holder"></div>
+                            </td>
+                        </tr>
+                    </table>
+                #else
+                    <h3 style="color:red">Could not locate session</h3>
+                #end
+
+            </div>
+        </td>
+    </tr>
+</table>
+
+    #if($liveSession)
+    <script type="text/javascript">
+        (function(j$)
+        {
+            j$(document).ready(function()
+            {
+                com.galeoconsulting.leonardinius.restcli.executor({
+                    ajaxUrl    : function()
+                    {
+                        return AJS.format("{0}/rest/rest-scripting/1.0/sessions/{1}",
+                                "${applicationProperties.baseUrl}",
+                                "$liveSession.sessionId");
+                    },
+                    container  : j$('#cli-holder'),
+                    welcomeMessage
+                            : '${liveSession.language}:${liveSession.version}.'
+                            + ' --/-- Press Ctrl-Enter/^-Enter to evaluate.'
+                });
+            });
+        })(jQuery);
+    </script>
+    #end
+
+</body>
+</html>

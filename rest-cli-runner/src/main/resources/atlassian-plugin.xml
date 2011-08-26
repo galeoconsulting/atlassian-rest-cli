@@ -1,0 +1,284 @@
+<!--
+  ~ Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    </plugin-info>
+
+    <resource type="i18n" name="I18N Localization"
+              location="i18n/messages">
+        <description>Provides localized UI messages</description>
+    </resource>
+
+    <rest key="runner-output"
+          name="REST Cli API"
+          path="/rest-scripting" version="1.0">
+        <package>com.galeoconsulting.leonardinius.rest.service</package>
+        <description>Provides REST CLI endpoints for ${project.name}.</description>
+    </rest>
+
+    <component-import
+            name="ApplicationProperties"
+            key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties">
+        <description>OSGi imported Atlassian SAL ApplicationProperties component</description>
+    </component-import>
+    <component-import
+            name="UserManager"
+            key="userManager" interface="com.atlassian.sal.api.user.UserManager">
+        <description>OSGi imported Atlassian SAL UserManager component</description>
+    </component-import>
+    <component-import
+            name="WebSudoManager"
+            key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager">
+        <description>OSGi imported Atlassian SAL WebSudoManager component</description>
+    </component-import>
+    <component-import
+            name="LoginUriProvider"
+            key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider">
+        <description>OSGi imported Atlassian SAL LoginUriProvider component</description>
+    </component-import>
+    <component-import
+            name="VelocityTemplateRenderer"
+            key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer">
+        <description>OSGi imported Atlassian SAL VelocityTemplateRenderer component</description>
+    </component-import>
+
+
+    <component
+            name="${project.name} REST API"
+            key="scriptService"
+            public="true"
+            interface="com.galeoconsulting.leonardinius.api.ScriptService"
+            class="com.galeoconsulting.leonardinius.api.impl.ScriptServiceImpl">
+        <description>Provides script registration capabilities on top of javax.script.ScriptEngineManager</description>
+    </component>
+    <component
+            name="Script Service"
+            key="scriptSessionManager"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ScriptSessionManager"
+            class="com.galeoconsulting.leonardinius.api.impl.ScriptSessionManagerImpl">
+        <description>Implements CLI session management</description>
+    </component>
+    <component
+            name="Rhino Registrar"
+            key="rhinoRegistrar"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.Registrar"
+            class="com.galeoconsulting.leonardinius.api.impl.RhinoRegistrarImpl">
+        <description>Provides Javascript Rhino (bundled with Sun/Oracle JDK)</description>
+    </component>
+    <component
+            name="Servlet Request ThreadLocal Persister"
+            key="servletRequestPersister"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ServletRequestHolder"
+            class="com.galeoconsulting.leonardinius.api.impl.ServletRequestHolderImpl">
+        <description>Servlet Request ThreadLocal Data holder</description>
+    </component>
+    <component
+            name="Servlet Velocity Context Helper"
+            key="servletVelocityHelper"
+            public="false"
+            interface="com.galeoconsulting.leonardinius.api.ServletVelocityHelper"
+            class="com.galeoconsulting.leonardinius.api.impl.ServletVelocityHelperImpl">
+        <description>Provides ServletVelocityHelper helper to be user in velocity templates</description>
+    </component>
+
+    <web-resource key="cli-js-css" name="Js and Css resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="cli.css" location="cli/cli.css">
+            <property key="content-type" value="text/css"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+
+        <resource type="download" name="jquery.console.js" location="jquery-console/jquery.console.js">
+            <property key="content-type" value="text/javascript"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+        <resource type="download" name="cli.js" location="cli/cli.js">
+            <property key="content-type" value="text/javascript"/>
+            <property key="charset" value="utf-8"/>
+        </resource>
+    </web-resource>
+
+    <web-section key="jira-cli-web-section"
+                 name="JIRA Administration Web-Section"
+                 location="system.admin"
+                 system="true" weight="101" application="jira">
+        <label key="cli.web.section.title"/>
+        <conditions type="OR">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
+        </conditions>
+    </web-section>
+
+    <web-item key="jira-exec-runner-web-item"
+              name="JIRA script executor link"
+              description="JIRA Admin panel script executor link"
+              section="system.admin/jira-cli-web-section"
+              weight="20" application="jira">
+        <label key="cli.web.section.runner_link"/>
+        <link linkId="jira_rest_exec_runner">/plugins/servlet/rest-script-runner/action/execute-statement.html?atl_token=${atl_token}</link>
+        <conditions type="OR">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
+        </conditions>
+    </web-item>
+
+    <web-item key="jira-cli-runner-web-item"
+              name="JIRA script list session link"
+              section="system.admin/jira-cli-web-section"
+              weight="10" application="jira">
+        <label key="cli.web.section.cli_link"/>
+        <link linkId="jira_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html?atl_token=${atl_token}
+        </link>
+        <conditions type="OR">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsSysAdminCondition"/>
+        </conditions>
+    </web-item>
+
+    <web-section key="confluence-cli-web-section"
+                 name="Confluence Administration Web-Section"
+                 location="system.admin"
+                 system="true" weight="101" application="confluence">
+        <label key="cli.web.section.title"/>
+        <conditions type="OR">
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SystemAdministratorOrSuperUserCondition"/>
+        </conditions>
+    </web-section>
+
+    <web-item key="confluence-exec-runner-web-item"
+              name="Confluence script executor Web-Section"
+              section="system.admin/confluence-cli-web-section"
+              weight="20" application="confluence">
+        <label key="cli.web.section.runner_link"/>
+        <link linkId="confluence_rest_exec_runner">
+            /plugins/servlet/rest-script-runner/action/execute-statement.html?#url_xsrfToken()
+        </link>
+    </web-item>
+
+    <web-item key="confluence-cli-runner-web-item"
+              name="Confluence script executor link"
+              description="Confluence Admin panel script executor link"
+              section="system.admin/confluence-cli-web-section"
+              weight="10" application="confluence">
+        <label key="cli.web.section.cli_link"/>
+        <link linkId="confluence_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html?#url_xsrfToken()
+        </link>
+    </web-item>
+
+    <web-section key="bamboo-cli-web-section"
+                 name="Bamboo Administration Web-Section"
+                 location="system.admin"
+                 system="true" weight="101" application="bamboo">
+        <label key="Script Runner"/>
+        <!--<conditions type="OR">-->
+        <!--<condition class="com.atlassian.bamboo.plugins.web.conditions.TopLevelPlanAdminTabCondition"/>-->
+        <!--</conditions>-->
+    </web-section>
+
+    <web-item key="bamboo-exec-runner-web-item"
+              name="Bamboo script executor Web-Section"
+              section="system.admin/bamboo-cli-web-section"
+              weight="20" application="bamboo">
+        <label key="Non-interactive session"/>
+        <link linkId="bamboo_rest_exec_runner">
+            /plugins/servlet/rest-script-runner/action/execute-statement.html
+        </link>
+    </web-item>
+
+    <web-item key="bamboo-cli-runner-web-item"
+              name="Bamboo script executor link"
+              description="Bamboo Admin panel script executor link"
+              section="system.admin/bamboo-cli-web-section"
+              weight="10" application="bamboo">
+        <label key="Manage CLI sessions"/>
+        <link linkId="bamboo_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html
+        </link>
+    </web-item>
+
+    <servlet-filter name="Servlet Request ThreadLocal Persister"
+                    key="servlet-state-persister-filter"
+                    class="com.galeoconsulting.leonardinius.servlet.ThreadLocalServletRequestPersisterFilter"
+                    location="before-dispatch"
+                    weight="200">
+        <description>Will store http servlet request (Thread Local) which will be available to Velocity Templates.</description>
+        <url-pattern>/plugins/servlet/rest-script-runner/action/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </servlet-filter>
+
+    <servlet name="Script Runner Web-interface" key="script-runner-servlet"
+             class="com.galeoconsulting.leonardinius.servlet.ScriptRunnerSessionServlet">
+        <description>Script Runner Web-interface.</description>
+        <url-pattern>/rest-script-runner/action/*</url-pattern>
+        <init-param>
+            <param-name>velocity-templates</param-name>
+            <param-value>execute-statement.html|/templates/exec-input.vm;
+                list-sessions.html|/templates/cli-list.vm;
+                cli-session.html|/templates/cli-input.vm
+            </param-value>
+        </init-param>
+    </servlet>
+
+
+    <template-context-item
+            key="applicationPropertiesContextItem"
+            component-ref="applicationProperties"
+            context-key="applicationProperties">
+        <description>SAL ApplicationProperties as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="scriptServiceContextItem"
+            component-ref="scriptService"
+            context-key="scriptService">
+        <description>com.galeoconsulting.leonardinius.api.ScriptService as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="scriptSessionManagerContextItem"
+            component-ref="scriptSessionManager"
+            context-key="scriptSessionManager">
+        <description>com.galeoconsulting.leonardinius.api.ScriptSessionManager as velocity template context item
+        </description>
+    </template-context-item>
+    <template-context-item
+            key="scriptRunnerResourceContextItem"
+            class="com.galeoconsulting.leonardinius.rest.service.ScriptRunner"
+            context-key="scriptRunnerResource"
+            name="Script Runner Context Item">
+        <description>Script Runner REST service as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="stringEscapeUtilsContextItem"
+            class="org.apache.commons.lang.StringEscapeUtils"
+            context-key="stringEscapeUtils"
+            name="Apache StringEscapeUtils Context Item">
+        <description>Apache StringEscapeUtils as velocity template context item</description>
+    </template-context-item>
+    <template-context-item
+            key="servletVelocityHelperContextItem"
+            context-key="servletVelocityHelper"
+            component-ref="servletVelocityHelper"
+            name="servletVelocityHelper Context Item">
+        <description>Apache StringEscapeUtils as velocity template context item</description>
+    </template-context-item>
+</atlassian-plugin>

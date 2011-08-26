@@ -16,10 +16,12 @@
 
 import com.sun.jersey.api.client.Client
 import com.sun.jersey.api.client.ClientResponse
+import com.sun.jersey.api.client.WebResource
 import com.sun.jersey.api.client.config.DefaultClientConfig
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
 import jline.ConsoleReader
+import org.apache.commons.lang.NotImplementedException
 import org.apache.commons.lang.StringEscapeUtils
 import org.apache.commons.lang.StringUtils
 import org.codehaus.jettison.json.JSONArray
@@ -30,6 +32,8 @@ public class RestCli
     private def Map options = [:]
     private javax.ws.rs.core.Cookie authCookie = null;
     private Client client;
+    private Application application = Application.JIRA;
+
 
     public RestCli(Map options)
     {
@@ -40,11 +44,15 @@ public class RestCli
     {
         this.options.clear();
         this.options.putAll(options)
-        authCookie = null;
+        if (this.options.application)
+        {
+            this.application = Enum.valueOf(Application.class, this.options.application.toString().toUpperCase())
+        }
+        cleanAuthCredentials()
         client = Client.create(new DefaultClientConfig());
     }
 
-    private def urljoin(String a, String b)
+    private def urlJoin(String a, String b)
     {
         if (a.endsWith('/')) a = a.substring(0, a.length() - 1)
         if (b.startsWith('/')) b = b.substring(1, b.length())
@@ -53,67 +61,67 @@ public class RestCli
 
     private def baseUrl()
     {
-        urljoin("${options.proto}://${options.host}:${options.port}", options.context)
+        urlJoin("${options.proto}://${options.host}:${options.port}", options.context)
     }
 
     private def loginUrl()
     {
-        urljoin(baseUrl(), "/rest/auth/latest/session")
+        urlJoin(baseUrl(), "/rest/auth/latest/session")
     }
 
     private def cliBaseUrl()
     {
-        urljoin(baseUrl(), "/rest/rest-scripting/1.0")
+        urlJoin(baseUrl(), "/rest/rest-scripting/1.0")
     }
 
-    RestCli login(def username, def password)
+    RestCli login()
     {
-        def cookie = client.resource(loginUrl())     //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
-                .post(JSONObject.class, new JSONObject('username': username, 'password': password))['session'];
+        application.login(this)
+        this;
+    }
 
-        authCookie = new NewCookie((String) cookie['name'], (String) cookie['value']);
+    private auth(WebResource resource)
+    {
+        application.authenticate(this, resource)
+    }
 
-        return this;
+    private cleanAuthCredentials()
+    {
+        authCookie = null
     }
 
     def logout()
     {
-        ClientResponse cr = client.resource(loginUrl()) //
-                .cookie(authCookie)                     //
-                .type(MediaType.APPLICATION_JSON)       //
-                .accept(MediaType.APPLICATION_JSON)     //
-                .delete(ClientResponse.class);
-
-        assert cr.status == 204;
-        authCookie = null;
-        cr
+        application.logout(this)
+        cleanAuthCredentials()
+        this
     }
 
     String attachSession()
     {
-        client.resource(cliBaseUrl()).path('/sessions')  //
-                .cookie(authCookie)                      //
-                .type(MediaType.APPLICATION_JSON)        //
-                .accept(MediaType.APPLICATION_JSON)      //
-                .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
+        auth(client.resource(cliBaseUrl())          //
+        .path('/sessions'))                         //
+        .type(MediaType.APPLICATION_JSON)           //
+        .accept(MediaType.APPLICATION_JSON)         //
+        .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
     }
 
     def deleteSession(String sessionId)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie) //
-                .delete(ClientResponse.class)
+        auth(client.resource(cliBaseUrl()) //
+        .path('/sessions') //
+        .path(sessionId))  //
+        .delete(ClientResponse.class)
     }
 
     List<String> listSessions()
     {
-        JSONObject response = client.resource(cliBaseUrl()).path('/sessions') //  )                 //
-                .queryParam('language', 'groovy')        //
-                .cookie(authCookie) //                   //
-                .type(MediaType.APPLICATION_JSON)        //
-                .accept(MediaType.APPLICATION_JSON)      //
-                .get(JSONObject.class);
+        JSONObject response = auth(client.resource(cliBaseUrl()) //
+        .path('/sessions')                       //
+        .queryParam('language', 'groovy'))       //
+        .type(MediaType.APPLICATION_JSON)        //
+        .accept(MediaType.APPLICATION_JSON)     //
+        .get(JSONObject.class);
         JSONArray sessions = (JSONArray) response['sessions']
         def sessionIds = [];
         for (int i = 0; i < sessions.length(); i++)
@@ -125,10 +133,12 @@ public class RestCli
 
     JSONObject eval_input(String sessionId, String scriptText)
     {
-        client.resource(cliBaseUrl()).path('/sessions').path(sessionId).cookie(authCookie)                  //
-                .type(MediaType.APPLICATION_JSON)    //
-                .accept(MediaType.APPLICATION_JSON)  //
-                .post(JSONObject.class, new JSONObject('script': scriptText))
+        auth(client.resource(cliBaseUrl()) //
+        .path('/sessions')                    //
+        .path(sessionId))                     //
+        .type(MediaType.APPLICATION_JSON)     //
+        .accept(MediaType.APPLICATION_JSON)   //
+        .post(JSONObject.class, new JSONObject('script': scriptText))
     }
 
     def doWithSession(sessionId = null, Closure closure)
@@ -245,7 +255,10 @@ public class RestCli
         message = StringUtils.defaultIfEmpty(message, e.getMessage())
         if (jso.has('out') && jso['out'] != '') println jso['out']
         if (jso.has('err') && jso['err'] != '') System.err.println jso['err']
-        System.err.println("----\nError: ${message}")
+        System.err.println("----\nError: ${message}\n"
+                + "Response: ${e.response?.entityInputStream?.readLines()?.join("\n\t")}\n"
+                + "Status: ${e.response.clientResponseStatus}\n"
+                + "Headers: ${e.response.headers}")
     }
 
     public static void main(String[] args)
@@ -262,6 +275,9 @@ public class RestCli
         cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate cli session')
         cli.n(longOpt: 'new-session', 'will create new session and exit immediately')
         cli.f(longOpt: 'file', args: 1, argName: 'file', 'will read file and evaluate it\'s contents. use - for stdin')
+
+        cli.a(longOpt: 'application', args: 1, argName: 'application', 'atlassian application. defaults to jira')
+
         cli.help('print this message')
 
         def options = cli.parse(args)
@@ -286,12 +302,16 @@ public class RestCli
         try
         {
             def selfOptions = [:]
+            selfOptions.user = options.user
+            selfOptions.password = options.password
             selfOptions.port = !options.port ? 80 : options.port
             selfOptions.proto = !options.proto ? (options.port == 443 ? 'https' : 'http') : options.proto
             selfOptions.host = options.host
             selfOptions.context = !options.context ? '' : options.context
 
-            repl = new RestCli(selfOptions).login(options.user, options.password)
+            selfOptions.application = !options.application ? 'jira' : options.application
+
+            repl = new RestCli(selfOptions).login()
 
             if (options.'new-session')
             {
@@ -338,9 +358,9 @@ public class RestCli
     {
         Reader reader = new InputStreamReader(is)
         StringWriter sw = new StringWriter()
-        char[] cbuf = new char[4 * 1024]
-        for (int charsRead = reader.read(cbuf); charsRead != -1; charsRead = reader.read(cbuf))
-            sw.write(cbuf, 0, charsRead);
+        char[] charBuffer = new char[4 * 1024]
+        for (int charsRead = reader.read(charBuffer); charsRead != -1; charsRead = reader.read(charBuffer))
+            sw.write(charBuffer, 0, charsRead);
         return sw.toString()
     }
 
@@ -361,4 +381,66 @@ public class RestCli
         repl.repl(asSessionId(sessionId))
     }
 
+    def __restLogin()
+    {
+        Object cookie = client.resource(loginUrl())     //
+        .type(MediaType.APPLICATION_JSON)    //
+        .accept(MediaType.APPLICATION_JSON)  //
+        .post(JSONObject.class, new JSONObject('username': options.user, 'password': options.password))['session'];
+
+        authCookie = new NewCookie((String) cookie['name'],
+                (String) cookie['value']);
+    }
+
+    def __restLogout()
+    {
+        ClientResponse cr = __cookieAuth(client.resource(loginUrl())) //
+        .type(MediaType.APPLICATION_JSON)      //
+        .accept(MediaType.APPLICATION_JSON)    //
+        .delete(ClientResponse.class);
+
+        assert cr.status == 204;
+        cr
+    }
+
+    def __base64Auth(WebResource resource)
+    {
+        String authString = "${options.user}:${options.password}".getBytes().encodeBase64().toString()
+        return resource.header('Authorization', "Basic ${authString}")
+    }
+
+    def __cookieAuth(WebResource resource)
+    {
+        resource.cookie(authCookie)
+    }
+
+}
+
+enum Application {
+    JIRA {
+        Object login(RestCli cli) { cli.__restLogin() }
+
+        Object logout(RestCli cli) { cli.__restLogout() }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__cookieAuth(resource) }
+    }, CONFLUENCE {
+        Object login(RestCli cli) { cli }
+
+        Object logout(RestCli cli) { cli }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__base64Auth(resource) }
+
+    }, BAMBOO {
+        Object login(RestCli cli) { cli }
+
+        Object logout(RestCli cli) { cli }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__base64Auth(resource) }
+    };
+
+    Object login(RestCli cli) { throw new NotImplementedException()}
+
+    Object logout(RestCli cli) { throw new NotImplementedException()}
+
+    Object authenticate(RestCli cli, WebResource resource) {throw new NotImplementedException()}
 }

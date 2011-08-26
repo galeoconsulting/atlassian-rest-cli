@@ -1,0 +1,126 @@
+#* @vtlvariable name="servletVelocityHelper" type="com.galeoconsulting.leonardinius.api.ServletVelocityHelper" *#
+#* @vtlvariable name="applicationProperties" type="com.atlassian.sal.api.ApplicationProperties" *#
+#* @vtlvariable name="webResourceManager" type="com.atlassian.plugin.webresource.WebResourceManager" *#
+#* @vtlvariable name="stringEscapeUtils" type="org.apache.commons.lang.StringEscapeUtils" *#
+#*
+    Copyright 2011 Leonid Maslov<leonidms@gmail.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*#
+
+<html>
+<head>
+    <meta name="decorator" content="atl.admin"/>
+    <title>Cli session list</title>
+</head>
+<body>
+    $webResourceManager.requireResource("com.galeoconsulting.leonardinius.rest-cli-runner:cli-js-css")
+
+<script type="text/javascript">
+    (function(j$)
+    {
+        com.galeoconsulting.leonardinius.restcli._makeNewSession = function makeNewSession(self)
+        {
+            com.galeoconsulting.leonardinius.restcli.newSession({
+                baseUrl :   "${applicationProperties.baseUrl}",
+                data    : JSON.stringify({language : j$('#cli-language').val()}),
+                success : function(data)
+                {
+                    window.location.reload(true);
+                }
+            });
+        };
+
+        com.galeoconsulting.leonardinius.restcli._deleteSessionSession = function deleteSessionSession(link)
+        {
+            var sessionId = j$(link).siblings('input[type=hidden]').val();
+            if (confirm(AJS.format('Are you sure you want to drop session {0}?', sessionId)))
+            {
+                com.galeoconsulting.leonardinius.restcli.deleteSession({
+                    baseUrl : "${applicationProperties.baseUrl}",
+                    data    : {sessionId : sessionId},
+                    success : function(noData)
+                    {
+                        window.location.reload(true);
+                    }
+                });
+            }
+        };
+    })(jQuery);
+</script>
+
+<!--suppress HtmlDeprecatedTag -->
+<table class="grid" width="99%">
+    <tr>
+        <td class="grid">
+            <h3 class="formtitle">REST Cli sessions</h3></td>
+    </tr>
+    <tr>
+        <td class="grid">
+            <div>
+                <label for="cli-language"><strong>Create new session:</strong></label>
+                <select id="cli-language">
+                    #foreach($lng in $servletVelocityHelper.registeredLanguages)
+                        <option value="$stringEscapeUtils.escapeHtml($lng.name.toLowerCase())">$stringEscapeUtils.escapeHtml($lng.name)
+                            - $stringEscapeUtils.escapeHtml($lng.version)</option>
+                    #end
+                </select>
+                &nbsp;<a href="#" onclick="com.galeoconsulting.leonardinius.restcli._makeNewSession(this); return false;">create</a>
+                &nbsp;<cite><a href="#" onclick="window.location.reload(true); return false;">refresh</a></cite>.
+                <br/>
+                <hr/>
+
+                <table class="grid centered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>SessionId</th>
+                        <th>Creator user</th>
+                        <th>Language</th>
+                        <th>Version</th>
+                        <th style="min-width: 100px;">Created &darr;</th>
+                        <th>Operations</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        #foreach($session in $servletVelocityHelper.allSessionBeans)
+                        <tr class="rowNormal">
+                            <td>${stringEscapeUtils.escapeHtml($session.sessionId)}</td>
+                            <td>
+                                <a href="${applicationProperties.baseUrl}${stringEscapeUtils.escapeHtml($session.creator.profilePageUri.toString())}">
+                                    ${stringEscapeUtils.escapeHtml("${session.creator.username}")}:
+                                    <em>${stringEscapeUtils.escapeHtml("(${session.creator.fullName}
+                                        <${session.creator.email}
+                                        >)")}</em>
+                                </a></td>
+                            <td>${stringEscapeUtils.escapeHtml($session.language)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.version)}</td>
+                            <td>${stringEscapeUtils.escapeHtml($session.createdAt)}</td>
+
+                            <td>
+                                <input type="hidden" value="${stringEscapeUtils.escapeHtml($session.sessionId)}"/>
+                                <a href="${applicationProperties.baseUrl}/plugins/servlet/rest-script-runner/action/cli-session.html?atl_token=$!{servletVelocityHelper.getRequestParameter("atl_token")}&sessionId=${stringEscapeUtils.escapeHtml($session.sessionId)}">
+                                    Connect</a> |
+                                <a href="#" onclick="com.galeoconsulting.leonardinius.restcli._deleteSessionSession(this); return false;">Delete</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+                <hr/>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
