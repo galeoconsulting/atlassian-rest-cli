@@ -157,6 +157,12 @@
                             <productDataVersion>${confluence.data.version}</productDataVersion>
                             <output>${project.build.directory}/confluence-${confluence.version}.log</output>
                         </product>
+                        <product>
+                            <id>bamboo</id>
+                            <version>${bamboo.version}</version>
+                            <productDataVersion>${bamboo.data.version}</productDataVersion>
+                            <output>${project.build.directory}/bamboo-${bamboo.version}.log</output>
+                        </product>
                     </products>
                 </configuration>
             </plugin>
@@ -229,6 +235,9 @@
 
         <confluence.version>3.5</confluence.version>
         <confluence.data.version>3.5</confluence.data.version>
+
+        <bamboo.version>3.2.2</bamboo.version>
+        <bamboo.data.version></bamboo.data.version>
     </properties>
 
     <modules>

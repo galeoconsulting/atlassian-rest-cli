@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 import com.sun.jersey.api.client.Client
 import com.sun.jersey.api.client.ClientResponse
 import com.sun.jersey.api.client.WebResource
@@ -432,7 +430,13 @@ enum Application {
 
         Object authenticate(RestCli cli, WebResource resource) { cli.__base64Auth(resource) }
 
-    }, BAMBOO;
+    }, BAMBOO {
+        Object login(RestCli cli) { cli }
+
+        Object logout(RestCli cli) { cli }
+
+        Object authenticate(RestCli cli, WebResource resource) { cli.__base64Auth(resource) }
+    };
 
     Object login(RestCli cli) { throw new NotImplementedException()}
 

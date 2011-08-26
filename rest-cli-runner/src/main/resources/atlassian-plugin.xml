@@ -154,7 +154,7 @@
     </web-item>
 
     <web-section key="confluence-cli-web-section"
-                 name="JIRA Administration Web-Section"
+                 name="Confluence Administration Web-Section"
                  location="system.admin"
                  system="true" weight="101" application="confluence">
         <label key="cli.web.section.title"/>
@@ -181,6 +181,37 @@
         <label key="cli.web.section.cli_link"/>
         <link linkId="confluence_rest_cli_runner">
             /plugins/servlet/rest-script-runner/action/list-sessions.html?#url_xsrfToken()
+        </link>
+    </web-item>
+
+    <web-section key="bamboo-cli-web-section"
+                 name="Bamboo Administration Web-Section"
+                 location="system.admin"
+                 system="true" weight="101" application="bamboo">
+        <label key="Script Runner"/>
+        <!--<conditions type="OR">-->
+        <!--<condition class="com.atlassian.bamboo.plugins.web.conditions.TopLevelPlanAdminTabCondition"/>-->
+        <!--</conditions>-->
+    </web-section>
+
+    <web-item key="bamboo-exec-runner-web-item"
+              name="Bamboo script executor Web-Section"
+              section="system.admin/bamboo-cli-web-section"
+              weight="20" application="bamboo">
+        <label key="Non-interactive session"/>
+        <link linkId="bamboo_rest_exec_runner">
+            /plugins/servlet/rest-script-runner/action/execute-statement.html
+        </link>
+    </web-item>
+
+    <web-item key="bamboo-cli-runner-web-item"
+              name="Bamboo script executor link"
+              description="Bamboo Admin panel script executor link"
+              section="system.admin/bamboo-cli-web-section"
+              weight="10" application="bamboo">
+        <label key="Manage CLI sessions"/>
+        <link linkId="bamboo_rest_cli_runner">
+            /plugins/servlet/rest-script-runner/action/list-sessions.html
         </link>
     </web-item>
 
