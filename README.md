@@ -44,7 +44,7 @@ I would really appreciate if you will think out other use-cases and will report 
 ##How to start?
 *  Build project
 
-        git clone git@github.com:leonardinius/jira-rest-cli.git
+        git clone git@github.com:leonardinius/atlassian-rest-cli.git
         cd jira-rest-cli/
         git submodule init
         git submodule update
