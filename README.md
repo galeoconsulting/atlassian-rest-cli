@@ -62,7 +62,7 @@ session mgmt admin interface, Rhino language support.
 * [rest-cli-jruby-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/rest-cli-jruby-1.1-SNAPSHOT.jar) - JRuby support
 * [rest-cli-groovy-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/rest-cli-groovy-1.1-SNAPSHOT.jar) - Groovy support
 * [groovy-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/groovy-rest-client-1.1-SNAPSHOT.jar) - Groovy rest-cli-groovy.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
-* [jruby-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/jruby-rest-client-1.1-SNAPSHOT.jar) - JRuby rest-cli-jruby.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
+* [ruby-rest-client-1.1-SNAPSHOT.jar](http://dl.dropbox.com/u/379506/rest-cli-1.1/ruby-rest-client-1.1-SNAPSHOT.jar) - JRuby rest-cli-jruby.sh client, with command line options to execute arbitrary scripts, list/create/delete sessions, start REPL mode. 
  
 NB: You can see some screenshots in action [here](http://leonardinius.blogspot.com/2011/03/release-announcement-jira-rest-cli-05.html).
 
