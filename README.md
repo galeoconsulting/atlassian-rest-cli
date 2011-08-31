@@ -8,9 +8,9 @@ Atlassian plugin which provides a possibility to use your favorite programming l
 
 ###Working modes
 
-* JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuous working session support and no
+* Web-executor interface - allows to execute script input from admin interface, no continuous working session support and no
 working context preservation between invocations.
-* JIRA web-cli interface - allows to create and manage working scripting sessions from Jira admin interface, connect to them and execute
+* Web-cli interface - allows to create and manage working scripting sessions from admin interface, connect to them and execute
 script code in the scripting session context - state is preserved between invocations.
 * The are sample console clients available (Ruby, Groovy) which work similar to interactive language shells (irb, groovysh).
 * Sample JIRA configuration scripts.
@@ -40,6 +40,8 @@ and provide possibility to easily extend workflows (Jira Scripting Suite, Script
 to built-in remote access (Python CLI for JIRA).
 The thing I've missed here - is to play with Jira API in the realtime, see what's inside of teddy bear looks like and the ability to use
 the same approach to automate certain operations (e.g. configuration deployment).
+
+The  atlassian-rest-cli tool at the moment makes a step little bit further - it allows to use the same REST cli infrastructure with the Atlassian product line (see supported products above). 
 
 ##How could I use it?
 When working with it I have several use-cases in mind:
