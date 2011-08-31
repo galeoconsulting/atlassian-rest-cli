@@ -1,10 +1,11 @@
 ##Introduction
 Atlassian plugin which provides a possibility to use your favorite programming language to script and interact with Atlassian product server realtime. 
 Supported products (at the moment) are:
+
 * Jira 4.3
 * Confluence 3.5
 * Bamboo 3.2.2
-* 
+
 The plugin provide following working modes:
 
 * JIRA web-executor interface - allows to execute script input from Jira admin interface, no continuous working session support and no
