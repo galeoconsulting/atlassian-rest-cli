@@ -45,15 +45,17 @@ The  atlassian-rest-cli tool at the moment makes a step little bit further - it 
 
 ##How could I use it?
 When working with it I have several use-cases in mind:
-Use it as console-tool to script and automate certain configuration changes (local development; staging etc development deployment)
-Use it as a tool to play with JIRA system API at realtime (local development needs)
+
+* Use it as console-tool to script and automate certain configuration changes (local development; staging etc development deployment)
+* Use it as a tool to play with Atlassian product system API at realtime (local development needs)
+
 I would really appreciate if you will think out other use-cases and will report them back to me. So do it :)
 
 ##How to start?
 *  Build project
 
         git clone git@github.com:leonardinius/atlassian-rest-cli.git
-        cd jira-rest-cli/
+        cd atlassian-rest-cli/
         git submodule init
         git submodule update
         cd rest-cli-parent/
