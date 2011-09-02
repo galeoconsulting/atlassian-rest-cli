@@ -99,9 +99,7 @@ public class ScriptRunner implements DisposableBean {
     public void destroy() throws Exception {
         final Map<SessionId, ScriptSession> idSessionMap = sessionManager.listAllSessions();
         if (idSessionMap != null && !idSessionMap.isEmpty()) {
-            LOG.warn("Alive sessions are found." +
-                    " Will be destroyed." +
-                    " Session IDs are: {}",
+            LOG.warn("Alive sessions are found and shall be destroyed: {}",
                     Joiner.on(',')
                             .skipNulls()
                             .join(Iterables.transform(idSessionMap.keySet(),
