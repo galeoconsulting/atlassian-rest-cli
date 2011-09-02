@@ -24,8 +24,10 @@ import com.galeoconsulting.leonardinius.api.ScriptService;
 import com.galeoconsulting.leonardinius.api.ScriptSessionManager;
 import com.galeoconsulting.leonardinius.rest.CacheControl;
 import com.galeoconsulting.leonardinius.rest.ErrorCollection;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.uri.UriBuilderImpl;
@@ -36,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -69,6 +72,8 @@ public class ScriptRunner implements DisposableBean {
 
     private static final String PERMISSION_DENIED_USER_DO_NOT_HAVE_SYSTEM_ADMINISTRATOR_RIGHTS = "Permission denied: user do not have system administrator rights!";
 
+    private static final String CLASS_NAME = ScriptRunner.class.getName();
+
     private final ScriptService scriptService;
     private final ScriptSessionManager sessionManager;
 
@@ -92,11 +97,30 @@ public class ScriptRunner implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        final Map<SessionId, ScriptSession> idSessionMap = sessionManager.listAllSessions();
+        if (idSessionMap != null && !idSessionMap.isEmpty()) {
+            LOG.warn("Alive sessions are found." +
+                    " Will be destroyed." +
+                    " Session IDs are: {}",
+                    Joiner.on(',')
+                            .skipNulls()
+                            .join(Iterables.transform(idSessionMap.keySet(),
+                                    new Function<SessionId, Object>() {
+                                        @Override
+                                        public Object apply(@Nullable SessionId sessionId) {
+                                            if (sessionId != null) {
+                                                return sessionId.getSessionId();
+                                            }
+                                            return null;
+                                        }
+                                    })));
+        }
         sessionManager.clear();
     }
 
 // -------------------------- OTHER METHODS --------------------------
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public URI buildSelfLink(String query) {
         URI base = URI.create(applicationProperties.getBaseUrl()).normalize();
         return new UriBuilderImpl()
@@ -110,7 +134,7 @@ public class ScriptRunner implements DisposableBean {
     @Path("/sessions/{" + SESSION_ID + "}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
-    public Response cli(@PathParam(SESSION_ID) final String sessionId, ScriptText script) {
+    public Response cli_eval(@PathParam(SESSION_ID) final String sessionId, EvalScript evalScript) {
         if (!isAdministrator()) {
             return responseForbidden();
         }
@@ -126,7 +150,10 @@ public class ScriptRunner implements DisposableBean {
 
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try {
-            return responseEvalOk(eval(scriptSession.getScriptEngine(), script.getScript(), consoleOutputBean));
+            return responseEvalOk(
+                    eval(scriptSession.getScriptEngine(),
+                            evalScript.getScript(), evalScript.getBindings(),
+                            consoleOutputBean));
         } catch (ScriptException e) {
             //LOG.error("Script exception", e);
             return responseScriptError(e,
@@ -176,16 +203,22 @@ public class ScriptRunner implements DisposableBean {
         return Response.ok(entity).cacheControl(CacheControl.NO_CACHE).build();
     }
 
-    private ConsoleOutputBean eval(ScriptEngine engine, String scriptText, final ConsoleOutputBean consoleOutputBean) throws ScriptException {
+    private ConsoleOutputBean eval(ScriptEngine engine, String evalScript, Map<String, ?> bindings, final ConsoleOutputBean consoleOutputBean) throws ScriptException {
         updateBindings(engine, ScriptContext.ENGINE_SCOPE, new HashMap<String, Object>() {{
             put("out", new PrintWriter(consoleOutputBean.getOut(), true));
             put("err", new PrintWriter(consoleOutputBean.getErr(), true));
         }});
+
+        if (bindings != null
+                && !bindings.isEmpty()) {
+            updateBindings(engine, ScriptContext.ENGINE_SCOPE, bindings);
+        }
+
         engine.getContext().setWriter(consoleOutputBean.getOut());
         engine.getContext().setErrorWriter(consoleOutputBean.getErr());
         engine.getContext().setReader(new NullReader(0));
 
-        consoleOutputBean.setEvalResult(engine.eval(scriptText, engine.getContext()));
+        consoleOutputBean.setEvalResult(engine.eval(evalScript, engine.getContext()));
 
         return consoleOutputBean;
     }
@@ -201,8 +234,7 @@ public class ScriptRunner implements DisposableBean {
     }
 
     private Response responseScriptError(final Throwable th, String out, String err) {
-        return responseError(
-                new ScriptErrors(createErrorCollection(ImmutableList.<String>of(getStackTrace(th))), out, err));
+        return responseError(new ScriptErrors(createErrorCollection(ImmutableList.<String>of(getStackTrace(th))), out, err));
     }
 
     private String getStackTrace(Throwable th) {
@@ -212,7 +244,7 @@ public class ScriptRunner implements DisposableBean {
 
         List<StackTraceElement> elements = Lists.newArrayList();
         for (StackTraceElement st : th.getStackTrace()) {
-            if (st.getClassName().equals(getClass().getName()))
+            if (st.getClassName().equals(CLASS_NAME))
                 break;
             elements.add(st);
         }
@@ -256,7 +288,8 @@ public class ScriptRunner implements DisposableBean {
 
         ConsoleOutputBean consoleOutputBean = new ConsoleOutputBean();
         try {
-            return responseEvalOk(eval(engine, script.getScript(), consoleOutputBean));
+            return responseEvalOk(
+                    eval(engine, script.getScript(), script.getBindings(), consoleOutputBean));
         } catch (ScriptException e) {
             //LOG.error("Script exception", e);
             return responseScriptError(e,
@@ -330,12 +363,15 @@ public class ScriptRunner implements DisposableBean {
 
         ScriptEngine engine;
         try {
-            engine = createScriptEngine(language.language, new Script("", "cli", ImmutableList.<String>of()));
+            engine = createScriptEngine(language.getLanguage(),
+                    new Script("", "cli", ImmutableList.<String>of(), ImmutableMap.<String, String>of()));
         } catch (IllegalArgumentException e) {
             return responseInternalError(Arrays.asList((e.getMessage())));
         }
 
-        SessionId sessionId = sessionManager.putSession(ScriptSession.newInstance(getActorName(userManager.getRemoteUsername()), engine));
+        SessionId sessionId = sessionManager.putSession(
+                ScriptSession.newInstance(getActorName(userManager.getRemoteUsername()), engine));
+
         return Response.ok(new SessionIdWrapper(sessionId.getSessionId(),
                 LanguageUtils.getLanguageName(engine.getFactory()),
                 LanguageUtils.getVersionString(engine.getFactory())))
@@ -351,6 +387,21 @@ public class ScriptRunner implements DisposableBean {
     @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
     public static class Language {
+        public Language() {
+        }
+
+        public Language(String language) {
+            this.language = language;
+        }
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            this.language = language;
+        }
+
         @XmlElement
         private String language;
     }
@@ -407,10 +458,11 @@ public class ScriptRunner implements DisposableBean {
         public Script() {
         }
 
-        public Script(String script, String filename, List<String> argv) {
+        public Script(String script, String filename, List<String> argv, Map<String, String> bindings) {
             this.script = script;
             this.filename = filename;
             this.argv = argv;
+            this.bindings = bindings;
         }
 
         @XmlElement
@@ -421,6 +473,17 @@ public class ScriptRunner implements DisposableBean {
 
         @XmlElement
         private List<String> argv;
+
+        @XmlElement
+        private Map<String, String> bindings;
+
+        public Map<String, String> getBindings() {
+            return bindings;
+        }
+
+        public void setBindings(Map<String, String> bindings) {
+            this.bindings = bindings;
+        }
 
         public String getScript() {
             return script;
@@ -620,9 +683,16 @@ public class ScriptRunner implements DisposableBean {
 
     @SuppressWarnings({"UnusedDeclaration"})
     @XmlRootElement
-    public static class ScriptText {
+    public static class EvalScript {
         @XmlElement
         private String script;
+
+        @XmlElement
+        private Map<String, String> bindings;
+
+        public void setBindings(Map<String, String> bindings) {
+            this.bindings = bindings;
+        }
 
         public String getScript() {
             return script;
@@ -630,6 +700,10 @@ public class ScriptRunner implements DisposableBean {
 
         public void setScript(String script) {
             this.script = script;
+        }
+
+        public Map<String, String> getBindings() {
+            return bindings;
         }
     }
 }
