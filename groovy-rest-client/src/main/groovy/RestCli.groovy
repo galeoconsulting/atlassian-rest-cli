@@ -27,78 +27,65 @@ import org.apache.commons.lang.StringUtils
 import org.codehaus.jettison.json.JSONArray
 import org.codehaus.jettison.json.JSONObject
 
-public class RestCli
-{
+public class RestCli {
     private def Map options = [:]
     private javax.ws.rs.core.Cookie authCookie = null;
     private Client client;
     private Application application = Application.JIRA;
 
 
-    public RestCli(Map options)
-    {
+    public RestCli(Map options) {
         init(options)
     }
 
-    private def init(Map options)
-    {
+    private def init(Map options) {
         this.options.clear();
         this.options.putAll(options)
-        if (this.options.application)
-        {
+        if (this.options.application) {
             this.application = Enum.valueOf(Application.class, this.options.application.toString().toUpperCase())
         }
         cleanAuthCredentials()
         client = Client.create(new DefaultClientConfig());
     }
 
-    private def urlJoin(String a, String b)
-    {
+    private def urlJoin(String a, String b) {
         if (a.endsWith('/')) a = a.substring(0, a.length() - 1)
         if (b.startsWith('/')) b = b.substring(1, b.length())
         "${a}/${b}"
     }
 
-    private def baseUrl()
-    {
+    private def baseUrl() {
         urlJoin("${options.proto}://${options.host}:${options.port}", options.context)
     }
 
-    private def loginUrl()
-    {
+    private def loginUrl() {
         urlJoin(baseUrl(), "/rest/auth/latest/session")
     }
 
-    private def cliBaseUrl()
-    {
+    private def cliBaseUrl() {
         urlJoin(baseUrl(), "/rest/rest-scripting/1.0")
     }
 
-    RestCli login()
-    {
+    RestCli login() {
         application.login(this)
         this;
     }
 
-    private auth(WebResource resource)
-    {
+    private auth(WebResource resource) {
         application.authenticate(this, resource)
     }
 
-    private cleanAuthCredentials()
-    {
+    private cleanAuthCredentials() {
         authCookie = null
     }
 
-    def logout()
-    {
+    def logout() {
         application.logout(this)
         cleanAuthCredentials()
         this
     }
 
-    String attachSession()
-    {
+    String attachSession() {
         auth(client.resource(cliBaseUrl())          //
         .path('/sessions'))                         //
         .type(MediaType.APPLICATION_JSON)           //
@@ -106,16 +93,14 @@ public class RestCli
         .put(JSONObject.class, new JSONObject('language': 'groovy'))['sessionId']
     }
 
-    def deleteSession(String sessionId)
-    {
+    def deleteSession(String sessionId) {
         auth(client.resource(cliBaseUrl()) //
         .path('/sessions') //
         .path(sessionId))  //
         .delete(ClientResponse.class)
     }
 
-    List<String> listSessions()
-    {
+    List<String> listSessions() {
         JSONObject response = auth(client.resource(cliBaseUrl()) //
         .path('/sessions')                       //
         .queryParam('language', 'groovy'))       //
@@ -124,25 +109,22 @@ public class RestCli
         .get(JSONObject.class);
         JSONArray sessions = (JSONArray) response['sessions']
         def sessionIds = [];
-        for (int i = 0; i < sessions.length(); i++)
-        {
+        for (int i = 0; i < sessions.length(); i++) {
             sessionIds.add(sessions.get(i)['sessionId'])
         }
         (sessionIds as List<String>)
     }
 
-    JSONObject eval_input(String sessionId, String scriptText)
-    {
+    JSONObject eval_input(String sessionId, String scriptText, Properties properties) {
         auth(client.resource(cliBaseUrl()) //
         .path('/sessions')                    //
         .path(sessionId))                     //
         .type(MediaType.APPLICATION_JSON)     //
         .accept(MediaType.APPLICATION_JSON)   //
-        .post(JSONObject.class, new JSONObject('script': scriptText))
+        .post(JSONObject.class, new JSONObject('script': scriptText, 'bindings': properties))
     }
 
-    def doWithSession(sessionId = null, Closure closure)
-    {
+    def doWithSession(sessionId = null, Closure closure) {
         def evaluationResult
         boolean killSessionOnExit = false
 
@@ -155,14 +137,11 @@ public class RestCli
                 tmp
             }() : sessionId;
 
-        try
-        {
+        try {
             evaluationResult = closure(sessionId)
         }
-        finally
-        {
-            if (sessionId != null && killSessionOnExit)
-            {
+        finally {
+            if (sessionId != null && killSessionOnExit) {
                 println "Session state cleanup: ${sessionId}"
                 deleteSession(sessionId)
             }
@@ -171,33 +150,28 @@ public class RestCli
         evaluationResult
     }
 
-    private def defaultEval(String sessionId, String text)
-    {
-        try
-        {
-            def result = eval_input(sessionId, text)
+    private def defaultEval(String sessionId, String text, Properties properties) {
+        try {
+            def result = eval_input(sessionId, text, properties)
 
             if (result['out'] != '') println result['out']
             if (result['err'] != '') System.err.println result['err']
             println "rest-cli=> ${result.has('evalResult') ? result['evalResult'] : null}"
             return result
         }
-        catch (com.sun.jersey.api.client.UniformInterfaceException e)
-        {
+        catch (com.sun.jersey.api.client.UniformInterfaceException e) {
             defaultHandleError(e)
             return e
         }
     }
 
-    def execute(String sessionId, String text)
-    {
+    def execute(String sessionId, Properties properties, String text) {
         doWithSession sessionId, { session ->
-            defaultEval(session, text)
+            defaultEval(session, text, properties)
         }
     }
 
-    def repl(String sessionId = null)
-    {
+    def repl(String sessionId = null, Properties properties) {
         println """
 *********************************************
 **  JIRA REST-Groovy-Cli command line      **
@@ -210,12 +184,10 @@ public class RestCli
             def lines = [];
             def i = 1;
 
-            loopCond: for (;;)
-            {
+            loopCond: for (;;) {
                 printf("rest-cli(%1\$05d)>> ", i++)
                 String line = console.readLine();
-                switch (line.trim())
-                {
+                switch (line.trim()) {
                     case '!q':
                     case 'quit':
                     case 'exit':
@@ -236,12 +208,10 @@ public class RestCli
 
 
 
-    private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e)
-    {
+    private static def defaultHandleError(com.sun.jersey.api.client.UniformInterfaceException e) {
         JSONObject jso = e.response.getEntity(JSONObject.class)
         String message = '';
-        if (jso != null)
-        {
+        if (jso != null) {
             if (jso.has('error'))                                                // server error
                 message = jso['error']
             else if (jso.has('errorMessages'))                                   // app internal errors (validations, assertions)
@@ -261,8 +231,7 @@ public class RestCli
                 + "Headers: ${e.response.headers}")
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         CliBuilder cli = new CliBuilder(usage: 'rest-cli-groovy -h <host> -u <user> -w <password> [options]')
         cli.h(required: true, longOpt: 'host', args: 1, argName: 'host', 'server hostname')
         cli.p(longOpt: 'port', args: 1, argName: 'port', 'server port. defaults to [80]')
@@ -275,6 +244,8 @@ public class RestCli
         cli.d(longOpt: 'drop-session', args: 1, argName: 'cli-session-id', 'will terminate cli session')
         cli.n(longOpt: 'new-session', 'will create new session and exit immediately')
         cli.f(longOpt: 'file', args: 1, argName: 'file', 'will read file and evaluate it\'s contents. use - for stdin')
+        cli.p(longOpt: 'params', args: 1, argName: 'params', 'will read params file (e.g. params.properties)'
+                + ' and send it with the script.Note: Effective with -file argument only.')
 
         cli.a(longOpt: 'application', args: 1, argName: 'application', 'atlassian application. defaults to jira')
 
@@ -282,13 +253,11 @@ public class RestCli
 
         def options = cli.parse(args)
 
-        if (options == null || !options)
-        {
+        if (options == null || !options) {
             return;
         }
 
-        if (options.help)
-        {
+        if (options.help) {
             cli.usage()
             return;
         }
@@ -296,11 +265,9 @@ public class RestCli
         doMain(options)
     }
 
-    private static void doMain(def options)
-    {
+    private static void doMain(def options) {
         RestCli repl = null;
-        try
-        {
+        try {
             def selfOptions = [:]
             selfOptions.user = options.user
             selfOptions.password = options.password
@@ -313,49 +280,47 @@ public class RestCli
 
             repl = new RestCli(selfOptions).login()
 
-            if (options.'new-session')
-            {
+            if (options.'new-session') {
                 println repl.attachSession()
                 System.exit(0)
             }
 
-            if (options.'list-sessions')
-            {
+            if (options.'list-sessions') {
                 def List sessions = repl.listSessions()
                 println "Active groovy sessions ($sessions.size): ${sessions.join(", ")}"
                 System.exit(0)
             }
 
-            if (options.'drop-session')
-            {
+            if (options.'drop-session') {
                 println "Deleting cli-session: ${options.'drop-session'}"
                 repl.deleteSession(options.'drop-session')
                 System.exit(0)
             }
 
-            if (options.file)
-            {
-                doEval(options.session, options.file, repl)
+            Properties properties = null;
+            if (options.params != null && options.params != "") {
+                properties = new Properties()
+                properties.load(new FileInputStream(options.params))
+            }
+
+            if (options.file) {
+                doEval(options.session, options.file, properties, repl)
                 System.exit(0)
             }
 
-            doRepl(options.session, repl)
+            doRepl(options.session, properties, repl)
         }
-        catch (com.sun.jersey.api.client.UniformInterfaceException e)
-        {
+        catch (com.sun.jersey.api.client.UniformInterfaceException e) {
             defaultHandleError(e)
         }
-        finally
-        {
-            if (repl != null)
-            {
+        finally {
+            if (repl != null) {
                 repl.logout()
             }
         }
     }
 
-    static def String readFully(InputStream is)
-    {
+    static def String readFully(InputStream is) {
         Reader reader = new InputStreamReader(is)
         StringWriter sw = new StringWriter()
         char[] charBuffer = new char[4 * 1024]
@@ -364,25 +329,22 @@ public class RestCli
         return sw.toString()
     }
 
-    private static String asSessionId(def optionValue)
-    {
+    private static String asSessionId(def optionValue) {
         if (!optionValue || optionValue == null) return null
         optionValue
     }
 
-    private static def doEval(def sessionId, String file, RestCli restCli)
-    {
+    private static def doEval(def sessionId, String file, Properties properties, RestCli restCli) {
         InputStream is = "-".equals(file) ? System.in : new FileInputStream(file)
-        restCli.execute(asSessionId(sessionId), readFully(is))
+
+        restCli.execute(asSessionId(sessionId), properties, readFully(is))
     }
 
-    private static def doRepl(def sessionId, RestCli repl)
-    {
-        repl.repl(asSessionId(sessionId))
+    private static def doRepl(def sessionId, Properties properties, RestCli restCli) {
+        restCli.repl(asSessionId(sessionId), properties)
     }
 
-    def __restLogin()
-    {
+    def __restLogin() {
         Object cookie = client.resource(loginUrl())     //
         .type(MediaType.APPLICATION_JSON)    //
         .accept(MediaType.APPLICATION_JSON)  //
@@ -392,8 +354,7 @@ public class RestCli
                 (String) cookie['value']);
     }
 
-    def __restLogout()
-    {
+    def __restLogout() {
         ClientResponse cr = __cookieAuth(client.resource(loginUrl())) //
         .type(MediaType.APPLICATION_JSON)      //
         .accept(MediaType.APPLICATION_JSON)    //
@@ -403,14 +364,12 @@ public class RestCli
         cr
     }
 
-    def __base64Auth(WebResource resource)
-    {
+    def __base64Auth(WebResource resource) {
         String authString = "${options.user}:${options.password}".getBytes().encodeBase64().toString()
         return resource.header('Authorization', "Basic ${authString}")
     }
 
-    def __cookieAuth(WebResource resource)
-    {
+    def __cookieAuth(WebResource resource) {
         resource.cookie(authCookie)
     }
 
