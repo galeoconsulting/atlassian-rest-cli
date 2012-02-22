@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-amps-plugin</artifactId>
-                <version>3.7.3</version>
+                <version>3.6</version>
                 <extensions>true</extensions>
                 <configuration>
                     <products>
