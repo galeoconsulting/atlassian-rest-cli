@@ -90,6 +90,14 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
+        <pluginRepository>
+            <id>atlassian-m2-plugin-repository</id>
+            <name>Atlassian Maven 2 Repository</name>
+            <url>https://maven.atlassian.com/content/groups/public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
