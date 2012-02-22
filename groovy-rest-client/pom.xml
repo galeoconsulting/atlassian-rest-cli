@@ -190,7 +190,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/${artifactId}-${version}-bin.zip</file>
+                                    <file>${project.build.directory}/${project.artifactId}-${project.version}-bin.zip</file>
                                     <type>zip</type>
                                     <classifier>bin</classifier>
                                 </artifact>

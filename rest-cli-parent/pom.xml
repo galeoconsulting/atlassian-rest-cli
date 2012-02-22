@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-amps-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.7.3</version>
                 <extensions>true</extensions>
                 <configuration>
                     <products>
@@ -218,6 +218,7 @@
 
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
+                <version>1.10.b1</version>
                 <artifactId>maven-license-plugin</artifactId>
                 <configuration>
                     <header>../rest-cli-parent/etc/license-header.txt</header>
