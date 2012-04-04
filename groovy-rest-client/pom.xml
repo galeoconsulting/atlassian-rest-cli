@@ -24,6 +24,7 @@
         <artifactId>rest-cli-parent</artifactId>
         <groupId>com.galeoconsulting.leonardinius</groupId>
         <version>1.1-SNAPSHOT</version>
+        <relativePath>../rest-cli-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>com.galeoconsulting.leonardinius</groupId>
@@ -189,7 +190,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/${artifactId}-${version}-bin.zip</file>
+                                    <file>${project.build.directory}/${project.artifactId}-${project.version}-bin.zip</file>
                                     <type>zip</type>
                                     <classifier>bin</classifier>
                                 </artifact>
