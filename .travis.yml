@@ -1,0 +1,2 @@
+language: java
+script: cd rest-cli-parent && mvn clean install
