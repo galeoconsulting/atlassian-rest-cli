@@ -78,3 +78,6 @@ NB: You can see some screenshots in action [here](http://leonardinius.blogspot.c
 
 ## License
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/galeoconsulting/atlassian-rest-cli/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
